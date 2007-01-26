@@ -1,0 +1,2277 @@
+%%% ====================================================================
+%%% 	theory.tex - OpenPave Theory
+%%%   	(c) Openpave.org, 2006.
+%%%
+%%% $OpenPave$
+%%% ====================================================================
+
+\documentclass[11pt,oneside,titlepage]{optech}
+\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage[fleqn]{amsmath}
+% For various symbols
+\usepackage{textcomp}
+
+%% this makes images possible both in latex and pdftex
+\usepackage{ifpdf}
+\ifpdf
+	\usepackage[pdftex]{graphics}
+	\usepackage[pdftex]{graphicx}
+	%\usepackage[bookmarks=false,%
+	%pdftoolbar=true,%
+	%pdfmenubar=true,%
+	%pdffitwindow=true,%
+	%colorlinks=true,pdftex]{hyperref}
+	\DeclareGraphicsRule{*}{mps}{*}{}
+	\pdfinfo {
+		/Title (OpenPave Theory)
+		/Subject (The theory behind the OpenPave software)
+		/Author (Jeremy D. Lea)
+		/Keywords (Pavement design, Layered elastic theory)
+	}
+\else
+	\usepackage{graphics}
+	\usepackage{graphicx}
+	%\usepackage{hyperref}
+\fi
+\usepackage{lscape,rotating,flafter}
+
+\usepackage{emp}
+\empTeX{\documentclass[11pt]{optech}}
+\empaddtoTeX{\fontfamily{\sfdefault}
+  \fontsize{8}{10}
+  \selectfont}
+\empprelude{input rboxes}
+
+% Bibliographic reference style.
+\usepackage[round,comma,authoryear,sort&compress]{natbib}
+\usepackage[nolist]{acronym}
+
+\usepackage{setspace}
+%\doublespacing
+
+\newcommand*{\OP}{\textsc{OpenPave.org}}
+\newcommand*{\Fortran}{\textsc{Fortran}}
+\newcommand*{\CC}{C\nolinebreak\hspace{-.06em}\raisebox{.5ex}{\tiny\textbf
+  +}\nolinebreak\hspace{-.09em}\raisebox{.5ex}{\tiny\textbf +}}
+
+
+\begin{document}
+\begin{empfile}
+
+%\maketitle
+\begin{titlepage}
+  \null\vfil
+  \begin{center}%
+    {\Large \textbf{The theory behind \OP\ software} \par}%
+    \vskip 3em%
+    {\large
+     \lineskip .75em%
+        \textbf{Jeremy D. Lea}
+      \vskip 3em%
+ 		}
+    \vskip 3em%
+    {\lineskip .75em%
+        \copyright\ 2006 \OP.
+    }
+    \vskip 1.5em%
+    {\large 10 November 2006 \par}
+  \end{center}\par
+  \vfil\null
+\end{titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{1}
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{2}
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+%\clearpage
+%\begin{abstract}
+%\end{abstract}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Introduction}
+
+\OP\ is committed to supplying the best possible open source software for
+pavement engineering.  To that end it is important that the theoretical and
+mathematical foundation underlying that software are well understood, and
+that the mathematics are accurately and faithfully translated into code. 
+Thus, this document outlines the mathematics of the software, and how this
+is carried down to level of source code.  The source code makes reference to
+this document rather than extensive comments, since it is hard to express
+complex mathematics in comments.  However, this document is not just for
+people looking at the source code -- It should also serve as an excellent
+reference for anyone looking to understand the more theoretical aspects of
+pavement engineering, and of some associated fields.
+
+This document is written in \AmS -\LaTeX, and is licensed under the same
+conditions as the source code, the \ac{ADDL}.  You are, therefore, free to
+make alterations to this document, and to use it as course notes or for
+other purposes, provided that you distribute any changes to you make. 
+Please review the conditions in the license for more information.
+
+\subsection{Typographical conventions}
+
+Because this document covers a number of diverse fields, there is some need
+to standardize the typographical conventions.  As a result there are a
+number of places where this document does not follow the `normal'
+conventions for a particular field.  However, since there is already
+considerable variety in the various fields, it is hoped that readers will be
+able to follow without having to completely re-wire their brains.
+
+The following conventions are used in this document:
+
+% XXX: need to invent a convention!
+
+\section{Statistics and Reliability}
+
+While reliability is a fairly simple concept, there are many different
+approaches to calculating it, not all of which provide a consistent,
+unbiased analysis.  In this section, a short mathematical background to the
+approach used in \OP\ is given.  The approach is an adaptive importance
+sampling algorithm, based on assumed distributions for the design
+parameters.
+
+\subsection{Basic introduction to statistical terminology}
+
+Often the terminology used in statistical analysis can be confusing, and
+unless the reader understands the implications of the words being used, they
+can often loose track of some of the subtleties of the problem.  If the
+reader is well versed in statistics, then they probably want to skip this
+section.  Readers who have little or no background in statistics will
+certainly want to consult an entry level statistics text before continuing.
+
+\subsubsection{Definition of terminology}
+
+The three basic building blocks of statistics are variables, events and
+probabilities.  A variable is a number, which in general can take on a value
+within some range, but has a fixed value when actually evaluated.  Variables
+can either be discrete (integer) or continuous (real) numbers.  There are
+three basic types of variables: constants, parameters and random variables. 
+A constant is, fairly obviously, a constant number whose value is known
+precisely (normally fairly rare in engineering).  A parameter is a variable
+whose value has been determined based on past data, and a random variable
+is, well, random -- when measured it could take on any value within it's
+range.  However, a random variable can be observed (under a given state of
+the system) and the observed value of a random variable is fixed and is
+known as an observation.  Observations are often in pairs or sets of random
+variables observed under the same state of the system.
+
+Random variables can be classified as exogenous and endogenous, which refer
+to variables which are explain the randomness in the system (hence they are
+also called explanatory variables) and variables which are explained by the
+randomness in the system.  Thus, when a random variable is modeled as a
+function of other random variables (i.e. $y=f(\mathbf{x})$), the
+$\mathbf{x}$ variables are exogenous, and the $y$ variable endogenous.  The
+value of $y$ might be observable, but the randomness this value is assumed
+to be explained entirely by the randomness in the explanatory variables.
+
+An event occurs when the observed value of one or more random variables meet
+some criteria.  Thus an event is always an endogenous Boolean random
+variable, which can be represented as an indicator variable.  The act of
+observing an event, to determine an outcome, is a trial.
+
+There are different kinds of randomness in any analysis system.  The first
+type is inherent randomness -- things that cannot be control
+\textit{mathematically}, such as layer thickness, material properties or
+wheel loads.  While these can be controlled physically, they are represented
+by random variables whose variability cannot be reduced mathematically.  The
+second kind are errors: These are problems while observing the random
+variable which result in the observation being different to the real value. 
+These errors can be random -- they have some variance but zero mean, or
+systematic -- they have a non-zero mean.  The randomness can also be due to
+a lack of data -- the more observations which have been made, the more is
+known about the system.  The first two kinds of randomness tend to affect
+the individual outcomes, while the third tends to affect the parameters.
+
+Any parameters in the model are endogenous, because, although they might be
+constants, they are unknown, and we have to approximate their values using a
+random variable.  Thus parameters are treated as constants in some
+situations and random variables in others.
+
+Random variables in the same set, measured under the same state, can be
+dependent or independent.  If they are dependent, then the value of one of
+the variables tells you something about the value of another.  This is also
+known as correlation, although this terms has a more specific meaning.  If a
+random variable, measured under some state, can be used to predict the value
+of the same variable under another state, then the system is said to be
+auto-correlated.
+
+The theory of probability is based on the theory of sets of events.  While a
+probability is a numerical value, it is not a variable, but relates to the
+chance of certain event being observed.  The classical definition of
+probability relates to the expected number of times that any event is
+observed, in an infinite number of trials, and thus only relates to past
+observations.  The Bayesian definition of probability, which is more useful
+in engineering, is defined by the probability that the observer expects to
+see an event occur in the next trial.  Given that a trial is performed, the
+outcome must be one or more events.  Thus if we are watching for a single
+event, and it did not occur, then it's compliment must have occurred.  Thus
+the set operators: compliment, union and intersection can be used to define
+the probabilities of combinations of events.
+
+Probabilities have some special properties:  they can only take on a value
+from 0 to 1, inclusive; the probability of observing an event is always one
+minus the probability of not observing the same event and, given a set of
+mutually exclusive events covering all outcomes, the sum of the probability
+of all of these events is one.
+
+Confidence is a probability value which is chosen by the observer, rather
+than being calculated, and is always used in reference to some error or
+interval.  Thus the statement `The thickness should be $150\pm10$~mm at
+$95\%$ confidence' is correct, while the statement `The thickness should be
+$150\pm10$~mm with a $95\%$ probability' is not.  After observing the
+thickness we may be able to state that `The thickness is $150\pm10$~mm with
+$98.2\%$ probability', which leads to the concept of hypothesis testing. 
+The first statement is a hypothesis, while the last is a fact.  If the facts
+agree with the hypothesis, then we conclude that the hypothesis is correct
+(although there is a chance that we reject a true hypothesis or accept one
+which is not true).
+
+Based on these groupings of variables and probabilities, there are three
+main groupings of statistical analysis, although they overlap somewhat.  The
+first is the analysis of the probabilities of random variables, known as
+probability modeling.  The second is the analysis of endogenous random
+variables as functions of exogenous random variables, known as statistical
+modeling, and the third is the testing of hypotheses, known as statistical
+inference, which is determining whether the probability that an event might
+be observed compared to the confidence with which we wish it to be observed.
+
+\subsubsection{Conditional probability}
+
+One of the most powerful ideas in probability theory is the idea of
+conditioning.  Once we have observed one random variable it can tell us
+something of the probability of observing a particular value for another
+variable.  For example, if we observe that it is raining, then we would
+except to observe than the temperature is below average.  If we have the
+events $A$ and $B$, then we define the conditional probability of observing
+$A$ given that we have already observed $B$ (and therefore that the
+probability of observing $B$ is greater than zero), as:
+\[
+P\{A|B\}=\frac{P\{A\capB\}}{P\{B\}}
+\]
+or in other words, the probability of observing both $A$ and $B$, weighted
+by the probability of observing $B$.  Since probability is independent of
+observation, we can assume we measured $A$ first to obtain:
+\[
+P\{A\cap B\}=P\{A|B\}P\{B\}=P\{B|A\}P\{A\}
+\]
+If the probability of $A$ is independent of the outcome $B$ then we say that
+the two events are independent:
+\[
+P\{A\cap B\}=P\{A\}P\{B\}=P\{B\}P\{A\}
+\]
+When we are dealing with conditional probabilities, we refer to the
+unconditional probability of observing an event as the marginal probability. 
+Given that $B$ has outcomes $1$ to $n$, then we have:
+\[
+P\{A\}=\sum\limits_{b=1}^n{P\{A|B=b\}P\{B=b\}} 
+\]
+or that the total probability of observing $A$ is the sum of the
+probabilities of observing $A$ conditional on all of the outcomes of $B$.
+
+\subsubsection{Probability distributions}
+
+The analysis of the probability is complicated by the fact that we cannot
+treat discrete and continuous random variables with the same mathematics,
+although the concepts are the same.  This is because in a continuous random
+variable, the probability of observing any particular value is zero, and the
+probabilities have to be handled by integration over some range, while in a
+discrete random variable the probability of observing a value between any of
+the values is zero, and the probabilities must be handled as summations over
+a discrete number of points.  For this reason we talk about probability
+density in continuous random variables, and probability mass in discrete
+random variables.
+
+Given a random variable $X$, we denote any particular observation as $x$. 
+We will begin by considering a discrete random variable, which might take on
+any value in the set $A$, with $n$ elements.  No matter what the actual
+values in $A$, we can map these values as integers from $1$ to $n$ (for
+discrete unbounded sets the same notation applies, except $n=\infty$) in the
+same order as in $A$, if $A$ is an ordered set.  The probability of
+observing one value $a$, from $1$ to $n$ is a function of the system being
+observed and given by:
+\[
+p_X\left(a\right)=P\{X=a\}
+\]
+The probability that $x$ is less than or equal to $a$ is given by:
+\[
+F_X\left(a\right)=P\{X\leqslant a}\}=\sum\limits_{x=1}^a{P\{X=x\}}
+\]
+These two functions are respectively known as the probability mass function
+(PMF) and cumulative distribution function (CDF).  Defining probability
+functions for continuous random variables is a little more tricky, because
+the probability of observing a particular value is zero.  We thus define a
+probability density function (PDF), which is the limiting probability of
+observing a value within a small increment:
+\[
+f_X\left(x\right)=\mathop{\lim}\limits_{\Delta x\to 0}
+	\frac{P\{x\leqslant X < x + \Delta x\}}{\Delta x}
+\]
+and then define the CDF as:
+\[
+F_X\left(a\right)=P\{X\leqslant a\}=\int\limits_{-\infty}^a{f_X\left(x\right)dx}
+\]
+
+Note that the probability density function is a not constrained to the range
+$[0,1]$.  There is a unique relationship between the PMF or PDF and the CDF,
+so that if one is known then there is one and only one possible function
+will satisfy the conditions of the other.  For most of the rest of this
+discussion we will use the notation for continuous random variables.  In
+either case the CDF is a non-decreasing function of $x$, with values from
+$0$ to $1$, and is defined as taking on a value of $0$ for undefined values
+of $x$.
+
+There are many different functions which satisfy the requirements of either
+a PMF, PDF or CDF, which will not all be described here, since they are well
+documented in literature.  Each function takes a number of parameters
+(normally one to four parameters), which are known as the distribution
+parameters.  For reliability analysis we are mostly concerned with the
+normal and lognormal distributions.  However, we will return to them after
+discussing some of the general properties of distributions.
+
+Very often we wish to know what value of a random variable corresponds to a
+given probability (e.g. for what load is there a 95\% probability that a
+beam will fail).  This can be determined using the inverse CDF:
+\[
+x = F_X^{-1}\left(p\right) \text{ such that } p = F_X\left(x\right)
+\]
+Also, in many cases we wish to know the probability that a value is greater
+than some threshold, which can be calculated using the complementary CDF:
+\[
+\bar F_X\left(a\right) = P\{X>a\} = \int\limits_a^\infty{f_X\left(x\right)dx} =
+	1-F_X\left(a\right)
+\]
+
+In cases where we are numerically evaluating functions at probabilities very
+close to one it is often better to use a special complementary CDF routine
+because of numerical stability.
+
+\subsubsection{Multivariate probability distributions}
+
+It is also possible to develop probability distributions for more than one
+random variable.  These are known as multivariate or joint probability
+density functions.  Essentially, these are a probability density function
+for a new random variable, which is the set of all possible joint outcomes
+of the individual random variables.  We normally use the random variables
+$X$ and $Y$ for bivariate distributions and the random vector $\mathbf{X}$
+for more than two random variables.  While it is mathematically possible to
+develop multivariate distributions for combinations of discrete and
+continuous random variables the mathematics is fairly hairy and we will
+avoid it.  For discrete random variables the joint PMF and CDF can be
+defined as:
+\[
+\begin{align}
+  p_{XY}\left(x,y\right)& =P\{X=x\cap Y=y\} \\
+  F_{XY}\left(x,y\right)& =P\{X\leqslant x\cap Y\leqslant y\}=
+   	\sum\limits_{x_i\leqslant x}{\sum\limits_{y_j\leqslant y}{p_{XY}\left(x_i,y_j\right)}}
+\end{align} 
+\]
+and using the rules for conditional probability outlined above it is
+possible to develop a conditional PMF:
+\[
+\begin{split}
+p_{X|Y}\left(x|y\right) & = \frac{P\{X=x\cap Y=y\}}{P\{Y=y\}} \\
+               & = \frac{p_{XY}\left(x,y\right)}{p_Y\left(y\right)} \\
+               & = \frac{p_{XY}\left(x,y\right)}{\sum\limits_x{p_{XY}\left(x,y\right)}}
+\end{split} 
+\]
+A similar scheme applies for continuous random variables:
+\[
+\begin{align}
+F_{XY}\left(x,y\right) & = P\{X\leqslant x\cap Y\leqslant y\}
+	= \int\limits_{-\infty}^y{\int\limits_{-\infty}^x{f_{XY}\left(x,y\right)dxdy}} \\
+f_{XY}\left(x,y\right) & = \frac{\partial^2F_{XY}(x,y)}{\partial x\partial y} \\
+f_{X|Y}\left(x|y\right) & = \frac{f_{XY}\left(x,y\right)}{f_Y\left(y\right)} \\
+	& = \frac{f_{XY}\left(x,y\right)}{\int_{-\infty}^\infty{f_{XY}\left(x,y\right)dx}}
+\end{align}
+\]
+
+The extension of these formulae into $n$ dimensions is fairly obvious.  It
+should also be noted that the solution of the CDF requires an $n$-fold
+integral over the PDF, which, if possible, is tedious mathematically and
+costly computationally.
+
+\subsubsection{Partial descriptors of random variables}
+
+While one or other of the distribution functions completely describe a
+random variable, they are normally too cumbersome for general use and
+reporting, and so we seek values which summarize the variable.  The most
+general summary is the mean, which is the value which we would expect to
+take when observed, which is a weighted average of all of the possible
+values:
+\[
+\begin{align}
+E\left[X\right]& =\mu_X = \frac{\sum\limits_x{xp_X\left(x\right)}}
+	{\sum\limits_x{p_X\left(x\right)}} = \sum\limits_x{x p_X\left(x\right)} \\
+E\left[X\right]& =\mu_X = \int\limits_{-\infty}^\infty{x f_X\left(x\right)dx}
+\end{align} 
+\]
+where the $E\left[\bullet\right]$ operator denotes the expected value.  This
+is different from the median, which is the value below which half of the
+expected outcomes lie, and the mode, which is the point with the highest
+probability mass or density.
+
+Now that we know what value to expect, we are also interested in the spread
+of the values.  The standard deviation is the expected absolute deviation
+from the mean, and is defined as:
+\[
+\sigma_X = \sqrt{Var\left[X\right]}
+\]
+where:
+\[
+\begin{align}
+Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
+  = \sum\limits_x{\left(x-\mu_X\right)^2 p_X\left(x\right)} \\
+Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
+  = \int\limits_{-\infty }^\infty{\left(x-\mu_X\right)^2 f_X\left(x\right)dx}
+\end{align} 
+\]
+For most distributions in regular use both the mean and standard deviation
+are defined by some simple formula involving the distribution parameters. 
+It is often convenient to use the coefficient of variation (COV), which is
+defined as:
+\[
+\delta_X=\frac{\sigma_X}{\left|\mu_X\right|}
+\]
+
+If we have two random variables $X$ and $Y$ then we often would like to know
+if there is any relationship between them.  The simplest measure of a
+relationship is determine if, given that we know the deviation of an
+observation of one variable from it's mean, we can determine anything about
+the deviation of the other variable from it's mean.  This is known as
+covariance, and is defined as:
+\[
+\begin{align}
+Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
+  = \sum\limits_x{
+    \sum\limits_y{\left(x-\mu_X\right)\left(y-\mu_Y\right)p_{XY}\left(x,y\right)}} \\
+Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
+	 = \int\limits_{-\infty}^\infty{\int\limits_{-\infty}^\infty{
+	 	\left(x-\mu_X\right)\left(y-\mu_Y\right)f_{XY}\left(x,y\right)dxdy}}
+\end{align} 
+\]
+The covariance has units which are a product of the units for $X$ and $Y$,
+and so it is convenient to define the dimensionless correlation coefficient:
+\[
+\rho_{XY} = \frac{Cov\left[X,Y\right]}{\sigma_X\sigma_Y}
+\]
+
+It is possible to prove that the correlation coefficient has a range
+$\left[-1,1\right]$ and takes on a value of $0$ if the variables are
+independent, and $1$ or $-1$ if the variables are perfectly correlated.
+
+\subsubsection{The normal and multinormal distributions}
+
+By far the most widely used distribution is the normal or Gaussian
+distribution, the classic bell shaped curve.  The normal distribution is
+defined by two parameters, which happen to also be the mean and standard
+deviation of any random variable which has a normal distribution.  However,
+we will first consider the standard normal distribution which has a mean of
+zero and a standard deviation of one.  The PDF and CDF are defined (using
+traditional notation, including $u$ as the standard normal random variable)
+as:
+\[
+\begin{align}
+   U & \sim \operatorname{N}\left(0,1\right) \\
+   \varphi\left(u\right) & = \frac{1}{\sqrt{2\pi}}\exp \left(-\frac{u^2}{2}\right) \\
+   \Phi\left(u\right) & = \int\limits_{-\infty}^u{\varphi\left(u\right)}du
+\end{align} 
+\]
+
+There is no closed form solution to the CDF of the normal distribution, and
+so it must either be evaluated using a numerical integration technique or
+approximated.  In \OP\ there are approximations for the standard normal CDF
+and the inverse CDF which are based on a well known approximations using a
+technique known as Rational Chebyshev approximations, which are accurate to
+at least the computer's accuracy and are evaluated directly, without
+iteration.
+
+The generalized form of the normal PDF and CDF are:
+\[
+\begin{align}
+	X & \sim \operatorname{N}\left(\mu,\sigma^2\right) \\
+	f_X\left(x\right) & = \frac{1}{\sigma\sqrt{2\pi}}
+   	\exp\left(-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right) \\
+	F_X\left(x\right) & = \Phi\left(\frac{x-\mu}{\sigma}\right)
+\end{align} 
+\]
+
+If we have more than one random variable then we define the multivariate
+normal (or multinormal) distribution as follows:
+\[
+\begin{align}
+\operatorname{E}\left[X_1\right] & = \mu _1 \\
+\operatorname{Var}\left[X_1\right] & = \sigma _1^2 \\
+\operatorname{Cov}\left[X_2,X_1\right] & = \rho _{2\,1}\sigma _2\sigma _1
+\end{align}
+\]
+
+We can express this in matrix notation as:
+\[
+\mathbf{M} = \begin{bmatrix}
+   \mu _1 \\
+   \mu _2 \\
+   \vdots \\
+   \mu _n \\
+ \end{bmatrix} &&
+\mathbf{D} = \begin{bmatrix}
+   \sigma _1 & {} & {} & \text{diag.} \\
+   {} & \sigma _2 & {} & {} \\
+   {} & {} &  \ddots  & {} \\
+   {} & {} & {} & \sigma _n \\
+ \end{bmatrix} &&
+\mathbf{R} & = \begin{bmatrix}
+   1 & {} & {} & \text{sym.} \\
+   \rho _{2\,1} & 1 & {} & {} \\
+   \vdots  &  \vdots  &  \ddots  & {} \\
+   \rho _{n\,1} & \rho _{n\,2} &  \cdots  & 1  \\
+ \end{bmatrix} &&
+ \mathbf{\Sigma} = \mathbf{DRD}
+\]
+
+\[
+\begin{align}
+  f_\mathbf{X}\left(\mathbf{x}\right) & =
+		\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{\Sigma}\right|}}
+		\exp\left(-\frac{1}{2}\left(\mathbf{x}-\mathbf{M}\right)^{\operatorname{T}}
+			\mathbf{\Sigma}^{-1}\left(\mathbf{x}-\mathbf{M}\right)\right) \\
+  F_\mathbf{X}\left(\mathbf{x}\right) & = 
+  	\int\limits_{-\infty}^{x_n}{\cdots\int\limits_{-\infty}^{x_1}
+  		{f_\mathbf{X}\left(\mathbf{x}\right) dx_1} \cdots dx_n }
+\end{align} 
+\]
+
+If we are dealing with correlated standard normal variables (which we will
+denote with $z$ throughout this discussion) then \textbf{M} is a zero matrix
+and \textbf{D} is the identity matrix, and the PDF reduces to:
+
+\[
+\begin{array}{*{20}c}
+   {\mathbf{{\rm Z}} \sim \operatorname{N} \left( {0,\mathbf{R}} \right)} & {\text{j}_n \left( {\mathbf{z},\mathbf{R}} \right) = \frac{{\left( {2\pi } \right)^{{{ - n} \mathord{\left/
+ {\vphantom {{ - n} 2}} \right.
+ \kern-\nulldelimiterspace} 2}} }}
+{{\sqrt {\left| \mathbf{R} \right|} }}\exp \left( { - \frac{1}
+{2}\mathbf{z}^\operatorname{T}  \mathbf{R}^{ - 1} \mathbf{z}} \right)}  \\
+
+ \end{array} 
+\]
+
+We can further simplify this equation if we are working in the uncorrelated
+standard normal space to:
+
+\[
+\begin{array}{*{20}c}
+   \mathbf{U}\sim\operatorname{N}(0,1)
+ & {\phi_n(\mathbf{u}) = (2\pi)^{{-n\mathord{\left/\vphantom {{ - n} 2} \right.
+ \kern-\nulldelimiterspace} 2}} \exp \left( { - \frac{1}
+{2}\left\| \mathbf{u} \right\|^2 } \right)}  \\
+
+ \end{array} 
+\]
+
+There are no closed form solutions to the $n$-fold integral in the CDF. 
+There are however a number of simplifications.  If we are dealing with two
+correlated standard normal variables then we can obtain the result:
+
+\[
+\begin{gathered}
+  \Phi _2 \left( {z_1 ,z_2 ,\rho } \right) = \Phi \left( {z_1 } \right)\Phi \left( {z_2 } \right) + \int\limits_0^\rho  {\text{j}_2 \left( {z_1 ,z_2 ,\rho } \right)d\rho }  \hfill \\
+  \text{j}_2 \left( {z_1 ,z_2 ,\rho } \right) = \frac{1}
+{{2\pi \sqrt {1 - \rho ^2 } }}\exp \left( { - \frac{{\left( {z_1^2  - 2\rho z_1 z_2  + z_2^2 } \right)}}
+{{2\left( {1 - \rho ^2 } \right)}}} \right) \hfill \\ 
+\end{gathered} 
+\]
+
+The uncorrelated standard normal space is also rotational symmetric, so if
+we are interested in the probability contained within a region bounded by a
+hyper-plane then it is always possible to rotate that plane so that we can
+obtain the marginal CDF in only one dimension.  Since the marginal CDF of
+the multinormal distribution is also a normal distribution we can obtain the
+following result:
+
+\[
+\Phi _n \left( {\mathbf{u}:\beta  - \mathbf{\alpha }^T \mathbf{u} \leqslant 0} \right) = \int\limits_{ - \infty }^\infty  { \cdots \int\limits_\beta ^\infty  {\text{j}_n \left( \mathbf{u} \right)du_1  \cdots } du_n }  = \Phi \left( { - \beta } \right)
+\]
+
+\subsubsection{The lognormal distribution}
+
+Many quantities in engineering, like length and elastic modulus, cannot be
+negative, and so require a distribution which does not predict non-zero
+probabilities for negative numbers.  For these quantities the lognormal
+distribution is used.  It is closely related to the normal distribution
+because it is obtained by assuming that the logs of the random variable are
+normally distributed.  We will only deal with a single random variable in
+this discussion.
+
+The lognormal distribution has two parameters: l and z, and the PDF and CDF
+are defined as:
+
+\[
+\begin{array}{*{20}c}
+   {X \sim \operatorname{LN} \left( {\lambda ,\zeta ^2 } \right)} & {f_X \left( x \right) = \frac{1}
+{{\sqrt {2\pi } \zeta x}}\exp \left( { - \frac{1}
+{2}\left( {\frac{{\ln x - \lambda }}
+{\zeta }} \right)^2 } \right)} & {F_X \left( x \right) = \Phi \left( {\frac{{\ln x - \lambda }}
+{\zeta }} \right)}  \\
+
+ \end{array} 
+\]
+
+l and z are not the mean and standard deviation.  These, and the coefficient
+of variation, are given by the following equations:
+
+\[
+\begin{array}{*{20}c}
+   {\mu  = \exp \left( {\lambda  + {{\zeta ^2 } \mathord{\left/
+ {\vphantom {{\zeta ^2 } 2}} \right.
+ \kern-\nulldelimiterspace} 2}} \right)} & {\delta  = \sqrt {\exp \left( {\zeta ^2 } \right) - 1} } & {\sigma  = \mu \delta }  \\
+
+ \end{array} 
+\]
+
+If we are given the mean and standard deviation (or the coefficient of
+variation) it is possible to derive l and z from the following equations:
+
+\[
+\begin{array}{*{20}c}
+   {\zeta  = \sqrt {\ln \left( {1 + \left( {\frac{\sigma }
+{\mu }} \right)^2 } \right)}  = \sqrt {\ln \left( {1 + \delta ^2 } \right)} } & {\lambda  = \ln \mu  - {{\zeta ^2 } \mathord{\left/
+ {\vphantom {{\zeta ^2 } 2}} \right.
+ \kern-\nulldelimiterspace} 2}}  \\
+
+ \end{array} 
+\]
+
+
+\subsubsection{Transformation to the standard normal space}
+
+Because we might be working with a number of different probability
+distributions, and these might be correlated, the space in which we have to
+perform calculations is very complex.  In particular, although we might have
+a marginal PDF $f(x)$ for each $x$ in our space $\mathbf{x}$, we need the
+multivariate PDF $f(\mathbf{x})$, which would normally require the
+evaluation of an $n$-fold integral over the space of $\mathbf{x}$ (where the
+vector $\mathbf{x}$ as $n$ elements).  Mathematically this is a difficult
+problem, and it becomes easier to perform calculations when we transform the
+variables into the uncorrelated standard normal space.  To achieve this
+transformation, we make use of a family of multivariate distributions known
+as Nataf distributions.  Nataf distributions take the form:
+
+\[
+f_\mathbf{X} \left( \mathbf{x} \right) = \frac{{f_1 \left( {x_1 } \right)f_2 \left( {x_2 } \right) \cdots f_n \left( {x_n } \right)}}
+{{\varphi (z_1 )\varphi (z_2 ) \cdots \varphi (z_n )}}\varphi \left( {\mathbf{z},\mathbf{R}_0 } \right) = \varphi \left( \mathbf{u} \right)
+\]
+
+Notice that only the marginal PDF of each of the random variables appears in
+the function, but that the correlation matrix \textbf{R} is replaced by
+\textbf{R}0 (the details of this will be discussed momentarily).  Notice
+also, that the function assumes that some transformation from $\mathbf{x}$
+to $\mathbf{u}$ exists.  Many such transformations might exist, the only
+requirement being that the mapping is one-to-one and reversible (i.e. we can
+go $\mathbf{x}$ $\rightarrow$ $\mathbf{u}$ $\rightarrow$ $\mathbf{x})$.  The
+most useful of these transformations for the Nataf family takes the form:
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+   {X_i  \sim F_i \left( {x_i } \right)} & {\mu _i  = \operatorname{E} \left[ {X_i } \right]} & {\sigma _i^2  = \operatorname{Var} \left[ {X_i } \right]} & {\rho _{ij}  = \frac{{\operatorname{Cov} \left[ {X_i ,X_j } \right]}}
+{{\sigma _i \sigma _j }}}  \\
+
+ \end{array}  \hfill \\
+  \mathbf{L}_0 \mathbf{L}_0^\operatorname{T}   = \mathbf{R}_0  = \left[ {\rho _{0,ij} } \right] \hfill \\
+  \rho _{ij}  = \iint {\frac{{x_i  - \mu _i }}
+{{\sigma _i }}\frac{{x_j  - \mu _j }}
+{{\sigma _j }}}\varphi _2 \left( {z_i ,z_j ,\rho _{0,ij} } \right)dz_j dz_i  \hfill \\
+  \begin{array}{*{20}c}
+   {\begin{array}{*{20}c}
+   {\mathbf{u} = \mathbf{L}_0^{ - 1} \mathbf{z}}  \\
+
+ \end{array} } & {\mathbf{z} = \left[ {z_i } \right]} & {z_i  = \Phi ^{ - 1} \left( {F_i \left( {x_i } \right)} \right)}  \\
+
+ \end{array}  \hfill \\ 
+\end{gathered} 
+\]
+
+Where \textbf{L}0 is the lower triangle decomposition of \textbf{R}0,
+obtained by Cholesky decomposition.
+
+While the mathematics might appear overwhelming, the mechanics of the
+transformation are quite simple.  For each variable $x$ we make use of the
+fact that the marginal CDF $F(x)$ provides a one-to-one mapping to
+probabilities in a range (0,1).  Using these probabilities we make use of
+the inverse standard normal CDF to transform $x$ into a standard normal
+variable $z$.  However, these $z$ variables are still correlated, and so we
+use a skew transform of the coordinate system, based on the correlation
+structure in the standard normal space.  The only mathematically intractable
+component is the integral in the equation above (because we have to solve
+for $r$0,\textit{ij} and not \textit{ $\rho$ ij}) and Liu and Der Kiureghian
+(1989)1 supply a number of closed form approximations for \textit{ $\rho$
+}0\textit{,ij} as a function of \textit{ $\rho$ ij} and the distribution
+types of \textit{xi} and \textit{xj}.
+
+If \textit{xi} and \textit{xj} are both normal then \textit{ $\rho$
+}0\textit{,ij} equals \textit{ $\rho$ ij }by definition.  If \textit{xj} is
+lognormal, then \textit{ $\rho$ }0\textit{,ij} is given (exactly) by the
+following equations depending on whether \textit{xi} is normal or lognormal:
+
+\[
+\begin{gathered}
+  \rho _{0,ij}  = \rho _{ij} \frac{{\delta _j }}
+{{\zeta _j }} \hfill \\
+  \rho _{0,ij}  = \frac{{\ln \left( {1 + \rho _{ij} \delta _i \delta _j } \right)}}
+{{\zeta _i \zeta _j }} \hfill \\ 
+\end{gathered} 
+\]
+
+If we only have normal distributions, then the mathematics is greatly
+simplified:
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+   {X_i  \sim \operatorname{N} \left( {\mu _i ,\sigma _i } \right)} & {\rho _{ij}  = \frac{{\operatorname{Cov} \left[ {X_i ,X_j } \right]}}
+{{\sigma _i \sigma _j }}}  \\
+
+ \end{array}  \hfill \\
+  \mathbf{L}_0 \mathbf{L}_0^\operatorname{T}   = \mathbf{R}_0  = \left[ {\rho _{ij} } \right] \hfill \\
+  \begin{array}{*{20}c}
+   {\begin{array}{*{20}c}
+   {\mathbf{u} = \mathbf{L}_0^{ - 1} \mathbf{z}}  \\
+
+ \end{array} } & {\mathbf{z} = \left[ {\frac{{x_i  - \mu _i }}
+{{\sigma _i }}} \right]}  \\
+
+ \end{array}  \hfill \\ 
+\end{gathered} 
+\]
+
+In addition if we have a lognormal distribution then:
+
+\[
+z_i  = \frac{{\ln x_i  - \lambda _i }}
+{{\zeta _i }}
+\]
+
+This transformation is also reversible, and when going from the uncorrelated
+standard normal space to another distribution space we do not need to
+calculate the inverse of the lower triangular matrix \textbf{L}0.
+
+
+\subsection{Reliability analysis}
+
+Reliability based design has been implemented in various structural design
+codes for some time.  In these codes there are two approaches to defining
+reliability.  For buildings, bridges and other structures subject to
+controlled loading, the members are normally defined to have some `factor of
+safety' which can be represented as a probability of failure under the
+expected operating conditions.  For dams, towers or other structures subject
+to natural loading, the reliability is normally expressed as the worst case
+event under which the structure is expected to fail.  Thus a dam might be
+capable of routing a 1 in 1000 year flood.  This can also be expressed as a
+probability of failure.  While the first type of structure has a `design
+life' this is normally not related to the probability of failure.  In the
+second kind of structure, the `design life' is the expect life of the
+structure -- the structure could fail within a few months of construction
+given sufficient loading, or survive to become a tourist attraction some
+millennia later.  Most structural systems normally have a reliability higher
+than 99.9\%.
+
+Pavements are a different type of structure -- they are designed to
+progressively fail under continued loading, and so the `design life' is
+normally considered to be the expected time until major rehabilitation will
+have to be undertaken.  It is this progressive failure which presents the
+biggest problem in terms of characterising reliability within a pavement
+structure, because it means that all of the loading needs to be considered
+and not just the worst cases.
+
+Traditionally pavement design has focused around the concept of a structural
+capacity, defined in terms of the number of standard axles which can be
+borne by a pavement until some terminal service condition is reached.  This
+structural capacity is compared to the expected number of vehicles which
+will traffic the road within it's design life and the equivalent number of
+standard axles that this represents.  Reliability has been defined in terms
+of the percentage of the length of pavement which will still be serviceable
+at the end of the design life: so if a pavement has a reliability of 95\%,
+then it is expected that only 5\% of the length will be unserviceable at the
+end of the design life.
+
+The main challenge with performing reliability analysis within a pavement
+design procedure is not in the actual mathematics, but rather in the
+mechanics of the problem.  The first problem is that because pavements fail
+progressively, there are interactions between failure modes, which cause
+acceleration in the rate of deterioration.  Secondly, because damage is
+caused by various random axle loads, all of which, not just the worst case,
+must be accounted for, since they all cause some damage.
+
+
+\subsubsection{Basic reliability concepts}
+
+There are many different ways of presenting the reliability problem from a
+mathematical and statistical perspective -- unfortunately most of the
+presentations done in undergraduate design classes are either blatantly
+wrong (because of gross over simplification) or subtly misleading.  The
+reader is urged to ignore what they have learnt in the past, and focus on
+the framework being presented here2.
+
+Despite the name, reliability analysis typically involves determining the
+probability of failure or \textit{pf}.  The basis for all calculations in
+reliability analysis is a function which defines whether the system has
+failed or not.  This is known as the `limit state surface' and denoted by
+\textit{g}$(\mathbf{x})$.  By convention, the failure region is the set of
+$\mathbf{x}$ such that the limit state function is negative (i.e.  $\{$
+$\mathbf{x}$:\textit{g}$(\mathbf{x})$ $\leq$ 0 $\}$ ), where $\mathbf{x}$ is
+a vector of random variables, which might include load and resistance
+variables.  These random variables have some probability distribution
+associated with them, and the joint probability mass function for these
+variables is denoted as $f$$\mathbf{X}(\mathbf{x})$, in keeping with
+customary statistical notation.  Additionally, we add vectors of parameters
+to the two functions, to explicitly show that they depend on some external
+information.  The probability of failure can thus be calculated as:
+
+\[
+p_f  = P\left\{ {g(\mathbf{x},\theta _g ) \leqslant 0} \right\} = \int_{\left\{ {\mathbf{x}:g(\mathbf{x},\theta _g ) \leqslant 0} \right\}} {f_\mathbf{X} \left( {\mathbf{x},\theta _f } \right)d\mathbf{x}} 
+\]
+
+This is graphically represented in Figure 2.1.  In the top half of the
+figure we have probability density function, and in the bottom half, the
+limit state surface.  Where the limit state surface crosses under the zero
+plane, we have a line denoting the intersection.  This line is projected
+onto the PDF, and the integral of the area outside of this line taken.  In
+general it is not possible to provide such figures, because the number of
+design variables $x$ in $\mathbf{x}$ is much larger than two.  Also, this
+figure is normally plotted as contours in the $\mathbf{x}$ space (as on the
+base of the lower plot).
+
+
+
+\textbf{Figure 2.1: Graphical representation of failure prediction}
+
+Now that we have some notation, a simple example to illustrate the concept. 
+Let us assume we have a bar of material, which is subject to some tensile
+force $T$, and which has a tensile load capacity of $C$, which is greater
+than zero.  Let us assume the $T$ is normally distributed, with a mean of
+10~kN, and a standard deviation of 4~kN.  Let us also assume that $C$ is
+lognormally distributed, and independent of $T$, with a mean of 15~kN and a
+standard deviation of 2~kN.  We will be using this example for the rest of
+the explanations in this section, even though it appears to have little to
+do with pavements.
+
+We need to express this information in our notation, but first we need a
+limit state surface.  A simple choice would be
+\textit{g}$(\mathbf{x})$=\textit{c}-\textit{t}.  In other words, if the
+tensile force exceeds the capacity then the bar will fail.  Since the
+variables are uncorrelated we have
+$f$$\mathbf{X}(\mathbf{x})$=\textit{fC}(\textit{c})\textit{fT}(\textit{t}).
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+   {\zeta  = \sqrt {\ln \left( {1 + \left( {\frac{2}
+{{15}}} \right)^2 } \right)}  = 0.1327} & {\lambda  = \ln 15 - {{\zeta ^2 } \mathord{\left/
+ {\vphantom {{\zeta ^2 } 2}} \right.
+ \kern-\nulldelimiterspace} 2}}  \\
+
+ \end{array}  = 2.6992 \hfill \\
+  \begin{array}{*{20}c}
+   {C \sim \operatorname{LN} \left( {\lambda ,\zeta ^2 } \right)} & {f_C \left( c \right) = \frac{1}
+{{\sqrt {2\pi } \zeta c}}\exp \left( { - \frac{1}
+{2}\left( {\frac{{\ln c - \lambda }}
+{\zeta }} \right)^2 } \right)}  \\
+
+ \end{array}  \hfill \\
+  \begin{array}{*{20}c}
+   {\mu  = 10} & {\sigma  = 4}  \\
+
+ \end{array}  \hfill \\
+  \begin{array}{*{20}c}
+   {T \sim \operatorname{N} \left( {\mu ,\sigma ^2 } \right)} & {f_T \left( t \right) = \frac{1}
+{{\sigma \sqrt {2\pi } }}\exp \left( { - \frac{1}
+{2}\left( {\frac{{t - \mu }}
+{\sigma }} \right)^2 } \right)}  \\
+
+ \end{array}  \hfill \\
+  \begin{array}{*{20}c}
+   {f_\mathbf{X} \left( \mathbf{x} \right) = f_C \left( c \right)f_T \left( t \right)} & {g_\mathbf{X} \left( \mathbf{x} \right) = c - t}  \\
+
+ \end{array}  \hfill \\
+  p_f  = \int_{\left\{ {\mathbf{x}:g(\mathbf{x}) \leqslant 0} \right\}} {f_\mathbf{X} \left( \mathbf{x} \right)d\mathbf{x}}  = \int\limits_{ - \infty }^\infty  {\int\limits_c^\infty  {f_C \left( c \right)f_T \left( t \right)dtdc} }  \hfill \\ 
+\end{gathered} 
+\]
+
+Readers with a little knowledge of manipulation of the normal distribution
+will know that this integral cannot be solved mathematically.  Thus we have
+to seek ways of approximating the solution.  At this point we can either
+turn to some method of simplifying the integral though numerical
+approximations or solving the integral through simulation.  Let us first
+examine an approximate solution, known as the first order reliability method
+or FORM.  We will do a very basic analysis because the details of any method
+can become time consuming.
+
+We begin by transforming the problem into the uncorrelated standard normal
+space, using the method described above.  Since the two variables are
+uncorrelated \textbf{R}0 and hence \textbf{L}0 are both the identity matrix,
+and $\mathbf{u}$=\textbf{z} so we obtain the following:
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+   {\mathbf{x} = \left[ {\begin{array}{*{20}c}
+   c  \\
+   t  \\
+
+ \end{array} } \right]} & {\mathbf{u} = \left[ {\begin{array}{*{20}c}
+   {\frac{{\ln c - \lambda }}
+{\zeta }}  \\
+   {\frac{{t - \mu }}
+{\sigma }}  \\
+
+ \end{array} } \right]}  \\
+
+ \end{array}  \hfill \\
+  f_\mathbf{X} \left( \mathbf{x} \right) = \text{j}_2 \left( \mathbf{u} \right) \hfill \\
+  G\left( \mathbf{u} \right) = g\left( \mathbf{x} \right) \hfill \\
+  p_f  = \int_{\left\{ {\mathbf{u}:G(\mathbf{u}) \leqslant 0} \right\}} {\text{j}_2 \left( \mathbf{u} \right)d\mathbf{u}}  \hfill \\ 
+\end{gathered} 
+\]
+
+This does not appear to have helped, because we still cannot solve the
+integral.  However, since we know that we can calculate the integral for a
+hyper-plane we take a first order approximation of the new function
+G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
+
+\[
+\begin{gathered}
+  G\left( \mathbf{u} \right) \cong G\left( {\mathbf{u}^* } \right) + \nabla G\left( \mathbf{u} \right)^\operatorname{T}  \left| {_{\mathbf{u}^\mathbf{*} } \left( {\mathbf{u} - \mathbf{u}^\mathbf{*} } \right)} \right. \propto \beta  - \hat \alpha ^\operatorname{T}  \mathbf{u} \hfill \\
+  \begin{array}{*{20}c}
+   {G\left( {\mathbf{u}^* } \right) = 0} & {\beta  = \hat \alpha ^\operatorname{T}  \mathbf{u}^ *  }  \\
+   {\hat \alpha  = \left. {\frac{{ - \nabla G\left( \mathbf{u} \right)}}
+{{\left\| {\nabla G\left( \mathbf{u} \right)} \right\|}}} \right|_{\mathbf{u}^ *  } } & {\nabla G\left( \mathbf{u} \right)^\operatorname{T}   = \nabla g\left( \mathbf{x} \right)^\operatorname{T}  \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1} }  \\
+
+ \end{array}  \hfill \\
+  \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1}  = \mathbf{J}_{\mathbf{X},\mathbf{U}}  = \left[ {\frac{{\partial x_i }}
+{{\partial u_j }}} \right] = \operatorname{diag} \left[ {\frac{{\varphi \left( {z_i } \right)}}
+{{f_i \left( {x_i } \right)}}} \right]\mathbf{L}_0  \hfill \\
+  p_f  \simeq p_1  = \Phi \left( { - \beta } \right) \hfill \\ 
+\end{gathered} 
+\]
+
+A graphical example is shown in Figure 2.2.  Two problems remain:  to find a
+suitable \textbf{u*} and to determine the gradient vector of the limit state
+function.  For our example the calculation is simple, but for many
+engineering problems it is not possible to differentiate the failure
+function with respect all of the random variables involved in the problem. 
+It is possible to approximate the gradient vector using a finite difference
+method, where we perturb each random variable slightly and calculate the
+change in \textit{g}$(\mathbf{x})$, but this requires solving the system for
+$n$ random variables each time we need to determine the gradient vector.
+
+Finding \textbf{u*} requires solving an optimisation problem, which is to
+find the closest point on $\{$ \textit{G}$(\mathbf{u})$=0 $\}$ to the
+origin.  Zhang and Der Kiureghian (1995)3 provide an efficient algorithm,
+known as the improved HL-RF algorithm, to solve this problem, which is
+expected to converge in around ten iterations.
+
+It is also possible to use a second order approximation to the limit state
+function, which is then known as the second order reliability method or
+SORM, which will not be described here.
+
+
+
+\textbf{Figure 2.2: Example of FORM and SORM approximations}
+
+
+\subsubsection{Multiple failure criteria}
+
+If we have a system with more than one failure mode, then we need to
+consider if it is a parallel or a series system, or in other words, if it
+fails once all of the components have failed, or once one of the components
+has failed.  In the these two cases:
+
+\[
+\begin{array}{*{20}c}
+   {\text{parallel:}} \hfill & {p_f  = \bigcap\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
+   {\text{series:}} \hfill & {p_f  = \bigcup\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
+
+ \end{array} 
+\]
+
+Notice that the probability of failure for a series system is not the
+minimum of the probability of failure of each component.
+
+
+\subsection{Integration using simulation techniques}
+
+The term simulation covers a wide variety of methods in different
+mathematical fields, and covers all methodologies where numbers are
+generated in the space of possible input variables, and used to calculate
+the output of a mathematical representation of a system.  The output can
+then be analysed to draw conclusions about the behaviour of the system.  The
+theory of simulation is very well understood, and we will use a few minor
+shortcuts in the mathematical explanation here for simplicity.  In
+statistics, the basic simulation technique is known as Monte Carlo
+simulation, and follows a very simple principle.  Random numbers in the
+$\mathbf{x}$ space are generated in such a way that the probability density
+function of an infinite number of such random numbers matches the function
+$f$$\mathbf{X}(\mathbf{x})$.  If these $\mathbf{x}$ values are tested
+against some criteria, to indicate the occurrence of the event \textit{E}
+(or the corresponding indicator variable \textit{I}), then we obtain an
+approximation of the probability of event \textit{E} occurring
+(\textit{pE}), by fitting a probability model to all of the outcomes of
+\textit{I}.  Monte Carlo simulation is based on the most fundamental
+definition of probability -- that the probability of an event is defined by
+the proportion of such events occurring in an infinitely large number of
+trials.  Because of this, the result obtained is guaranteed to converge to
+the correct result, although the there is no guarantee about the rate of
+convergence.
+
+
+\subsubsection{Generation of random numbers}
+
+To perform sampling, we require the generation of random numbers which
+conform to a specified distribution $f$$\mathbf{X}(\mathbf{x})$.  Most
+programming languages provide a good algorithm to provide semi-random
+numbers $r$ in the range (0,1), and so algorithms for performing this task
+will not be discussed here.  We need to perform the transformation into the
+desired distribution.  If we are working in the uncorrelated standard normal
+space, and we can manipulate two numbers at a time, a simple transformation
+exists:
+
+\[
+\begin{gathered}
+  u_1  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \sin \left( {2\pi r_2 } \right) \hfill \\
+  u_2  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \cos \left( {2\pi r_2 } \right) \hfill \\ 
+\end{gathered} 
+\]
+
+Since we generate the random numbers in the uncorrelated standard normal
+space, we need to perform an inverse transformation to our variable space
+(i.e. $\mathbf{u}$ $\rightarrow$ \textbf{x)} as described above.
+
+
+\subsubsection{Adaptive Importance Sampling}
+
+When we perform simulation, we evaluate the integral in Equation~(1) using
+sampling.  Firstly, since we sample over the entire domain of $\mathbf{x}$
+we need to replace the integration range by an indicator variable, which is
+zero when the condition is false, and one when it is true.  Equation~(1) can
+thus be expressed as:
+
+\[
+\begin{gathered}
+  p_f  = \int {\operatorname{I} (\mathbf{x})f_\mathbf{X} \left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})} \right] \\ 
+  \operatorname{I} (\mathbf{x}) = \left\{ {\begin{array}{*{20}c}
+   {1\text{ if }\mathbf{x} \in \left\{ {\mathbf{x}:\bigcup\limits_{j = 1}^m {g(\mathbf{x}) \leqslant 0} } \right\}}  \\
+   {\text{0 if }\mathbf{x} \in \left\{ {\mathbf{x}:\bigcup\limits_{j = 1}^m {g(\mathbf{x}) > 0} } \right\}}  \\
+
+ \end{array} } \right. \\ 
+  \hat p_f  = \frac{1}
+{n}\sum\limits_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )}  \\ 
+\end{gathered} 
+\]
+
+$\mathbf{x}$\textit{i} is a sample point in $\mathbf{x}$, with $n$ samples.
+
+The problem with simulation is that the accuracy of the estimated failure
+probability depends on the square root of $n$, the number of samples, and so
+we may need a large number of samples.  One improvement is to increase the
+sampling density in areas of interest, known as importance sampling:
+
+\[
+\begin{gathered}
+  p_f  = \int {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
+{{h\left( \mathbf{x} \right)}}h\left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
+{{h\left( \mathbf{x} \right)}}} \right] \\ 
+  \hat p_f  = \frac{1}
+{n}\sum\limits_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )\frac{{f_\mathbf{X} \left( {\mathbf{x}_i } \right)}}
+{{h\left( {\mathbf{x}_i } \right)}}}  \\ 
+\end{gathered} 
+\]
+
+\textit{h}$(\mathbf{x})$ is the sampling distribution, which needs to be
+non-zero wherever $f$$\mathbf{X}(\mathbf{x})$ and \textit{I}$(\mathbf{x})$
+are non-zero.  It now remains to choose a suitable
+\textit{h}$(\mathbf{x})$.  In some cases we might have prior knowledge
+which leads us to a particular distribution, but in others we need to adapt
+to the problem at hand.  Adaptive importance sampling begins by sampling a
+small number of points from $f$$\mathbf{X}(\mathbf{x})$ and then uses the
+results of this sampling to determine a suitable distribution for
+\textit{h}$(\mathbf{x})$, by centering \textit{h}$(\mathbf{x})$ around the
+points where \textit{I}$(\mathbf{x})$=1.  This process can be repeated to
+continue to improve \textit{h}$(\mathbf{x})$.  If in addition to the
+\textit{I}$(\mathbf{x})$ values we also store the \textit{g}$(\mathbf{x})$
+values then we can sort these values and use them to obtain a better
+estimate of where the failure region lies.
+
+Since the sampling distribution is independent of the probability
+distribution of the random variables themselves, we can choose a convenient
+distribution (such as a combination of normal and lognormal variables) and
+we do not need to match the correlation structure of the random variables
+themselves.  This greatly simplifies the transform from $\mathbf{u}$
+$\rightarrow$ $\mathbf{x}$.  However, in practice we need to use a Nataf
+distribution for $f$$\mathbf{X}(\mathbf{x})$, since we need to combine the
+marginal PDFs and correlation matrix, and so we need to transform our
+problem into the standard normal space to compute
+$f$$\mathbf{X}(\mathbf{x})$.
+
+If we have multiple failure criteria (which is normally the case in \OP),
+then we calculate one sampling distribution for each failure criteria, and
+perform an adaptive importance sampling procedure for each failure criteria. 
+If we have \textit{m} failure criteria, we combine the sampling
+distributions by the simple formula:
+
+\[
+\begin{gathered}
+  h(\mathbf{x}) = \sum\limits_{j = 1}^m {p_j h_j (\mathbf{x})}  \hfill \\
+  p_j  = \frac{{n_j }}
+{{\sum\limits_{j = 1}^m {n_j } }} \hfill \\ 
+\end{gathered} 
+\]
+
+where \textit{nj} is the number of samples from failure criteria \textit{j}.
+
+\section{Layered Elastic Calculation Engine}
+
+The layered elastic calculation engine within \OP\ was based on the
+\Fortran\ code from ELSYM5M, which was in turn a metric version of the
+ELSYM5 program written in the 1960's at the University of California,
+Berkeley. The program was written to handle five layers, ten load locations,
+with one type of load, and ten evaluation locations. Within \OP\ the
+\Fortran\ code was converted directly to \CC, and then run for one load and
+one evaluation location, with the \OP\ code performing the load
+superposition. This was to enable \OP\ to have more than one type of load.
+The mathematics used within the code was, however, that for an $n$-layered
+system, and it was only constrained by the size of the statically allocated
+data structures.
+
+For reliability analysis (and other tasks, such as back-calculation) the
+layered elastic calculation engine must be run a large number of times, and
+so it needs to be as efficient as possible. It is also desirable to have an
+$n$-layered calculation program, so that we can do more sophisticated
+modeling. The converted \Fortran\ code was very difficult to read, and so
+also difficult to check and maintain. For these reasons the main calculation
+engine of \OP\ was re-written into a \CC\ class, and is capable of
+$n$-layer, $n$-load and $n$-location.
+
+The new algorithms used by the code, along with the $n$-layered solution are
+described here, although this is not intended to be a comprehensive
+discussion on layered elastic theory.  Only the solutions and not the
+derivations are given here.  This discussion is based heavily on the summary
+of layered elastic theory prepared by Theyse1, with some minor modifications
+to better match the actual calculations performed in the code.
+
+\subsection{Radial coordinate system}
+
+Before we begin any discussion on the evaluation of the layered elastic
+system we need to establish some basic definitions.  Within the pavement
+structure we report our results in an inverted $(x,y,z)$ coordinate system
+(i.e. $z$ is positive down). In this system we have three normal stresses
+(\textit{sx},\textit{sy},\textit{sz}), six shear stresses
+(\textit{txy}=\textit{tyx},\textit{txz}=\textit{tzx},\textit{tyz}=\textit{tyz}),
+three normal strains (\textit{ex},\textit{ey},\textit{ez}), six shear
+strains
+(\textit{gxy}=\textit{gyx},\textit{gxz}=\textit{gzx},\textit{gyz}=\textit{gyz})and
+three components of displacement (\textit{Dx},\textit{Dy},\textit{Dz}).  We
+have a \textit{m} number of circular loads, each at some
+(\textit{xj},y\textit{j}) position, and with a load \textit{Pj} and load
+radius \textit{aj}.  We also have a \textit{o} evaluation locations, each
+defined by an (\textit{xk},\textit{yk},\textit{zk}) coordinate.  The layered
+system, with $n$ layers, is defined by a number of depths \textit{h}1 though
+\textit{hn}+1.  By definition the coordinate system's origin is at the
+surface, so \textit{h}1=0.  If we have a semi-infinite lower layer then
+\textit{hn}+1= $\infty$ otherwise \textit{hn}+1 is known as the depth to the
+rigid base.  Each layer has an elastic modulus \textit{Ei} and Poisson's
+ratio \textit{ui}.  By definition the layer \textit{i} consists of all
+points where (\textit{hi} $\leq$ $z$ $<$ \textit{hi+1}).
+
+The strains are defined in terms of the stresses and so we will not deal
+with them further:
+
+\[
+\left[ {\begin{array}{*{20}c}
+   {\varepsilon _x }  \\
+   {\varepsilon _y }  \\
+   {\varepsilon _z }  \\
+   {\gamma _{xy} }  \\
+   {\gamma _{xz} }  \\
+   {\gamma _{yz} }  \\
+
+ \end{array} } \right] = \frac{1}
+{{E_i }}\left[ {\begin{array}{*{20}c}
+   1 & {} & {} & {} & {} & {\text{sym}\text{.}}  \\
+   { - \upsilon _i } & 1 & {} & {} & {} & {}  \\
+   { - \upsilon _i } & { - \upsilon _i } & 1 & {} & {} & {}  \\
+   0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)} & {} & {}  \\
+   0 & 0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)} & {}  \\
+   0 & 0 & 0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)}  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   {\sigma _x }  \\
+   {\sigma _y }  \\
+   {\sigma _z }  \\
+   {\tau _{xy} }  \\
+   {\tau _{xz} }  \\
+   {\tau _{yz} }  \\
+
+ \end{array} } \right]
+\]
+
+We perform the calculations for each load individually, and use the
+principle of load superposition (which is valid for any elastic system) to
+sum the effects of each load at each evaluation location.  Because the loads
+are circular, the problem is therefore axi-symmetric around the centre of
+the load, and so we perform the calculations in a radial coordinate system.
+
+In this radial coordinate system we also have three normal stresses
+(\textit{sr},\textit{sq},\textit{sz}), six shear stresses
+(\textit{trq}=\textit{tqr},\textit{trz}=\textit{tzr},\textit{t
+qz}=\textit{tqz}) and three components of displacement
+(\textit{Dr},\textit{Dq},\textit{Dz}).  These are shown in Figure 2.1.
+
+
+
+\textbf{Figure 2.1: Radial coordinate system}
+
+The following coordinate transforms apply, for the coordinate systems itself
+and for stresses within the system:
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+  {r = \sqrt {x^2  + y^2 } }{z = z} \\
+  {\cos \theta  = \frac{x}
+{r}}{\sin \theta  = \frac{y}
+{r}} \\
+
+ \end{array}  \hfill \\
+  \left[ {\begin{array}{*{20}c}
+   {\sigma _x }  \\
+   {\sigma _y }  \\
+   {\sigma _z }  \\
+   {\tau _{xy} }  \\
+   {\tau _{xz} }  \\
+   {\tau _{yz} }  \\
+
+ \end{array} } \right] = \left[ {\begin{array}{*{20}c}
+   {\cos ^2 \theta } & {\sin ^2 \theta } & 0 & 0  \\
+   {\sin ^2 \theta } & {\cos ^2 \theta } & 0 & 0  \\
+   0 & 0 & 1 & 0  \\
+   {\cos \theta \sin \theta } & { - \cos \theta \sin \theta } & 0 & 0  \\
+   0 & 0 & 0 & {\cos \theta }  \\
+   0 & 0 & 0 & {\sin \theta }  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   {\sigma _r }  \\
+   {\sigma _\theta  }  \\
+   {\sigma _z }  \\
+   {\tau _{rz} }  \\
+
+ \end{array} } \right] \hfill \\ 
+\end{gathered} 
+\]
+
+When $r$=0 then sin2\textit{q}=½.  If the outward normal to the face of the
+element is in the positive coordinate direction, then the positive normal
+and shear stresses acting on that face are in the positive coordinate
+direction and, if the outward normal to the face is in the negative
+coordinate direction, then the positive stresses on that face are in the
+negative coordinate direction.
+
+
+\subsubsection{Determination of system response}
+
+The theory of evaluating multi-layered elastic systems is relatively well
+understood, but will be presented here to help people trying to read and
+understand the code.  We need to solve for twelve unknowns: the three normal
+stresses, the six shear stresses and the three displacements for the element
+depicted in Figure 2.1.  As already noted, for equilibrium in the element
+the complementary shear strains must be equal, removing three unknowns.
+
+Because of the radial coordinate system require that there be no
+displacement or shear in the direction of rotation, since the radial plane
+must remain plane.  This implies \textit{trq}=0,\textit{ tqz}=0 and
+\textit{Dq}=0.  We thus have six remaining unknowns.
+
+The four remaining unknown components of stress have to satisfy the
+conditions of equilibrium and compatibility.  Timoshenko and Goodier gave
+the following equations of equilibrium and compatibility for an axially
+symmetrical problem, based on the work of previous researchers such as Lamé,
+Clapeyron and Love.
+
+\[
+\begin{gathered}
+  0 = \frac{{\partial \sigma _r }}
+{{\partial r}} + \frac{{\partial \tau _{rz} }}
+{{\partial z}} + \frac{{\sigma _r  - \sigma _\theta  }}
+{r} \hfill \\
+  0 = \frac{{\partial \sigma _z }}
+{{\partial z}} + \frac{{\partial \tau _{rz} }}
+{{\partial r}} + \frac{{\tau _{rz} }}
+{r} \hfill \\
+  0 = \frac{{\partial ^2 \sigma _r }}
+{{\partial r^2 }} + \frac{{\partial \sigma _r }}
+{{r\partial r}} + \frac{{\partial ^2 \sigma _r }}
+{{\partial z^2 }} - \frac{2}
+{{r^2 }}\left( {\sigma _r  - \sigma _\theta  } \right) + \frac{1}
+{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
+{{\partial r^2 }}} \right) \hfill \\
+  0 = \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial r^2 }} + \frac{{\partial \sigma _\theta  }}
+{{r\partial r}} + \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial z^2 }} + \frac{2}
+{{r^2 }}\left( {\sigma _r  - \sigma _\theta  } \right) + \frac{1}
+{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
+{{\partial r^2 }}} \right) \hfill \\
+  0 = \frac{{\partial ^2 \sigma _z }}
+{{\partial r^2 }} + \frac{{\partial \sigma _z }}
+{{r\partial r}} + \frac{{\partial ^2 \sigma _z }}
+{{\partial z^2 }} + \frac{1}
+{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
+{{\partial r^2 }}} \right) \hfill \\
+  0 = \frac{{\partial ^2 \tau _{rz} }}
+{{\partial r^2 }} + \frac{{\partial \tau _{rz} }}
+{{r\partial r}} + \frac{{\partial ^2 \tau _{rz} }}
+{{\partial z^2 }} - \frac{1}
+{{r^2 }}\tau _{rz}  + \frac{1}
+{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
+{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
+{{\partial r^2 }}} \right) \hfill \\ 
+\end{gathered} 
+\]
+
+
+They also show that these functions are satisfied by \textit{j}$(r,z)$ ,
+which is an Airy function, and known as the stress function, which satisfies
+the following equations:
+
+\[
+\begin{gathered}
+  \sigma _r  = \frac{\partial }
+{{\partial z}}\left( {\upsilon \left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }}} \right) \\ 
+  \sigma _\theta   = \frac{\partial }
+{{\partial z}}\left( {\upsilon \left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) - \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}}} \right) \\ 
+  \sigma _z  = \frac{\partial }
+{{\partial z}}\left( {\left( {2 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) \\ 
+  \tau _{rz}  = \frac{\partial }
+{{\partial r}}\left( {\left( {1 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) \\ 
+  \Delta r =  - \frac{{\left( {1 + \upsilon } \right)}}
+{E}\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r\partial z}} \\ 
+  \Delta z = \frac{{\left( {1 + \upsilon } \right)}}
+{E}\left( {2\left( {1 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
+{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^2 }}} \right) \\ 
+\end{gathered} 
+\]
+
+\[
+0 = \frac{{\partial ^4 \varphi \left( {r,z} \right)}}
+{{\partial r^4 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
+{{r\partial r^3 }} + 2\frac{{\partial ^4 \varphi \left( {r,z} \right)}}
+{{\partial r^2 \partial z^2 }} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{r^2 \partial r^2 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
+{{r\partial r\partial z^2 }} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
+{{\partial z^4 }}
+\]
+
+Michelow suggested the following solution for the stress function, for layer
+\textit{i} in an $n$-layered system, with the addition of an arbitrary
+constant parameter \textit{m}:
+
+\[
+\varphi _i \left( {r,z,m} \right) = J_0 \left( {mr} \right)\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)
+\]
+
+
+Where \textit{J}0$(x)$ is a Bessel function of the first kind with order
+zero, and $A$, $B$, $C$ and $D$ are constants for each layer which are only
+a function of \textit{m}.  This gives the following solution to (1) and
+satisfies (2).
+
+\[
+\begin{gathered}
+  \sigma _z^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+  \tau _{rz}^i  = m^2 J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+  \Delta r^i  = \frac{{1 + \upsilon _i }}
+{{E_i }}mJ_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+  \Delta z^i  = \frac{{1 + \upsilon _i }}
+{{E_i }}mJ_0 \left( {mr} \right)\left( {\left( {2 - 4\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+  \sigma _r^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+   - \frac{1}
+{r}\frac{{E_i }}
+{{1 + \upsilon _i }}\Delta r^i  \\ 
+  \sigma _\theta ^i  = 2\upsilon _i m^2 J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + \frac{1}
+{r}\frac{{E_i }}
+{{1 + \upsilon _i }}\Delta r^i  \\ 
+\end{gathered} 
+\]
+
+If we consider the a load applied to the surface which is given by:
+
+\[
+f\left( r \right) = J_0 \left( {mr} \right)
+\]
+
+
+Then we have the following solutions to (3) at $z$=0:
+
+\[
+\begin{gathered}
+  \tau _{rz}^1 \left| {_{z = 0}  = 0 = } \right.m^2 J_1 \left( {mr} \right)\left( {2\upsilon _1 \left( {B_1  - D_1 } \right) + m\left( {A_1  + C_1 } \right)} \right) \hfill \\
+  \sigma _z^1 \left| {_{z = 0} } \right. = J_0 \left( {mr} \right) = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _1 } \right)\left( {B_1  + D_1 } \right) - m\left( {A_1  - C_1 } \right)} \right) \hfill \\ 
+\end{gathered} 
+\]
+
+
+and we can formulate the following equations to solve for $A$, $B$, $C$ and
+$D$ in the first layer:
+
+\[
+\left[ {\begin{array}{*{20}c}
+   0  \\
+   {\frac{1}
+{{m^2 }}}  \\
+
+ \end{array} } \right] = \left[ {\begin{array}{*{20}c}
+   m & {2v_1 } & m & { - 2v_1 }  \\
+   m & {2v_1  - 1} & { - m} & {2v_1  - 1}  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   {A_1 }  \\
+   {B_1 }  \\
+   {C_1 }  \\
+   {D_1 }  \\
+
+ \end{array} } \right] = B_1 \left[ {\begin{array}{*{20}c}
+   {A_1 }  \\
+   {B_1 }  \\
+   {C_1 }  \\
+   {D_1 }  \\
+
+ \end{array} } \right]
+\]
+
+Unfortunately, we only have two equations for the four unknowns, and so we
+need to seek further equations in terms of the remaining constants for the
+lower layers.  Since we require four constants per layer, but have six
+equations for the elastic response, we use only the first four from (3).  We
+can develop the following matrix notation for these four equations:
+
+\[
+\begin{array}{*{20}c}
+   {S_i \left( z \right) = \left[ {\begin{array}{*{20}c}
+   {\sigma _z^i }  \\
+   {\tau _{rz}^i }  \\
+   {u^i }  \\
+   {w^i }  \\
+
+ \end{array} } \right] = K_i M_i \left( z \right)D\left( z \right)\left[ {\begin{array}{*{20}c}
+   {A_i }  \\
+   {B_i }  \\
+   {C_i }  \\
+   {D_i }  \\
+
+ \end{array} } \right]} & {K_i  = \operatorname{diag} \left[ {\begin{array}{*{20}c}
+   { - m^2 J_0 (mr)}  \\
+   {m^2 J_1 (mr)}  \\
+   {\frac{{1 + \upsilon _i }}
+{{E_i }}mJ_1 (mr)}  \\
+   { - \frac{{1 + \upsilon _i }}
+{{E_i }}mJ_0 (mr)}  \\
+
+ \end{array} } \right]}  \\
+   {M_i \left( z \right) = \left[ {\begin{array}{*{20}c}
+   \hfill 1 & \hfill {mz + 2v_i  - 1} & \hfill { - 1} & \hfill { - mz + 2v_i  - 1} \\
+   \hfill 1 & \hfill {mz + 2v_i } & \hfill 1 & \hfill {mz - 2v_i } \\
+   \hfill 1 & \hfill {mz + 1} & \hfill { - 1} & \hfill { - mz + 1} \\
+   \hfill 1 & \hfill {mz + 4v_i  - 2} & \hfill 1 & \hfill {mz - 4v_i  + 2} \\
+
+ \end{array} } \right]} & {D\left( z \right) = \operatorname{diag} \left[ {\begin{array}{*{20}c}
+   {me^{mz} }  \\
+   {e^{mz} }  \\
+   {me^{ - mz} }  \\
+   {e^{ - mz} }  \\
+
+ \end{array} } \right]}  \\
+
+ \end{array} 
+\]
+
+If we consider the layer interface, shown in Figure 2.2, we can match the
+stress across a very small layer just above the layer interface to obtain:
+
+\[
+\mathop {\lim }\limits_{\varepsilon  \to 0} S_i \left( {h_{i + 1}  - \varepsilon } \right) = S_{i + 1} \left( {h_{i + 1} } \right)
+\]
+
+
+
+\textbf{Figure 2.2: Layer interface compatibility}
+
+Combining with (5) and rearranging we obtain:
+
+\[
+\left[ {\begin{array}{*{20}c}
+   {A_i }  \\
+   {B_i }  \\
+   {C_i }  \\
+   {D_i }  \\
+
+ \end{array} } \right] = D^{ - 1} \left( {h_{i + 1} } \right)M_i^{ - 1} \left( {h_{i + 1} } \right)K_i^{ - 1} K_{i + 1} M_{i + 1} \left( {h_{i + 1} } \right)D\left( {h_{i + 1} } \right)\left[ {\begin{array}{*{20}c}
+   {A_{i + 1} }  \\
+   {B_{i + 1} }  \\
+   {C_{i + 1} }  \\
+   {D_{i + 1} }  \\
+
+ \end{array} } \right]
+\]
+
+\[
+X_i \left( z \right) = \frac{1}
+{{4\upsilon _i  - 4}}\left[ {\begin{array}{*{20}c}
+   \hfill { - mz - 1} & \hfill 1 & \hfill { - mz + 1} & \hfill 1 \\
+   \hfill {mz + 4\upsilon _i  - 2} & \hfill { - 1} & \hfill { - mz + 4\upsilon _i  - 2} & \hfill 1 \\
+   \hfill {mz + 2\upsilon _i  - 1} & \hfill { - 1} & \hfill {mz - 2\upsilon _i  + 1} & \hfill { - 1} \\
+   \hfill {mz - 2\upsilon _i } & \hfill 1 & \hfill {mz - 2\upsilon _i } & \hfill { - 1} \\
+
+ \end{array} } \right]^\operatorname{T}  \operatorname{diag} \left[ {\begin{array}{*{20}c}
+   1  \\
+   1  \\
+   {\frac{{1 + \upsilon _{i + 1} }}
+{{1 + \upsilon _i }}\frac{{E_i }}
+{{E_{i + 1} }}}  \\
+   {\frac{{1 + \upsilon _{i + 1} }}
+{{1 + \upsilon _i }}\frac{{E_i }}
+{{E_{i + 1} }}}  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   \hfill 1 & \hfill {mz + 2v_{i + 1}  - 1} & \hfill { - 1} & \hfill { - mz + 2v_{i + 1}  - 1} \\
+   \hfill 1 & \hfill {mz + 2v_{i + 1} } & \hfill 1 & \hfill {mz - 2v_{i + 1} } \\
+   \hfill 1 & \hfill {mz + 1} & \hfill { - 1} & \hfill { - mz + 1} \\
+   \hfill 1 & \hfill {mz + 4v_{i + 1}  - 2} & \hfill 1 & \hfill {mz - 4v_{i + 1}  + 2} \\
+
+ \end{array} } \right]
+\]
+
+\[
+\left[ {\begin{array}{*{20}c}
+   {A_i }  \\
+   {B_i }  \\
+   {C_i }  \\
+   {D_i }  \\
+
+ \end{array} } \right] = D^{ - 1} \left( {h_{i + 1} } \right)X_i \left( {h_{i + 1} } \right)D\left( {h_{i + 1} } \right)\left[ {\begin{array}{*{20}c}
+   {A_{i + 1} }  \\
+   {B_{i + 1} }  \\
+   {C_{i + 1} }  \\
+   {D_{i + 1} }  \\
+
+ \end{array} } \right]
+\]
+
+Which can be used to solve for $A$, $B$, $C$ and $D$ in each layer down to
+the $n$th layer.  Unfortunately we still have four unknowns.  If we consider
+the case where $z$ $\rightarrow$ $\infty$ then, we know that all of the
+system responses must tend to zero, and we can determine from (3) that $A$
+$\infty$ , $B$ $\infty$ must tend to zero.  Thus we need to solve for $C$
+$\infty$ , $D$ $\infty$ .  The following matrix is obtained for a rigid base
+at depth \textit{hn}+1 (this is from the ELSY5M source code):
+
+\[
+\left[ {\begin{array}{*{20}c}
+   {A_n }  \\
+   {B_n }  \\
+   {C_n }  \\
+   {D_n }  \\
+
+ \end{array} } \right] = \left[ {\begin{array}{*{20}c}
+   {\frac{{1 - 4\upsilon _n  - 2mh_{n + 1} }}
+{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } } & {\frac{{4{{\left( {2\upsilon _n  - 1} \right)} \mathord{\left/
+ {\vphantom {{\left( {2\upsilon _n  - 1} \right)} m}} \right.
+ \kern-\nulldelimiterspace} m} - 2mh_{n + 1}^2 }}
+{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } }  \\
+   {\frac{{2m}}
+{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } } & {\frac{{1 - 4\upsilon _n  + 2mh_{n + 1} }}
+{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } }  \\
+   1 & 0  \\
+   0 & 1  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   {C_\infty  }  \\
+   {D_\infty  }  \\
+
+ \end{array} } \right] = R_n \left( {h_{n + 1} } \right)\left[ {\begin{array}{*{20}c}
+   {C_\infty  }  \\
+   {D_\infty  }  \\
+
+ \end{array} } \right]
+\]
+
+In the case where \textit{hn}+1 $\rightarrow$  $\infty$  then this reduces
+to:
+
+\[
+\mathop {\lim }\limits_{h_{n + 1}  \to \infty } R_n \left( {h_{n + 1} } \right) = \left[ {\begin{array}{*{20}c}
+   0 & 0  \\
+   0 & 0  \\
+   1 & 0  \\
+   0 & 1  \\
+
+ \end{array} } \right]
+\]
+
+We can combine (4), (6) and (7) to obtain the following system of equations
+for $C$ $\infty$ , $D$ $\infty$ which we can solve using a variety of
+techniques:
+
+\[
+\left[ {\begin{array}{*{20}c}
+   0  \\
+   {\frac{1}
+{{m^2 }}}  \\
+
+ \end{array} } \right] = B_1 \prod\limits_{j = 1}^{n - 1} {\left( {D^{ - 1} \left( {h_{j + 1} } \right)X_j \left( {h_{j + 1} } \right)D\left( {h_{j + 1} } \right)} \right)} R_n \left( {h_{n + 1} } \right)\left[ {\begin{array}{*{20}c}
+   {C_\infty  }  \\
+   {D_\infty  }  \\
+
+ \end{array} } \right]
+\]
+
+In \OP, as with ELSYM5M, we use Cramer's rule, which is a simple solution to
+a system of two linear equations:
+
+\[
+\begin{array}{*{20}c}
+   {\left[ {\begin{array}{*{20}c}
+   e  \\
+   f  \\
+
+ \end{array} } \right] = \left[ {\begin{array}{*{20}c}
+   a & b  \\
+   c & d  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   x  \\
+   y  \\
+
+ \end{array} } \right]} & {x = \frac{{\left| {\begin{array}{*{20}c}
+   e & b  \\
+   f & d  \\
+
+ \end{array} } \right|}}
+{{\left| {\begin{array}{*{20}c}
+   a & b  \\
+   c & d  \\
+
+ \end{array} } \right|}} = \frac{{ed - bf}}
+{{ad - bc}}} & {y = \frac{{\left| {\begin{array}{*{20}c}
+   a & e  \\
+   c & f  \\
+
+ \end{array} } \right|}}
+{{\left| {\begin{array}{*{20}c}
+   a & b  \\
+   c & d  \\
+
+ \end{array} } \right|}} = \frac{{af - ec}}
+{{ad - bc}}} & {\left| {\begin{array}{*{20}c}
+   a & b  \\
+   c & d  \\
+
+ \end{array} } \right| \ne 0}  \\
+
+ \end{array} 
+\]
+
+We can make one more simplification to (8) if we notice that:
+
+\[
+D\left( {h_j } \right)D^{ - 1} \left( {h_{j + 1} } \right) = \operatorname{diag} \left[ {\begin{array}{*{20}c}
+   {me^{mh_j } }  \\
+   {e^{mh_j } }  \\
+   {me^{ - mh_j } }  \\
+   {e^{ - mh_j } }  \\
+
+ \end{array} } \right]\operatorname{diag} \left[ {\begin{array}{*{20}c}
+   {\tfrac{1}
+{m}e^{ - mh_{j + 1} } }  \\
+   {e^{ - mh_{j + 1} } }  \\
+   {\tfrac{1}
+{m}e^{mh_{j + 1} } }  \\
+   {e^{mh_{j + 1} } }  \\
+
+ \end{array} } \right] = \operatorname{diag} \left[ {\begin{array}{*{20}c}
+   {e^{ - m\left( {h_{j + 1}  - h_j } \right)} }  \\
+   {e^{ - m\left( {h_{j + 1}  - h_j } \right)} }  \\
+   {e^{m\left( {h_{j + 1}  - h_j } \right)} }  \\
+   {e^{m\left( {h_{j + 1}  - h_j } \right)} }  \\
+
+ \end{array} } \right] = T\left( {h_{j + 1} } \right)
+\]
+
+Now that we have solved the system, we turn back to the applied load.  We
+have used an applied load which is a Bessel function, which is not very
+useful.  We need to solve the system under an applied load of:
+
+\[
+f\left( r \right) = \Pi _a \left( r \right) = \left\{ {\begin{array}{*{20}c}
+  1{\text{if }r < a} \\
+  {\tfrac{1}
+{2}}{\text{if }r = a} \\
+  \text{0}{\text{if }r > a} \\
+
+ \end{array} } \right.
+\]
+
+Which defines a circular load on the surface, centred at the origin, with
+radius $a$ and a unit pressure.  Too obtain this load we combine an infinite
+number of Bessel function loads, each scaled such that the sum of the loads
+matches this applied load.  This is done through a Hankel transform of (9)
+(which is also known as a Fourier-Bessel transform).  The result for the
+square function $\Pi$ $a(r)$ is well known:
+
+\[
+\Pi _a \left( r \right) = \int\limits_0^\infty  {aJ_1 \left( {ma} \right)J_0 \left( {mr} \right)dm} 
+\]
+
+Using the principle of load superposition, we can extend (3) for this new
+load case:
+
+\[
+\begin{gathered}
+  \sigma _z^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \tau _{rz}^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \Delta r^i  = \frac{{1 + \upsilon _i }}
+{{E_i }}a\int\limits_0^\infty  {mJ_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \Delta z^i  = \frac{{1 + \upsilon _i }}
+{{E_i }}a\int\limits_0^\infty  {mJ_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {2\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \sigma _r^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+   - \frac{1}
+{r}\frac{{E_i }}
+{{1 + \upsilon _i }}\Delta r^i  \\ 
+  \sigma _\theta ^i  = 2\upsilon _i a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right)dm}  + \frac{1}
+{r}\frac{{E_i }}
+{{1 + \upsilon _i }}\Delta r^i  \\ 
+\end{gathered} 
+\]
+
+These integrals run from zero, and astute readers will notice that many of
+the limit statements in the derivations above do not apply when
+\textit{m}=0.  However, the function \textit{J}1(\textit{ma}) is zero when
+\textit{m}=0., and so we do not need to solve for the constants in this
+case.
+
+
+\subsubsection{Gaussian-Legendre Quadrature over products of Bessel functions}
+
+Unfortunately there are no closed form solutions to equations (11), and so
+we need to perform numerical integration.  Since the Bessel functions are
+smooth and we can compute them at any abscissa we use Gaussian-Legendre
+Quadrature to minimise the number of times we need to evaluate the system in
+(11), including solving for $C$ $\infty$ , $D$ $\infty$ and \textit{Ai},
+\textit{Bi}, \textit{Ci} and \textit{Di} using (8) and (6), since these have
+to be performed at each \textit{m} value which we require for the
+integration.
+
+All numerical integration techniques make use of the fact that the integral
+of a function is the area under the function, and can therefore be
+approximated by taking the product of the average of the function over some
+range and the width of that range.  At the most basic level we merely
+evaluate the function at the centre of the range, but for better
+approximations we fit polynomials through a number of points in the range
+and establish the average value of the polynomial.
+
+Gaussian-Legendre Quadrature, often called Gaussian integration, makes use
+of fact that a polynomial of degree $N$ is defined by $N$+1 coefficients,
+and the definite integral of this polynomial is can be determined exactly. 
+If we choose both the $x$ positions at which we evaluate the function and
+the weights which we assign to each of the $n$ positions, then we have 2$n$
+coefficients, which we can fit a polynomial of degree 2$n$-1 exactly.  Some
+manipulation shows that it is possible to determine the optimal locations
+and the weights for any polynomial independently of the coefficients of the
+polynomial.  If we have $n$ Gauss points in the range (-1,1) at points
+\textit{xi} and with weights \textit{wi} then the following formula applies:
+
+\[
+\int\limits_a^b {f\left( x \right)dx = \frac{{b - a}}
+{2}\int\limits_{ - 1}^1 {f\left( {\frac{{a + b}}
+{2} + \frac{{b - a}}
+{2}\xi } \right)d\xi  \cong \sum\limits_{i = 1}^n {w_i } f\left( {\frac{{a + b}}
+{2} + \frac{{b - a}}
+{2}\xi _i } \right)} } 
+\]
+
+Figure 2.3 shows the two Bessel functions, and it can be seen that the
+oscillate about zero, and decay as \textit{m} increases.  However, it is not
+these functions which we need to integrate, but rather the product of two
+Bessel functions, one scaled by $a$ and the other by $r$.  This results in a
+function which oscillates in an even more pronounced fashion around zero
+(see Figure 2.4), and therefore becomes difficult to integrate.
+
+
+
+\textbf{Figure 2.3: Bessel functions of the first kind}
+
+Since these functions oscillate we need to either approximate them by a high
+order polynomial or perform piece wise integration over small ranges.  In
+ELSYM5M the later approach is used.  It's integration procedure always uses
+four Gauss points, and then breaks the integral at the points the roots of
+\textit{J}1$(x)$.  For evaluation radii smaller than $a$ it uses
+$x$=\textit{ma} and for those larger than a it uses $x$=\textit{mr}.  As a
+result the products always have less than three turning points in the
+integration range, and so the 7th order polynomial approximation is fairly
+accurate.  However, this means that the integration points, and therefore
+\textit{m} values have to be reselected for each evaluation radius outside
+of the load, which in turn means that the constants have to be recomputed
+for each evaluation location, slowing down the calculations.
+
+In \OP\ the other approach is adopted.  It can be seen from Figure 2.4 that
+the number of turning points between any two roots of
+\textit{J}1(\textit{ma}) in the products are a function of the ratio $r$/$a$
+and are given (approximately) by the formula $r$/$a$+2.  If we wish to fit a
+polynomial with at least twice the order of the product of the Bessel
+functions (to ensure high accuracy) then we can determine $n$ as follows:
+
+\[
+\begin{gathered}
+  2\left( {\frac{r}
+{a} + 2} \right) = 2n - 1 \hfill \\
+  n = \operatorname{int} \left( {\frac{r}
+{a} + 3} \right) \hfill \\ 
+\end{gathered} 
+\]
+
+\textbf{Figure 2.4: Products of Bessel functions}
+
+In the ELSYM5M procedure the number of Gauss points between 0 and the first
+root of \textit{J}1(\textit{ma}) for $r$/$a$=10 would 40, while for this
+method it is 13.  In addition, if we use max$(r)$ for all of the evaluation
+radii then we only need to compute the constants once.  The integral is
+calculated over \textit{m} from 0 to $\infty$ and so we need to compute for
+successive roots of \textit{J}1(\textit{ma}) until the integral converges or
+until it becomes numerically unstable.  The biggest contributor to numerical
+instability are the evaluations of exp(\textit{m}max$(z))$ in the evaluation
+of the constants at the rigid base.  For a computer using IEEE double
+precision floating point numbers, the maximum value of \textit{m}max$(z)$ is
+approximately 618.  Thus we can only integrate to \textit{m} $<$
+600/max$(z)$ to ensure that we do not have infinite numbers occurring in the
+calculations.  In practice we stop the integration once the relative change
+from adding a new panel is less than 10-6.
+
+
+\subsubsection{Load superposition algorithm}
+
+Because the new calculation engine can be passed any number of loads and
+evaluation locations it is important that it handle these intelligently to
+avoid doing unnecessary work.  Because the calculations are performed in a
+radial coordinate system this means that we need only perform the
+calculations once for each radial offset from each load type, and also (by
+the principle of superposition) that we can calculate for each load radius
+at a unit pressure, then scale the results based on the actual pressure.
+
+To minimise the number of calculations required the new calculation engine
+goes through the following procedure: First all of the $z$ positions of the
+evaluation locations are collected and a unique sorted list is compiled. 
+The layer that each of these $z$ positions falls within is then determined. 
+Following this we collect and compile a unique sorted list of all of the
+load radii, since the load radius is the most intrusive parameter in the
+calculations.  We then loop through the list of load radii performing the
+calculations.
+
+To perform the calculations we need to determine the radial coordinates of
+each evaluation location from each load (which has the load radius we are
+considering).  To do this we calculate the horizontal distance from each
+load to each evaluation location and develop another unique sorted list.  We
+take the maximum value from this sorted list and use that to calculate the
+number of Gauss points, as detailed above.  We then calculate the maximum
+\textit{m} value based on the depth to the rigid base, and proceed to
+calculate the layer constants for each Gauss point.
+
+Once we have established the integration constants we then loop through the
+evaluation radii and depths performing the actual integration.  The result
+of this integration is a set of six radial stress, strain or displacement
+values for each $(r,z)$ position.  We only perform this calculation for
+combinations of $(r,z)$ which are valid (which in practice means that we
+build yet another unique sorted list of $z$ positions and use that rather
+than the global list.  Once we have establish the radial responses to this
+particular load we proceed to add these to Cartesian responses at the
+relevant evaluation locations, scaling by the pressure applied.
+
+We then proceed to the through the load radii, repeating the calculations
+and accumulating the responses at each location.  Once we are complete we
+calculate the principal stresses and also the strains at each evaluation
+location.
+
+
+\subsection{Calculation of Principal Stresses}
+
+After we have obtained the stresses in a Cartesian coordinate system, we
+need to transform these into principal stresses and strains.  This is a well
+known problem, of solving the eigenvalues of a matrix.  However, we are
+dealing with a 3x3 matrix, and so most numerical techniques are overkill. 
+This section describes the procedure used in \OP.  We begin with a general
+discussion of solving eigenvalues, based on that from `Numerical Recipes in
+C' (XXX: ref), then detailing the optimisations found in the procedure used
+in ELSYM5M, and then finally the optimisations used in \OP.
+
+
+\subsubsection{Numerical solution of eigenvalues}
+
+An Eigenvalue l, and corresponding (nonzero) eigenvector $\mathbf{x}$, of an
+$n$ $\times$ $n$ matrix \textbf{A} are defined as those solving the
+following equation:
+
+\[
+\begin{gathered}
+  \mathbf{Ax} = \lambda \mathbf{x} \\ 
+  \left[ {\begin{array}{*{20}c}
+   {a_{11}  - \lambda } & {a_{12} } &  \cdots  & {a_{1n} }  \\
+   {a_{21} } & {a_{22}  - \lambda } &  \cdots  & {a_{2n} }  \\
+    \vdots  &  \vdots  &  \ddots  &  \vdots   \\
+   {a_{n1} } & {a_{n2} } &  \cdots  & {a_{nn}  - \lambda }  \\
+
+ \end{array} } \right]\left[ {\begin{array}{*{20}c}
+   {x_1 }  \\
+   {x_2 }  \\
+    \vdots   \\
+   {x_n }  \\
+
+ \end{array} } \right] = \left[ {\begin{array}{*{20}c}
+   0  \\
+   0  \\
+    \vdots   \\
+   0  \\
+
+ \end{array} } \right] \\ 
+\end{gathered} 
+\]
+
+Since $\mathbf{x}$ could be scaled by any quantity, we typically require
+$\mathbf{x}$ to be a unit normal vector (i.e. it has length one).  The
+matrix \textbf{A} can then have at most $n$ distinct eigenvalues.  The
+matrix is said to be `degenerate' if two or more of the eigenvalues are
+equal.
+
+The eigenvalues can be solved through using the determinant of the equation
+above:
+
+\[
+\left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| = 0
+\]
+
+which is a polynomial of degree $n$.  However, solving using a root finder
+is firstly, not optimal, and secondly does not provide the eigenvectors. 
+Thus most eigenvalue solutions are by diagonalization of the matrix, because
+it is obvious from the equations above that the $n$ eigenvalues of a
+diagonal matrix are it's diagonal terms.  These diagonalization procedures
+make use of a `similarity transform', which does not alter the eigenvalues
+of the matrix:
+
+\[
+\begin{gathered}
+  \mathbf{D} = \mathbf{X}^{ - 1} \mathbf{AX} \\ 
+  \left\| {\mathbf{D} - \lambda \mathbf{I}} \right\| = \left\| {\mathbf{X}^{ - 1} \mathbf{AX} - \lambda \mathbf{I}} \right\| \\ 
+   = \left\| {\mathbf{X}^{ - 1} \left( {\mathbf{A} - \lambda \mathbf{I}} \right)\mathbf{X}} \right\| \\ 
+   = \left\| {\mathbf{X}^{ - 1} } \right\|\left\| {\left( {\mathbf{A} - \lambda \mathbf{I}} \right)} \right\|\left\| \mathbf{X} \right\| \\ 
+   = \left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| \\ 
+\end{gathered} 
+\]
+
+Another advantage of this scheme is that the eigenvalues are the columns of
+the matrix $\mathbf{X}$.  However, finding $\mathbf{X}$ is non-trivial, and
+so the procedures make use of an incremental approach, where an approximate
+transform is repeatedly applied until the result converges on a diagonal
+matrix.
+
+For real symmetric matrices, the oldest and best known transform is the
+Jacobi transform, which applies a single rotation in only two of the
+dimensions of the matrix, to zero out one of the off diagonal elements.  If
+the matrix has only two dimensions, then this rotation only needs to be
+applied once (and this is in fact how the principal stresses are solved in a
+Mohr Circle formulation).  The matrix $\mathbf{X}$ takes the form:
+
+\[
+X_i  = \left[ {\begin{array}{*{20}c}
+   1 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 0  \\
+    \vdots  &  \ddots  &  \vdots  & {} &  \vdots  & {} &  \vdots   \\
+   0 &  \cdots  & {\cos \left( \phi  \right)} &  \cdots  & {\sin \left( \phi  \right)} &  \cdots  & 0  \\
+    \vdots  & {} &  \vdots  & 1 &  \vdots  & {} &  \vdots   \\
+   0 &  \cdots  & { - \sin \left( \phi  \right)} &  \cdots  & {\cos \left( \phi  \right)} &  \cdots  & 0  \\
+    \vdots  & {} &  \vdots  & {} &  \vdots  &  \ddots  &  \vdots   \\
+   0 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 1  \\
+
+ \end{array} } \right]
+\]
+
+The largest off diagonal element is normally zeroed first, and the process
+repeated, and it can be shown that repeated application is guaranteed to
+result in a diagonal matrix.  However, doing matrix multiplication is
+expensive, and requires storage space, and so the procedure is applied in
+place.  If the rotation applies to the element \textit{apq} then we have the
+following equations:
+
+\[
+\begin{gathered}
+  \begin{array}{*{20}c}
+   {a'_{rp}  = a'_{pr}  = \cos \left( \phi  \right)a_{rp}  - \sin \left( \phi  \right)a_{rq} } & {r = 1 \ldots n}  \\
+   {a'_{rq}  = a'_{qr}  = \cos \left( \phi  \right)a_{rq}  + \sin \left( \phi  \right)a_{rp} } & {r \ne p,r \ne q}  \\
+
+ \end{array}  \hfill \\
+  a'_{pp}  = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)a_{qq}  - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \hfill \\
+  a'_{qq}  = \cos ^2 \left( \phi  \right)a_{qq}  + \sin ^2 \left( \phi  \right)a_{pp}  + 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \hfill \\
+  a'_{pq}  = a'_{qp}  = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{qq}  - a_{pp} } \right) \hfill \\ 
+\end{gathered} 
+\]
+
+We solve for $f$ such that \textit{a $\prime$ pq} is zero, giving:
+
+\[
+\theta  \equiv \cot \left( {2\phi } \right) \equiv \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
+{{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} = \frac{{\left( {a_{qq}  - a_{pp} } \right)}}
+{{2a_{pq} }}
+\]
+
+There are eight solutions in the first rotation, and so to get the first we
+use:
+
+\[
+\begin{gathered}
+  \theta  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
+{{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} \\ 
+  2\cos \left( \phi  \right)\sin \left( \phi  \right)\theta  = \cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right) \\ 
+  2\frac{{\sin \left( \phi  \right)}}
+{{\cos \left( \phi  \right)}}\theta  = 1 - \frac{{\sin ^2 \left( \phi  \right)}}
+{{\cos ^2 \left( \phi  \right)}} \\ 
+  \frac{{\sin ^2 \left( \phi  \right)}}
+{{\cos ^2 \left( \phi  \right)}} + 2\frac{{\sin \left( \phi  \right)}}
+{{\cos \left( \phi  \right)}}\theta  - 1 = 0 \\ 
+  t \equiv \frac{{\sin \left( \phi  \right)}}
+{{\cos \left( \phi  \right)}} = \frac{{\operatorname{sgn} \left( \theta  \right)}}
+{{\left| \theta  \right| + \sqrt {\theta ^2  + 1} }} = \frac{{\operatorname{sgn} \left( {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
+{{2a_{pq} }}} \right)}}
+{{\left| {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
+{{2a_{pq} }}} \right| + \sqrt {\left( {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
+{{2a_{pq} }}} \right)^2  + 1} }} \\ 
+   = \frac{{\operatorname{sgn} \left( {a_{qq}  - a_{pp} } \right)2a_{pq} }}
+{{\left| {a_{qq}  - a_{pp} } \right| + \sqrt {\left( {a_{qq}  - a_{pp} } \right)^2  + \left( {2a_{pq} } \right)^2 } }} \\ 
+\end{gathered} 
+\]
+
+where the lesser known closed form solution for a quadratic equation is used
+to ensure that we always have the smaller root.  We can thus obtain:
+
+\[
+\begin{gathered}
+  \cos \left( \phi  \right) = \frac{1}
+{{\sqrt {\frac{1}
+{{\cos ^2 \left( \phi  \right)}}} }} \\ 
+   = \frac{1}
+{{\sqrt {\frac{1}
+{{\cos ^2 \left( \phi  \right)}}\left( {\sin ^2 \left( \phi  \right) + \cos ^2 \left( \phi  \right)} \right)} }} \\ 
+   = \frac{1}
+{{\sqrt {t^2  + 1} }} \\ 
+  \sin \left( \phi  \right) = t\cos \left( \phi  \right) \\ 
+   = \frac{t}
+{{\sqrt {t^2  + 1} }} \\ 
+\end{gathered} 
+\]
+
+
+We can also simplfy (12), as:
+
+\[
+\begin{gathered}
+  a'_{pq}  = 0 = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{pp}  - a_{qq} } \right) \\ 
+  a_{qq}  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq} }}
+{{\cos \left( \phi  \right)\sin \left( \phi  \right)}} + a_{pp}  \\ 
+  a'_{pp}  = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)a_{qq}  - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \\ 
+   = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)\left( {\frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq} }}
+{{\cos \left( \phi  \right)\sin \left( \phi  \right)}} + a_{pp} } \right) - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \\ 
+   = \left( {\sin ^2 \left( \phi  \right) + \cos ^2 \left( \phi  \right)} \right)a_{pp}  + \left( {\frac{{\cos ^2 \left( \phi  \right)\sin \left( \phi  \right) - \sin ^3 \left( \phi  \right) - 2\cos ^2 \left( \phi  \right)\sin \left( \phi  \right)}}
+{{\cos \left( \phi  \right)}}} \right)a_{pq}  \\ 
+   = a_{pp}  - \frac{{\sin \left( \phi  \right)}}
+{{\cos \left( \phi  \right)}}\left( {\cos ^2 \left( \phi  \right) + \sin ^2 \left( \phi  \right)} \right)a_{pq}  \\ 
+   = a_{pp}  - ta_{pq}  \\ 
+  a'_{qq}  = a_{qq}  + ta_{pq}  \\ 
+  a'_{rp}  = \cos \left( \phi  \right)a_{rp}  - \sin \left( \phi  \right)a_{rq}  \\ 
+   = \frac{1}
+{{\sqrt {t^2  + 1} }}a_{rp}  - \frac{t}
+{{\sqrt {t^2  + 1} }}a_{rq}  \\ 
+   = {{\left( {a_{rp}  - ta_{rq} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{rp}  - ta_{rq} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{rq}  = {{\left( {a_{rq}  + ta_{rp} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{rq}  + ta_{rp} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+\end{gathered} 
+\]
+
+We also need to establish a stopping criteria for the iterative process. 
+The normal procedure is to stop when the sum of the squares of the off
+diagonal elements drops below some small threshold.  It is possible to show
+that:
+
+\[
+\begin{gathered}
+  S = \sum\limits_{r \ne s} {a_{rs}^2 }  \hfill \\
+  S' = S - 2a_{pq}^2  \hfill \\ 
+\end{gathered} 
+\]
+
+However, this is not stable under numerical calculation.  If the matrix is
+small then \textit{S} can be recalculated after every iteration, otherwise,
+this value needs to be completely recalculated if it falls outside the range
+0 $<$ \textit{S} $<$ ($n$2-$n$) $\times$ $a$2\textit{pq}.  Otherwise, a
+simpler stopping criteria is to use \textit{apq}.
+
+
+\subsubsection{Specialized solution for principal stresses}
+
+Using a generalised eigenvalue solution for a three by three stress tensor
+is not the best possible solution, since we can make a number of
+simplifications by `unrolling' the equations.  The first change is to always
+process all three off diagonal elements, rather than just the maximum
+element before checking the stopping criteria.  If we process the elements
+in a fixed order, there are certain other simplifications which can be made. 
+The stress tensor consists of:
+
+\[
+\left[ {\begin{array}{*{20}c}
+   {\sigma _x } & {\tau _{xy} } & {\tau _{xz} }  \\
+   {\tau _{xy} } & {\sigma _y } & {\tau _{yz} }  \\
+   {\tau _{xz} } & {\tau _{yz} } & {\sigma _z }  \\
+
+ \end{array} } \right]
+\]
+
+although for most of this discussion we will make use of the notation from
+the previous section.  We process the elements in the order \textit{txz},
+\textit{txy},\textit{tyz} for no particular reason.  Expanding (13) with
+\textit{p}=1,\textit{q}=3 we have:
+
+\[
+\begin{gathered}
+  a'_{11}  = a_{11}  - ta_{13}  \\ 
+  a'_{33}  = a_{33}  + ta_{13}  \\ 
+  a'_{12}  = {{\left( {a_{12}  - ta_{23} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{12}  - ta_{23} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{23}  = {{\left( {a_{23}  + ta_{12} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{23}  + ta_{12} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{13}  = 0 \\ 
+\end{gathered} 
+\]
+
+
+Thus we modify five of the six elements of interest (leaving only one of the
+diagonal elements unchanged).  We then move to $a$12 and obtain:
+
+\[
+\begin{gathered}
+  a'_{11}  = a_{11}  - ta_{12}  \\ 
+  a'_{22}  = a_{22}  + ta_{12}  \\ 
+  a'_{13}  = {{\left( {a_{13}  - ta_{23} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{13}  - ta_{23} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{ - ta_{23} } \mathord{\left/
+ {\vphantom {{ - ta_{23} } {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{23}  = {{\left( {a_{23}  + ta_{13} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{23}  + ta_{13} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{a_{23} } \mathord{\left/
+ {\vphantom {{a_{23} } {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{12}  = 0 \\ 
+\end{gathered} 
+\]
+
+Finally we process $a$23 and obtain:
+
+\[
+\begin{gathered}
+  a'_{22}  = a_{22}  - ta_{23}  \\ 
+  a'_{33}  = a_{33}  + ta_{23}  \\ 
+  a'_{12}  = {{\left( {a_{12}  - ta_{13} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{12}  - ta_{13} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{ - ta_{13} } \mathord{\left/
+ {\vphantom {{ - ta_{13} } {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{13}  = {{\left( {a_{13}  + ta_{12} } \right)} \mathord{\left/
+ {\vphantom {{\left( {a_{13}  + ta_{12} } \right)} {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{a_{13} } \mathord{\left/
+ {\vphantom {{a_{13} } {\sqrt {t^2  + 1} }}} \right.
+ \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
+  a'_{23}  = 0 \\ 
+\end{gathered} 
+\]
+
+We need to recalculate \textit{t} between each stage.
+
+\clearpage
+\singlespacing
+
+\nocite{*}
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{openpave}
+\bibliography{openpave}
+
+\begin{acronym}
+  \acro{ADDL}{Academic Development and Distribution License}
+	\acro{AC}{Asphalt Concrete}
+	\acro{PCC}{Portland Cement Concrete}
+	\acro{ME}{Mechanistic-Empirical}
+	\acro{ESAL}{Equivalent Standard Axle Load}
+	\acro{AASHTO}{American Association of State Highway and Transportation Officials}
+	\acro{PMS}{Pavement Management System}
+	\acro{MEPDG}{Mechanistic-Empirical Pavement Design Guide}
+	\acro{LTPP}{Long-Term Pavement Performance}
+	\acro{HVS}{Heavy Vehicle Simulator}
+	\acro{APT}{Accelerated Pavement Testing}
+	\acro{TPMs}{Transition Probability Matrices}
+	\acro{FORM}{First-Order Reliability Method}
+	\acro{QC/QA}{Quality Control/Quality Assurance}
+	\acro{FWD}{Falling Weight Deflectometer}
+	\acro{PSI}{Present Serviceability Index}
+\end{acronym}
+
+%\begin{appendix}
+%\appendix
+%\include{appendix1}
+%\end{appendix}
+
+\end{empfile}
+\end{document}
