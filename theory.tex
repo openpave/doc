@@ -257,7 +257,7 @@ events $A$ and $B$, then we define the conditional probability of observing
 $A$ given that we have already observed $B$ (and therefore that the
 probability of observing $B$ is greater than zero), as:
 \[
-P\{A|B\}=\frac{P\{A\capB\}}{P\{B\}}
+P\{A|B\}=\frac{P\{A\cap B\}}{P\{B\}}
 \]
 or in other words, the probability of observing both $A$ and $B$, weighted
 by the probability of observing $B$.  Since probability is independent of
@@ -305,7 +305,7 @@ p_X\left(a\right)=P\{X=a\}
 \]
 The probability that $x$ is less than or equal to $a$ is given by:
 \[
-F_X\left(a\right)=P\{X\leqslant a}\}=\sum\limits_{x=1}^a{P\{X=x\}}
+F_X\left(a\right)=P\{X\leqslant a\}=\sum\limits_{x=1}^a{P\{X=x\}}
 \]
 These two functions are respectively known as the probability mass function
 (PMF) and cumulative distribution function (CDF).  Defining probability
@@ -369,13 +369,11 @@ develop multivariate distributions for combinations of discrete and
 continuous random variables the mathematics is fairly hairy and we will
 avoid it.  For discrete random variables the joint PMF and CDF can be
 defined as:
-\[
 \begin{align}
   p_{XY}\left(x,y\right)& =P\{X=x\cap Y=y\} \\
   F_{XY}\left(x,y\right)& =P\{X\leqslant x\cap Y\leqslant y\}=
    	\sum\limits_{x_i\leqslant x}{\sum\limits_{y_j\leqslant y}{p_{XY}\left(x_i,y_j\right)}}
 \end{align} 
-\]
 and using the rules for conditional probability outlined above it is
 possible to develop a conditional PMF:
 \[
@@ -386,7 +384,6 @@ p_{X|Y}\left(x|y\right) & = \frac{P\{X=x\cap Y=y\}}{P\{Y=y\}} \\
 \end{split} 
 \]
 A similar scheme applies for continuous random variables:
-\[
 \begin{align}
 F_{XY}\left(x,y\right) & = P\{X\leqslant x\cap Y\leqslant y\}
 	= \int\limits_{-\infty}^y{\int\limits_{-\infty}^x{f_{XY}\left(x,y\right)dxdy}} \\
@@ -394,7 +391,6 @@ f_{XY}\left(x,y\right) & = \frac{\partial^2F_{XY}(x,y)}{\partial x\partial y} \\
 f_{X|Y}\left(x|y\right) & = \frac{f_{XY}\left(x,y\right)}{f_Y\left(y\right)} \\
 	& = \frac{f_{XY}\left(x,y\right)}{\int_{-\infty}^\infty{f_{XY}\left(x,y\right)dx}}
 \end{align}
-\]
 
 The extension of these formulae into $n$ dimensions is fairly obvious.  It
 should also be noted that the solution of the CDF requires an $n$-fold
@@ -409,13 +405,11 @@ reporting, and so we seek values which summarize the variable.  The most
 general summary is the mean, which is the value which we would expect to
 take when observed, which is a weighted average of all of the possible
 values:
-\[
 \begin{align}
 E\left[X\right]& =\mu_X = \frac{\sum\limits_x{xp_X\left(x\right)}}
 	{\sum\limits_x{p_X\left(x\right)}} = \sum\limits_x{x p_X\left(x\right)} \\
 E\left[X\right]& =\mu_X = \int\limits_{-\infty}^\infty{x f_X\left(x\right)dx}
 \end{align} 
-\]
 where the $E\left[\bullet\right]$ operator denotes the expected value.  This
 is different from the median, which is the value below which half of the
 expected outcomes lie, and the mode, which is the point with the highest
@@ -428,20 +422,18 @@ from the mean, and is defined as:
 \sigma_X = \sqrt{Var\left[X\right]}
 \]
 where:
-\[
 \begin{align}
 Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
   = \sum\limits_x{\left(x-\mu_X\right)^2 p_X\left(x\right)} \\
 Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
   = \int\limits_{-\infty }^\infty{\left(x-\mu_X\right)^2 f_X\left(x\right)dx}
 \end{align} 
-\]
 For most distributions in regular use both the mean and standard deviation
 are defined by some simple formula involving the distribution parameters. 
 It is often convenient to use the coefficient of variation (COV), which is
 defined as:
 \[
-\delta_X=\frac{\sigma_X}{\left|\mu_X\right|}
+\delta_X = \frac{\sigma_X}{\left|\mu_X\right|}
 \]
 
 If we have two random variables $X$ and $Y$ then we often would like to know
@@ -450,7 +442,6 @@ relationship is determine if, given that we know the deviation of an
 observation of one variable from it's mean, we can determine anything about
 the deviation of the other variable from it's mean.  This is known as
 covariance, and is defined as:
-\[
 \begin{align}
 Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
   = \sum\limits_x{
@@ -459,7 +450,6 @@ Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
 	 = \int\limits_{-\infty}^\infty{\int\limits_{-\infty}^\infty{
 	 	\left(x-\mu_X\right)\left(y-\mu_Y\right)f_{XY}\left(x,y\right)dxdy}}
 \end{align} 
-\]
 The covariance has units which are a product of the units for $X$ and $Y$,
 and so it is convenient to define the dimensionless correlation coefficient:
 \[
@@ -480,13 +470,11 @@ we will first consider the standard normal distribution which has a mean of
 zero and a standard deviation of one.  The PDF and CDF are defined (using
 traditional notation, including $u$ as the standard normal random variable)
 as:
-\[
 \begin{align}
    U & \sim \operatorname{N}\left(0,1\right) \\
    \varphi\left(u\right) & = \frac{1}{\sqrt{2\pi}}\exp \left(-\frac{u^2}{2}\right) \\
    \Phi\left(u\right) & = \int\limits_{-\infty}^u{\varphi\left(u\right)}du
 \end{align} 
-\]
 
 There is no closed form solution to the CDF of the normal distribution, and
 so it must either be evaluated using a numerical integration technique or
@@ -497,27 +485,23 @@ at least the computer's accuracy and are evaluated directly, without
 iteration.
 
 The generalized form of the normal PDF and CDF are:
-\[
 \begin{align}
 	X & \sim \operatorname{N}\left(\mu,\sigma^2\right) \\
 	f_X\left(x\right) & = \frac{1}{\sigma\sqrt{2\pi}}
    	\exp\left(-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right) \\
 	F_X\left(x\right) & = \Phi\left(\frac{x-\mu}{\sigma}\right)
 \end{align} 
-\]
 
 If we have more than one random variable then we define the multivariate
 normal (or multinormal) distribution as follows:
-\[
 \begin{align}
 \operatorname{E}\left[X_1\right] & = \mu _1 \\
 \operatorname{Var}\left[X_1\right] & = \sigma _1^2 \\
 \operatorname{Cov}\left[X_2,X_1\right] & = \rho _{2\,1}\sigma _2\sigma _1
 \end{align}
-\]
 
 We can express this in matrix notation as:
-\[
+\begin{align}
 \mathbf{M} = \begin{bmatrix}
    \mu _1 \\
    \mu _2 \\
@@ -537,10 +521,10 @@ We can express this in matrix notation as:
    \rho _{n\,1} & \rho _{n\,2} &  \cdots  & 1  \\
  \end{bmatrix} &&
  \mathbf{\Sigma} = \mathbf{DRD}
-\]
+\end{align}
 
-\[
 \begin{align}
+  \mathbf{X} & \sim \operatorname{N}\left(\mathbf{M},\mathbf{\Sigma}\right) \\
   f_\mathbf{X}\left(\mathbf{x}\right) & =
 		\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{\Sigma}\right|}}
 		\exp\left(-\frac{1}{2}\left(\mathbf{x}-\mathbf{M}\right)^{\operatorname{T}}
@@ -549,26 +533,19 @@ We can express this in matrix notation as:
   	\int\limits_{-\infty}^{x_n}{\cdots\int\limits_{-\infty}^{x_1}
   		{f_\mathbf{X}\left(\mathbf{x}\right) dx_1} \cdots dx_n }
 \end{align} 
-\]
 
 If we are dealing with correlated standard normal variables (which we will
-denote with $z$ throughout this discussion) then \textbf{M} is a zero matrix
-and \textbf{D} is the identity matrix, and the PDF reduces to:
-
-\[
-\begin{array}{*{20}c}
-   {\mathbf{{\rm Z}} \sim \operatorname{N} \left( {0,\mathbf{R}} \right)} & {\text{j}_n \left( {\mathbf{z},\mathbf{R}} \right) = \frac{{\left( {2\pi } \right)^{{{ - n} \mathord{\left/
- {\vphantom {{ - n} 2}} \right.
- \kern-\nulldelimiterspace} 2}} }}
-{{\sqrt {\left| \mathbf{R} \right|} }}\exp \left( { - \frac{1}
-{2}\mathbf{z}^\operatorname{T}  \mathbf{R}^{ - 1} \mathbf{z}} \right)}  \\
-
- \end{array} 
-\]
+denote with $\mathbf{z}$ throughout this discussion) then $\mathbf{M}$ is a zero matrix
+and $\mathbf{D}$ is the identity matrix, and the distribution reduces to:
+\begin{align}
+ \mathbf{Z} & \sim \operatorname{N}\left( 0,\mathbf{R}\right) \\
+ \varphi _n\left(\mathbf{z},\mathbf{R}\right) & =
+ 	\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{R}\right|}}
+ 	\exp\left(-\frac{1}{2}\mathbf{z}^{\operatorname{T}}\mathbf{R}^{-1}\mathbf{z}\right)
+\end{align}
 
 We can further simplify this equation if we are working in the uncorrelated
 standard normal space to:
-
 \[
 \begin{array}{*{20}c}
    \mathbf{U}\sim\operatorname{N}(0,1)
@@ -688,7 +665,7 @@ most useful of these transformations for the Nataf family takes the form:
 {{\sigma _i \sigma _j }}}  \\
 
  \end{array}  \hfill \\
-  \mathbf{L}_0 \mathbf{L}_0^\operatorname{T}   = \mathbf{R}_0  = \left[ {\rho _{0,ij} } \right] \hfill \\
+  \mathbf{L}_0 \mathbf{L}_0^{\operatorname{T}}   = \mathbf{R}_0  = \left[ {\rho _{0,ij} } \right] \hfill \\
   \rho _{ij}  = \iint {\frac{{x_i  - \mu _i }}
 {{\sigma _i }}\frac{{x_j  - \mu _j }}
 {{\sigma _j }}}\varphi _2 \left( {z_i ,z_j ,\rho _{0,ij} } \right)dz_j dz_i  \hfill \\
@@ -743,7 +720,7 @@ simplified:
 {{\sigma _i \sigma _j }}}  \\
 
  \end{array}  \hfill \\
-  \mathbf{L}_0 \mathbf{L}_0^\operatorname{T}   = \mathbf{R}_0  = \left[ {\rho _{ij} } \right] \hfill \\
+  \mathbf{L}_0 \mathbf{L}_0^{\operatorname{T}}   = \mathbf{R}_0  = \left[ {\rho _{ij} } \right] \hfill \\
   \begin{array}{*{20}c}
    {\begin{array}{*{20}c}
    {\mathbf{u} = \mathbf{L}_0^{ - 1} \mathbf{z}}  \\
@@ -951,11 +928,11 @@ G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
 
 \[
 \begin{gathered}
-  G\left( \mathbf{u} \right) \cong G\left( {\mathbf{u}^* } \right) + \nabla G\left( \mathbf{u} \right)^\operatorname{T}  \left| {_{\mathbf{u}^\mathbf{*} } \left( {\mathbf{u} - \mathbf{u}^\mathbf{*} } \right)} \right. \propto \beta  - \hat \alpha ^\operatorname{T}  \mathbf{u} \hfill \\
+  G\left( \mathbf{u} \right) \cong G\left( {\mathbf{u}^* } \right) + \nabla G\left( \mathbf{u} \right)^{\operatorname{T}}  \left| {_{\mathbf{u}^\mathbf{*} } \left( {\mathbf{u} - \mathbf{u}^\mathbf{*} } \right)} \right. \propto \beta  - \hat \alpha ^{\operatorname{T}}  \mathbf{u} \hfill \\
   \begin{array}{*{20}c}
-   {G\left( {\mathbf{u}^* } \right) = 0} & {\beta  = \hat \alpha ^\operatorname{T}  \mathbf{u}^ *  }  \\
+   {G\left( {\mathbf{u}^* } \right) = 0} & {\beta  = \hat \alpha ^{\operatorname{T}}  \mathbf{u}^ *  }  \\
    {\hat \alpha  = \left. {\frac{{ - \nabla G\left( \mathbf{u} \right)}}
-{{\left\| {\nabla G\left( \mathbf{u} \right)} \right\|}}} \right|_{\mathbf{u}^ *  } } & {\nabla G\left( \mathbf{u} \right)^\operatorname{T}   = \nabla g\left( \mathbf{x} \right)^\operatorname{T}  \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1} }  \\
+{{\left\| {\nabla G\left( \mathbf{u} \right)} \right\|}}} \right|_{\mathbf{u}^ *  } } & {\nabla G\left( \mathbf{u} \right)^{\operatorname{T}}   = \nabla g\left( \mathbf{x} \right)^{\operatorname{T}} \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1} }  \\
 
  \end{array}  \hfill \\
   \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1}  = \mathbf{J}_{\mathbf{X},\mathbf{U}}  = \left[ {\frac{{\partial x_i }}
@@ -1568,7 +1545,7 @@ X_i \left( z \right) = \frac{1}
    \hfill {mz + 2\upsilon _i  - 1} & \hfill { - 1} & \hfill {mz - 2\upsilon _i  + 1} & \hfill { - 1} \\
    \hfill {mz - 2\upsilon _i } & \hfill 1 & \hfill {mz - 2\upsilon _i } & \hfill { - 1} \\
 
- \end{array} } \right]^\operatorname{T}  \operatorname{diag} \left[ {\begin{array}{*{20}c}
+ \end{array} } \right]^{\operatorname{T}}  \operatorname{diag} \left[ {\begin{array}{*{20}c}
    1  \\
    1  \\
    {\frac{{1 + \upsilon _{i + 1} }}
