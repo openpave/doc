@@ -5,8 +5,19 @@
 %%% $OpenPave$
 %%% ====================================================================
 
-\documentclass[11pt,oneside,titlepage]{optech}
-\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+\documentclass[11pt,oneside,letterpaper]{optech}
+\settrimmedsize{11in}{210mm}{*}
+\setlength{\trimtop}{0.5\stockheight}
+\addtolength{\trimtop}{-0.5\paperheight}
+\setlength{\trimedge}{0.5\stockwidth}
+\addtolength{\trimedge}{-0.5\paperwidth}
+\settypeblocksize{*}{\lxvchars}{1.618}
+\setulmargins{*}{*}{1.618}
+\setlrmargins{*}{*}{1}
+%\setlrmargins{*}{*}{1.618}
+\setheadfoot{1.5em}{2.5em}
+\setheaderspaces{*}{1.5em}{*}
+\checkandfixthelayout
 
 \usepackage{latexsym}
 \usepackage{amssymb}
@@ -15,27 +26,13 @@
 % For various symbols
 \usepackage{textcomp}
 
-%% this makes images possible both in latex and pdftex
-\usepackage{ifpdf}
 \ifpdf
-	\usepackage[pdftex]{graphics}
-	\usepackage[pdftex]{graphicx}
-	%\usepackage[bookmarks=false,%
-	%pdftoolbar=true,%
-	%pdfmenubar=true,%
-	%pdffitwindow=true,%
-	%colorlinks=true,pdftex]{hyperref}
-	\DeclareGraphicsRule{*}{mps}{*}{}
-	\pdfinfo {
-		/Title (OpenPave Theory)
-		/Subject (The theory behind the OpenPave software)
-		/Author (Jeremy D. Lea)
-		/Keywords (Pavement design, Layered elastic theory)
-	}
-\else
-	\usepackage{graphics}
-	\usepackage{graphicx}
-	%\usepackage{hyperref}
+\pdfinfo {
+	/Title (OpenPave Theory)
+	/Subject (The theory behind the OpenPave software)
+	/Author (Jeremy D. Lea)
+	/Keywords (Pavement design, Layered elastic theory)
+}
 \fi
 \usepackage{lscape,rotating,flafter}
 
@@ -62,8 +59,7 @@
 \begin{document}
 \begin{empfile}
 
-%\maketitle
-\begin{titlepage}
+\begin{titlingpage}
   \null\vfil
   \begin{center}%
     {\Large \textbf{The theory behind \OP\ software} \par}%
@@ -81,25 +77,18 @@
     {\large 10 November 2006 \par}
   \end{center}\par
   \vfil\null
-\end{titlepage}
+\end{titlingpage}
 
-\pagenumbering{roman}
-\setcounter{page}{1}
+\frontmatter
 \setcounter{secnumdepth}{0}
 \setcounter{tocdepth}{2}
 \tableofcontents
 %\listoffigures
 %\listoftables
 
-%\clearpage
-%\begin{abstract}
-%\end{abstract}
+\mainmatter
 
-\clearpage
-\pagenumbering{arabic}
-\setcounter{page}{1}
-
-\section{Introduction}
+\chapter{Introduction}
 
 \OP\ is committed to supplying the best possible open source software for
 pavement engineering.  To that end it is important that the theoretical and
@@ -119,7 +108,7 @@ make alterations to this document, and to use it as course notes or for
 other purposes, provided that you distribute any changes to you make. 
 Please review the conditions in the license for more information.
 
-\subsection{Typographical conventions}
+\section{Typographical conventions}
 
 Because this document covers a number of diverse fields, there is some need
 to standardize the typographical conventions.  As a result there are a
@@ -132,7 +121,11 @@ The following conventions are used in this document:
 
 % XXX: need to invent a convention!
 
-\section{Statistics and Reliability}
+\chapter{Mathematics and Numerical Theory}
+
+
+
+\chapter{Statistics and Reliability}
 
 While reliability is a fairly simple concept, there are many different
 approaches to calculating it, not all of which provide a consistent,
@@ -141,7 +134,7 @@ approach used in \OP\ is given.  The approach is an adaptive importance
 sampling algorithm, based on assumed distributions for the design
 parameters.
 
-\subsection{Basic introduction to statistical terminology}
+\section{Basic introduction to statistical terminology}
 
 Often the terminology used in statistical analysis can be confusing, and
 unless the reader understands the implications of the words being used, they
@@ -150,7 +143,7 @@ reader is well versed in statistics, then they probably want to skip this
 section.  Readers who have little or no background in statistics will
 certainly want to consult an entry level statistics text before continuing.
 
-\subsubsection{Definition of terminology}
+\subsection{Definition of terminology}
 
 The three basic building blocks of statistics are variables, events and
 probabilities.  A variable is a number, which in general can take on a value
@@ -246,7 +239,7 @@ modeling, and the third is the testing of hypotheses, known as statistical
 inference, which is determining whether the probability that an event might
 be observed compared to the confidence with which we wish it to be observed.
 
-\subsubsection{Conditional probability}
+\subsection{Conditional probability}
 
 One of the most powerful ideas in probability theory is the idea of
 conditioning.  Once we have observed one random variable it can tell us
@@ -279,7 +272,7 @@ P\{A\}=\sum\limits_{b=1}^n{P\{A|B=b\}P\{B=b\}}
 or that the total probability of observing $A$ is the sum of the
 probabilities of observing $A$ conditional on all of the outcomes of $B$.
 
-\subsubsection{Probability distributions}
+\subsection{Probability distributions}
 
 The analysis of the probability is complicated by the fact that we cannot
 treat discrete and continuous random variables with the same mathematics,
@@ -307,11 +300,10 @@ The probability that $x$ is less than or equal to $a$ is given by:
 \[
 F_X\left(a\right)=P\{X\leqslant a\}=\sum\limits_{x=1}^a{P\{X=x\}}
 \]
-These two functions are respectively known as the probability mass function
-(PMF) and cumulative distribution function (CDF).  Defining probability
-functions for continuous random variables is a little more tricky, because
-the probability of observing a particular value is zero.  We thus define a
-probability density function (PDF), which is the limiting probability of
+These two functions are respectively known as the \ac{PMF} and \ac{CDF}. 
+Defining probability functions for continuous random variables is a little
+more tricky, because the probability of observing a particular value is
+zero.  We thus define a \ac{PDF}, which is the limiting probability of
 observing a value within a small increment:
 \[
 f_X\left(x\right)=\mathop{\lim}\limits_{\Delta x\to 0}
@@ -323,7 +315,7 @@ F_X\left(a\right)=P\{X\leqslant a\}=\int\limits_{-\infty}^a{f_X\left(x\right)dx}
 \]
 
 Note that the probability density function is a not constrained to the range
-$[0,1]$.  There is a unique relationship between the PMF or PDF and the CDF,
+$[0,1]$.  There is a unique relationship between the \ac{PMF} or \ac{PDF} and the CDF,
 so that if one is known then there is one and only one possible function
 will satisfy the conditions of the other.  For most of the rest of this
 discussion we will use the notation for continuous random variables.  In
@@ -332,7 +324,7 @@ $0$ to $1$, and is defined as taking on a value of $0$ for undefined values
 of $x$.
 
 There are many different functions which satisfy the requirements of either
-a PMF, PDF or CDF, which will not all be described here, since they are well
+a \ac{PMF}, \ac{PDF} or CDF, which will not all be described here, since they are well
 documented in literature.  Each function takes a number of parameters
 (normally one to four parameters), which are known as the distribution
 parameters.  For reliability analysis we are mostly concerned with the
@@ -356,7 +348,7 @@ In cases where we are numerically evaluating functions at probabilities very
 close to one it is often better to use a special complementary CDF routine
 because of numerical stability.
 
-\subsubsection{Multivariate probability distributions}
+\subsection{Multivariate probability distributions}
 
 It is also possible to develop probability distributions for more than one
 random variable.  These are known as multivariate or joint probability
@@ -367,7 +359,7 @@ $X$ and $Y$ for bivariate distributions and the random vector $\mathbf{X}$
 for more than two random variables.  While it is mathematically possible to
 develop multivariate distributions for combinations of discrete and
 continuous random variables the mathematics is fairly hairy and we will
-avoid it.  For discrete random variables the joint PMF and CDF can be
+avoid it.  For discrete random variables the joint \ac{PMF} and CDF can be
 defined as:
 \begin{align}
   p_{XY}\left(x,y\right)& =P\{X=x\cap Y=y\} \\
@@ -375,7 +367,7 @@ defined as:
    	\sum\limits_{x_i\leqslant x}{\sum\limits_{y_j\leqslant y}{p_{XY}\left(x_i,y_j\right)}}
 \end{align} 
 and using the rules for conditional probability outlined above it is
-possible to develop a conditional PMF:
+possible to develop a conditional \ac{PMF}:
 \[
 \begin{split}
 p_{X|Y}\left(x|y\right) & = \frac{P\{X=x\cap Y=y\}}{P\{Y=y\}} \\
@@ -394,10 +386,10 @@ f_{X|Y}\left(x|y\right) & = \frac{f_{XY}\left(x,y\right)}{f_Y\left(y\right)} \\
 
 The extension of these formulae into $n$ dimensions is fairly obvious.  It
 should also be noted that the solution of the CDF requires an $n$-fold
-integral over the PDF, which, if possible, is tedious mathematically and
+integral over the \ac{PDF}, which, if possible, is tedious mathematically and
 costly computationally.
 
-\subsubsection{Partial descriptors of random variables}
+\subsection{Partial descriptors of random variables}
 
 While one or other of the distribution functions completely describe a
 random variable, they are normally too cumbersome for general use and
@@ -460,14 +452,14 @@ It is possible to prove that the correlation coefficient has a range
 $\left[-1,1\right]$ and takes on a value of $0$ if the variables are
 independent, and $1$ or $-1$ if the variables are perfectly correlated.
 
-\subsubsection{The normal and multinormal distributions}
+\subsection{The normal and multinormal distributions}
 
 By far the most widely used distribution is the normal or Gaussian
 distribution, the classic bell shaped curve.  The normal distribution is
 defined by two parameters, which happen to also be the mean and standard
 deviation of any random variable which has a normal distribution.  However,
 we will first consider the standard normal distribution which has a mean of
-zero and a standard deviation of one.  The PDF and CDF are defined (using
+zero and a standard deviation of one.  The \ac{PDF} and CDF are defined (using
 traditional notation, including $u$ as the standard normal random variable)
 as:
 \begin{align}
@@ -484,7 +476,7 @@ technique known as Rational Chebyshev approximations, which are accurate to
 at least the computer's accuracy and are evaluated directly, without
 iteration.
 
-The generalized form of the normal PDF and CDF are:
+The generalized form of the normal \ac{PDF} and CDF are:
 \begin{align}
 	X & \sim \operatorname{N}\left(\mu,\sigma^2\right) \\
 	f_X\left(x\right) & = \frac{1}{\sigma\sqrt{2\pi}}
@@ -580,7 +572,7 @@ following result:
 \Phi _n \left( {\mathbf{u}:\beta  - \mathbf{\alpha }^T \mathbf{u} \leqslant 0} \right) = \int\limits_{ - \infty }^\infty  { \cdots \int\limits_\beta ^\infty  {\text{j}_n \left( \mathbf{u} \right)du_1  \cdots } du_n }  = \Phi \left( { - \beta } \right)
 \]
 
-\subsubsection{The lognormal distribution}
+\subsection{The lognormal distribution}
 
 Many quantities in engineering, like length and elastic modulus, cannot be
 negative, and so require a distribution which does not predict non-zero
@@ -590,7 +582,7 @@ because it is obtained by assuming that the logs of the random variable are
 normally distributed.  We will only deal with a single random variable in
 this discussion.
 
-The lognormal distribution has two parameters: l and z, and the PDF and CDF
+The lognormal distribution has two parameters: l and z, and the \ac{PDF} and CDF
 are defined as:
 
 \[
@@ -630,13 +622,13 @@ variation) it is possible to derive l and z from the following equations:
 \]
 
 
-\subsubsection{Transformation to the standard normal space}
+\subsection{Transformation to the standard normal space}
 
 Because we might be working with a number of different probability
 distributions, and these might be correlated, the space in which we have to
 perform calculations is very complex.  In particular, although we might have
-a marginal PDF $f(x)$ for each $x$ in our space $\mathbf{x}$, we need the
-multivariate PDF $f(\mathbf{x})$, which would normally require the
+a marginal \ac{PDF} $f(x)$ for each $x$ in our space $\mathbf{x}$, we need the
+multivariate \ac{PDF} $f(\mathbf{x})$, which would normally require the
 evaluation of an $n$-fold integral over the space of $\mathbf{x}$ (where the
 vector $\mathbf{x}$ as $n$ elements).  Mathematically this is a difficult
 problem, and it becomes easier to perform calculations when we transform the
@@ -649,7 +641,7 @@ f_\mathbf{X} \left( \mathbf{x} \right) = \frac{{f_1 \left( {x_1 } \right)f_2 \le
 {{\varphi (z_1 )\varphi (z_2 ) \cdots \varphi (z_n )}}\varphi \left( {\mathbf{z},\mathbf{R}_0 } \right) = \varphi \left( \mathbf{u} \right)
 \]
 
-Notice that only the marginal PDF of each of the random variables appears in
+Notice that only the marginal \ac{PDF} of each of the random variables appears in
 the function, but that the correlation matrix \textbf{R} is replaced by
 \textbf{R}0 (the details of this will be discussed momentarily).  Notice
 also, that the function assumes that some transformation from $\mathbf{x}$
@@ -744,7 +736,7 @@ standard normal space to another distribution space we do not need to
 calculate the inverse of the lower triangular matrix \textbf{L}0.
 
 
-\subsection{Reliability analysis}
+\section{Reliability analysis}
 
 Reliability based design has been implemented in various structural design
 codes for some time.  In these codes there are two approaches to defining
@@ -791,7 +783,7 @@ caused by various random axle loads, all of which, not just the worst case,
 must be accounted for, since they all cause some damage.
 
 
-\subsubsection{Basic reliability concepts}
+\subsection{Basic reliability concepts}
 
 There are many different ways of presenting the reliability problem from a
 mathematical and statistical perspective -- unfortunately most of the
@@ -823,7 +815,7 @@ This is graphically represented in Figure 2.1.  In the top half of the
 figure we have probability density function, and in the bottom half, the
 limit state surface.  Where the limit state surface crosses under the zero
 plane, we have a line denoting the intersection.  This line is projected
-onto the PDF, and the integral of the area outside of this line taken.  In
+onto the \ac{PDF}, and the integral of the area outside of this line taken.  In
 general it is not possible to provide such figures, because the number of
 design variables $x$ in $\mathbf{x}$ is much larger than two.  Also, this
 figure is normally plotted as contours in the $\mathbf{x}$ space (as on the
@@ -967,7 +959,7 @@ SORM, which will not be described here.
 \textbf{Figure 2.2: Example of FORM and SORM approximations}
 
 
-\subsubsection{Multiple failure criteria}
+\subsection{Multiple failure criteria}
 
 If we have a system with more than one failure mode, then we need to
 consider if it is a parallel or a series system, or in other words, if it
@@ -986,7 +978,7 @@ Notice that the probability of failure for a series system is not the
 minimum of the probability of failure of each component.
 
 
-\subsection{Integration using simulation techniques}
+\section{Integration using simulation techniques}
 
 The term simulation covers a wide variety of methods in different
 mathematical fields, and covers all methodologies where numbers are
@@ -1012,7 +1004,7 @@ the correct result, although the there is no guarantee about the rate of
 convergence.
 
 
-\subsubsection{Generation of random numbers}
+\subsection{Generation of random numbers}
 
 To perform sampling, we require the generation of random numbers which
 conform to a specified distribution $f$$\mathbf{X}(\mathbf{x})$.  Most
@@ -1035,7 +1027,7 @@ space, we need to perform an inverse transformation to our variable space
 (i.e. $\mathbf{u}$ $\rightarrow$ \textbf{x)} as described above.
 
 
-\subsubsection{Adaptive Importance Sampling}
+\subsection{Adaptive Importance Sampling}
 
 When we perform simulation, we evaluate the integral in Equation~(1) using
 sampling.  Firstly, since we sample over the entire domain of $\mathbf{x}$
@@ -1096,7 +1088,7 @@ we do not need to match the correlation structure of the random variables
 themselves.  This greatly simplifies the transform from $\mathbf{u}$
 $\rightarrow$ $\mathbf{x}$.  However, in practice we need to use a Nataf
 distribution for $f$$\mathbf{X}(\mathbf{x})$, since we need to combine the
-marginal PDFs and correlation matrix, and so we need to transform our
+marginal \acp{PDF} and correlation matrix, and so we need to transform our
 problem into the standard normal space to compute
 $f$$\mathbf{X}(\mathbf{x})$.
 
@@ -1116,7 +1108,7 @@ distributions by the simple formula:
 
 where \textit{nj} is the number of samples from failure criteria \textit{j}.
 
-\section{Layered Elastic Calculation Engine}
+\chapter{Layered Elastic Calculation Engine}
 
 The layered elastic calculation engine within \OP\ was based on the
 \Fortran\ code from ELSYM5M, which was in turn a metric version of the
@@ -1146,7 +1138,7 @@ derivations are given here.  This discussion is based heavily on the summary
 of layered elastic theory prepared by Theyse1, with some minor modifications
 to better match the actual calculations performed in the code.
 
-\subsection{Radial coordinate system}
+\section{Radial coordinate system}
 
 Before we begin any discussion on the evaluation of the layered elastic
 system we need to establish some basic definitions.  Within the pavement
@@ -1264,7 +1256,7 @@ coordinate direction, then the positive stresses on that face are in the
 negative coordinate direction.
 
 
-\subsubsection{Determination of system response}
+\subsection{Determination of system response}
 
 The theory of evaluating multi-layered elastic systems is relatively well
 understood, but will be presented here to help people trying to read and
@@ -1773,7 +1765,7 @@ the limit statements in the derivations above do not apply when
 case.
 
 
-\subsubsection{Gaussian-Legendre Quadrature over products of Bessel functions}
+\subsection{Gaussian-Legendre Quadrature over products of Bessel functions}
 
 Unfortunately there are no closed form solutions to equations (11), and so
 we need to perform numerical integration.  Since the Bessel functions are
@@ -1870,7 +1862,7 @@ calculations.  In practice we stop the integration once the relative change
 from adding a new panel is less than 10-6.
 
 
-\subsubsection{Load superposition algorithm}
+\subsection{Load superposition algorithm}
 
 Because the new calculation engine can be passed any number of loads and
 evaluation locations it is important that it handle these intelligently to
@@ -1914,7 +1906,7 @@ calculate the principal stresses and also the strains at each evaluation
 location.
 
 
-\subsection{Calculation of Principal Stresses}
+\section{Calculation of Principal Stresses}
 
 After we have obtained the stresses in a Cartesian coordinate system, we
 need to transform these into principal stresses and strains.  This is a well
@@ -1926,7 +1918,7 @@ C' (XXX: ref), then detailing the optimisations found in the procedure used
 in ELSYM5M, and then finally the optimisations used in \OP.
 
 
-\subsubsection{Numerical solution of eigenvalues}
+\subsection{Numerical solution of eigenvalues}
 
 An Eigenvalue l, and corresponding (nonzero) eigenvector $\mathbf{x}$, of an
 $n$ $\times$ $n$ matrix \textbf{A} are defined as those solving the
@@ -2136,7 +2128,7 @@ this value needs to be completely recalculated if it falls outside the range
 simpler stopping criteria is to use \textit{apq}.
 
 
-\subsubsection{Specialized solution for principal stresses}
+\subsection{Specialized solution for principal stresses}
 
 Using a generalised eigenvalue solution for a three by three stress tensor
 is not the best possible solution, since we can make a number of
@@ -2218,8 +2210,8 @@ Finally we process $a$23 and obtain:
 
 We need to recalculate \textit{t} between each stage.
 
-\clearpage
-\singlespacing
+\backmatter
+%\singlespacing
 
 \nocite{*}
 \addcontentsline{toc}{section}{References}
@@ -2227,7 +2219,7 @@ We need to recalculate \textit{t} between each stage.
 \bibliography{openpave}
 
 \begin{acronym}
-  \acro{ADDL}{Academic Development and Distribution License}
+	\acro{ADDL}{Academic Development and Distribution License}
 	\acro{AC}{Asphalt Concrete}
 	\acro{PCC}{Portland Cement Concrete}
 	\acro{ME}{Mechanistic-Empirical}
@@ -2243,6 +2235,9 @@ We need to recalculate \textit{t} between each stage.
 	\acro{QC/QA}{Quality Control/Quality Assurance}
 	\acro{FWD}{Falling Weight Deflectometer}
 	\acro{PSI}{Present Serviceability Index}
+	\acro{PMF}{Probability Mass Function}
+	\acro{PDF}{Probability Density Function}
+	\acro{CDF}{Cumulative Distribution Function}
 \end{acronym}
 
 %\begin{appendix}
