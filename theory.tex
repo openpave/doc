@@ -24,13 +24,6 @@
 \chapterstyle{optech}
 \pagestyle{optech}
 
-\usepackage{latexsym}
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage[fleqn]{amsmath}
-% For various symbols
-\usepackage{textcomp}
-
 \ifpdf
 \pdfinfo {
 	/Title (OpenPave Theory)
@@ -99,46 +92,188 @@
 pavement engineering.  To that end it is important that the theoretical and
 mathematical foundation underlying that software are well understood, and
 that the mathematics are accurately and faithfully translated into code. 
-Thus, this document outlines the mathematics of the software, and how this
-is carried down to level of source code.  The source code makes reference to
+Thus, this document outlines the mathematics of the software, and how this is
+carried down to level of source code.  The source code makes reference to
 this document rather than extensive comments, since it is hard to express
 complex mathematics in comments.  However, this document is not just for
-people looking at the source code -- It should also serve as an excellent
+people looking at the source code --- It should also serve as an excellent
 reference for anyone looking to understand the more theoretical aspects of
 pavement engineering, and of some associated fields.
 
 This document is written in \AmS -\LaTeX, and is licensed under the same
 conditions as the source code, the \ac{ADDL}.  You are, therefore, free to
-make alterations to this document, and to use it as course notes or for
-other purposes, provided that you distribute any changes to you make. 
-Please review the conditions in the license for more information.
+make alterations to this document, and to use it as course notes or for other
+purposes, provided that you distribute any changes to you make.  Please
+review the conditions in the license for more information.
 
 \section{Typographical conventions}
 
 Because this document covers a number of diverse fields, there is some need
-to standardize the typographical conventions.  As a result there are a
-number of places where this document does not follow the `normal'
-conventions for a particular field.  However, since there is already
-considerable variety in the various fields, it is hoped that readers will be
-able to follow without having to completely re-wire their brains.
+to standardize the typographical conventions.  As a result there are a number
+of places where this document does not follow the `normal' conventions for a
+particular field.  However, since there is already considerable variety in
+the various fields, it is hoped that readers will be able to follow without
+having to completely re-wire their brains.
 
-The following conventions are used in this document:
+While most of the mathematical conventions will be introduced at the
+approriate time in the text, the following general conventions are used
+within the general text of this document:
+\begin{description}
+\tightlist
+\item[\textrm{Roman}] is used for general text.
+\item[\textit{Italics}] are used for emphasis.
+\item[\texttt{Typewriter}] is used for source code.
+\end{description}
 
-% XXX: need to invent a convention!
+Within mathematical formulas the following convetions are generally used,
+although they need to be broken once in a while.
+\begin{description}
+\tightlist
+\item[$\mathrm{Roman}$] is used for functions and operators.
+\item[$\mathit{Italics}$] are used for scalars.
+\item[$\mathbf{Bold}$] is used for vectors and matrices.
+\item[$\mathtt{Typewriter}$] is used for puesdo-mathematics in code.
+\item[$\mathsf{Sans-serif}$] is used for tensors.
+\end{description}
 
-\chapter{Mathematics and Numerical Theory}
+\chapter{Numbers and Computers}
 
+While it might seem a little strange to start at such a basic level as
+numbers for a document dealing with pavements, there are few pavement
+engineers who have a solid background in computer programming.  In addition,
+there are a number of places in common terminology where words are over used
+and so this section outlines some of the more basic concepts underlying \OP's
+code.
 
-\chapter{Statistics and Reliability}
+\section{Collections of Objects}
+
+Underlying much of what goes on in both mathematics and computers is the idea
+of collections of some type of abstract object.  These collections are given
+different names depending on their properties, and it is nessecary to
+understand the differences to avoid using the wrong collections.  However, we
+do not have the space to develop these concepts in detail, so you may wish to
+consult a more general reference.
+
+Mathmaticans, Computer Scientists and Database designers use the same terms
+to refer to collections of objects, although their defitions often differ
+considerably.  Here we will be detailing those differences, and refining the
+use of terms used later within the text.  In computer science the type of
+collection is refered to as a container.
+
+The objects which can be collected are are as varied as your imagination ---
+anything which you can name can be an object.  We will discuss objects in
+more detail in a later section.  However, a distiction must be drawn between
+collections of like objects and dislike objects.  In mathematics, collections
+normally only contain like objects.  The objects within a collection are
+refered to as elements.
+
+\subsection{Sets}
+
+Sets are one of the most fundamental concepts in matematics and, in fact, all
+of the mathematics which we will deal with can be carefully defined in terms
+of sets and operations on those sets.  There is a very large branch of
+mathematics which deals with Set Theory, but here we will only need to
+consider na\"ive set theory, which is what most people have learnt in school.
+
+A set is a collection of objects, with no particular order and no repeated
+objects (or rather repeat objects are ignored).  In normal mathematical
+notation sets are denoted by `curly braces', such as $\{0,1,2\}$ or
+$\{\textrm{apple}\}$.  If we denote the heads and tails outcomes of tossing
+a coin as $H$ and $T$ respectively, then because sets do not contain repeated
+items the sets $\{H,T,T,T,H\}$ and $\{H,T\}$ are equivalent.  Similarly the
+sets $\{1,2,3,3,2,1\}$ and $\{1,2,3\}$ are also equivalent.
+
+In mathematics, sets can be countably infinite --- meaning that the items in
+the set can be differentiated from one an other and not split into a smaller
+item, and thus can be counted, but that there are an infinite number of items
+in the set, or they can uncountable --- meaning that the items in the set can
+always be split into smaller items, or the set can be finite.  For our
+purposes the number of gains of sand on the sea shore falls into the first
+class, the possible lengths of a piece of string into the second, and the
+pages of a book into the third.  In computer sience sets are always finite,
+since computers don't like dealing with infinite numbers.
+
+\subsection{Multisets}
+
+In mathematics a multiset is a set which can contain repeated items.  In
+computer sience the same concept is often refered to as a bag.  Thus if you
+were to toss a coin five times and get the results $\{H,T,T,T,H\}$, then toss
+it a further five times and get $\{T,H,T,H,H\}$ then these would be different
+multisets.  However, the multisets $\{T,H,T,H,H\}$ and $\{T,T,H,H,H\}$ are
+equivalent.  Multisets are also denoted by `curly brackets', but can be
+distingished by having repeated items.  
+
+\subsection{Ordered Multisets}
+
+In mathematics a tuple is an ordered multiset.  Thus if you are tossing a
+coin looking for the first heads the multisets $\{T,H,T,H,H\}$ and
+$\{T,T,H,H,H\}$ are different (if they represent the order in which the
+tosses occured).  Tuples form the basis of vectors, tensors and matrix
+algebra, which we will discuss in a short while.  One should not confuse the
+fact that the set is ordered with it being sorted.  A sorted set is one in
+which the elements have been reordered according to some rule.
+
+In computer sience tuple is an overused term, which can mean an ordered
+multiset (although the term array is normally used for these) or it can mean
+an ordered set of unlike objects.  It is also used in this second sense by
+database designers.  Since most of the readers of this document will be more
+familiar with the term array, we will use that for ordered multisets, and
+restrict the use of tuple to the computer sience sense.
+
+Arrays are normally denoted using `square brackets', so the first ordered
+multisets above should have been written as $[T,H,T,H,H]$.  Items in an
+ordered multiset are also distingushed by a subscripted index, such as $a_i$. 
+
+\subsection{Ordered Sets}
+
+Although in mathematics it is traditional to write sets in their natural
+sorted order, there are only a few places where ordered sets are used in
+mathematics --- most mathematical formulations are actually independant of
+the order of the sets.  However, they are much more common in computer sience
+where they are normally refered to as lists, or sometimes, unique lists.
+
+\subsection{Maps and Structures}
+
+An ordered set or multiset has a natural index into the items --- first,
+second, etc.  It is conceptually simple to expand that concept to using more
+abstract indices (or keys).  These types of sets are refered to as maps
+(which must not be confused with a mapping, which will be addressed later) or
+some times as keyed sets.  However, this becomes quite difficult using
+standard mathematically notation, and maps are not often used in mathematics. 
+Often in computer science the key and value pair from a map will be refered
+to as a tuple.  Within this document the term keyed set will be reserved for
+sets where the key is a component of the value and the term map reserved for
+sets where the key is a not a component.  By nature the key must be unique
+(since otherwise one cannot find the items --- one cannot have two first
+items in a list), and so a keyed set is naturally not capable of being a
+multiset, while a map could have multiple equal values and thus be a multiset
+(although if you consider the key and value tuple as a single object then a
+map and keyed set are equivalent).
+
+One major use of maps in computer science is to provide names for the
+different slots in a tuple (since a tuple stores unlike objects).  In this
+way one can handle unordered tuples.  All modern computer languages also
+provide the concept of structures, which are a ordered tuple with named
+members.  A map and a structure are logically completely equivalent and some
+computer languages allow one to convert easily between the two.  However, the
+members of a structure are normally determined in advance, while a map could
+conceivably hold an infinite number of elements.
+
+\section{Numbers}
+
+\section{Vectors and Tensors}
+
+\section{Linear Algebra}
+
+\chapter{Statistics}
 
 While reliability is a fairly simple concept, there are many different
-approaches to calculating it, not all of which provide a consistent,
-unbiased analysis.  In this section, a short mathematical background to the
-approach used in \OP\ is given.  The approach is an adaptive importance
-sampling algorithm, based on assumed distributions for the design
-parameters.
+approaches to calculating it, not all of which provide a consistent, unbiased
+analysis.  In this section, a short mathematical background to the approach
+used in \OP\ is given.  The approach is an adaptive importance sampling
+algorithm, based on assumed distributions for the design parameters.
 
-\section{Basic introduction to statistical terminology}
+\section{Statistical Terminology}
 
 Often the terminology used in statistical analysis can be confusing, and
 unless the reader understands the implications of the words being used, they
@@ -147,7 +282,7 @@ reader is well versed in statistics, then they probably want to skip this
 section.  Readers who have little or no background in statistics will
 certainly want to consult an entry level statistics text before continuing.
 
-\subsection{Definition of terminology}
+\subsection{Definition of Probability}
 
 The three basic building blocks of statistics are variables, events and
 probabilities.  A variable is a number, which in general can take on a value
@@ -156,12 +291,12 @@ can either be discrete (integer) or continuous (real) numbers.  There are
 three basic types of variables: constants, parameters and random variables. 
 A constant is, fairly obviously, a constant number whose value is known
 precisely (normally fairly rare in engineering).  A parameter is a variable
-whose value has been determined based on past data, and a random variable
-is, well, random -- when measured it could take on any value within it's
-range.  However, a random variable can be observed (under a given state of
-the system) and the observed value of a random variable is fixed and is
-known as an observation.  Observations are often in pairs or sets of random
-variables observed under the same state of the system.
+whose value has been determined based on past data, and a random variable is,
+well, random --- when measured it could take on any value within it's range. 
+However, a random variable can be observed (under a given state of the
+system) and the observed value of a random variable is fixed and is known as
+an observation.  Observations are often in pairs or sets of random variables
+observed under the same state of the system.
 
 Random variables can be classified as exogenous and endogenous, which refer
 to variables which are explain the randomness in the system (hence they are
@@ -243,7 +378,7 @@ modeling, and the third is the testing of hypotheses, known as statistical
 inference, which is determining whether the probability that an event might
 be observed compared to the confidence with which we wish it to be observed.
 
-\subsection{Conditional probability}
+\subsection{Conditional Probability}
 
 One of the most powerful ideas in probability theory is the idea of
 conditioning.  Once we have observed one random variable it can tell us

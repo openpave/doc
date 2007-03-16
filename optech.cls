@@ -9,8 +9,20 @@
 \ProvidesClass{optech}
 \LoadClassWithOptions{memoir}
 
-\usepackage[T1]{fontenc}
+\usepackage{latexsym}
+\usepackage{textcomp}
 
+\RequirePackage{fix-cm}
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern} 
+\usepackage{amsfonts,amssymb}
+%\usepackage{pslatex}
+%\usepackage{fourier}
+%\usepackage{eulervm}
+%\usepackage[utopia]{mathdesign}
+
+\usepackage[fleqn]{amsmath}
+ 
 \clubpenalty=10000
 \widowpenalty=10000 
 \displaywidowpenalty=10000

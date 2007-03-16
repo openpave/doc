@@ -227,7 +227,7 @@ FUNCTION {field.or.null}
 FUNCTION {smallcapize}
 { duplicate$ empty$
     { pop$ "" }
-    { "{\textsc " swap$ * "}" * }
+    { "{\scshape " swap$ * "}" * }
   if$
 }
 
