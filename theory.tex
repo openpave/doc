@@ -116,7 +116,7 @@ the various fields, it is hoped that readers will be able to follow without
 having to completely re-wire their brains.
 
 While most of the mathematical conventions will be introduced at the
-approriate time in the text, the following general conventions are used
+appropriate time in the text, the following general conventions are used
 within the general text of this document:
 \begin{description}
 \tightlist
@@ -125,7 +125,7 @@ within the general text of this document:
 \item[\texttt{Typewriter}] is used for source code.
 \end{description}
 
-Within mathematical formulas the following convetions are generally used,
+Within mathematical formulas the following conventions are generally used,
 although they need to be broken once in a while.
 \begin{description}
 \tightlist
@@ -149,27 +149,27 @@ code.
 
 Underlying much of what goes on in both mathematics and computers is the idea
 of collections of some type of abstract object.  These collections are given
-different names depending on their properties, and it is nessecary to
+different names depending on their properties, and it is necessary to
 understand the differences to avoid using the wrong collections.  However, we
 do not have the space to develop these concepts in detail, so you may wish to
 consult a more general reference.
 
-Mathmaticans, Computer Scientists and Database designers use the same terms
-to refer to collections of objects, although their defitions often differ
+Mathematicians, Computer Scientists and Database designers use the same terms
+to refer to collections of objects, although their definitions often differ
 considerably.  Here we will be detailing those differences, and refining the
 use of terms used later within the text.  In computer science the type of
-collection is refered to as a container.
+collection is referred to as a container.
 
 The objects which can be collected are are as varied as your imagination ---
 anything which you can name can be an object.  We will discuss objects in
-more detail in a later section.  However, a distiction must be drawn between
+more detail in a later section.  However, a distinction must be drawn between
 collections of like objects and dislike objects.  In mathematics, collections
 normally only contain like objects.  The objects within a collection are
-refered to as elements.
+referred to as elements.
 
 \subsection{Sets}
 
-Sets are one of the most fundamental concepts in matematics and, in fact, all
+Sets are one of the most fundamental concepts in mathematics and, in fact, all
 of the mathematics which we will deal with can be carefully defined in terms
 of sets and operations on those sets.  There is a very large branch of
 mathematics which deals with Set Theory, but here we will only need to
@@ -190,57 +190,57 @@ in the set, or they can uncountable --- meaning that the items in the set can
 always be split into smaller items, or the set can be finite.  For our
 purposes the number of gains of sand on the sea shore falls into the first
 class, the possible lengths of a piece of string into the second, and the
-pages of a book into the third.  In computer sience sets are always finite,
+pages of a book into the third.  In computer science sets are always finite,
 since computers don't like dealing with infinite numbers.
 
 \subsection{Multisets}
 
 In mathematics a multiset is a set which can contain repeated items.  In
-computer sience the same concept is often refered to as a bag.  Thus if you
+computer science the same concept is often referred to as a bag.  Thus if you
 were to toss a coin five times and get the results $\{H,T,T,T,H\}$, then toss
 it a further five times and get $\{T,H,T,H,H\}$ then these would be different
 multisets.  However, the multisets $\{T,H,T,H,H\}$ and $\{T,T,H,H,H\}$ are
 equivalent.  Multisets are also denoted by `curly brackets', but can be
-distingished by having repeated items.  
+distinguished by having repeated items.  
 
 \subsection{Ordered Multisets}
 
 In mathematics a tuple is an ordered multiset.  Thus if you are tossing a
 coin looking for the first heads the multisets $\{T,H,T,H,H\}$ and
 $\{T,T,H,H,H\}$ are different (if they represent the order in which the
-tosses occured).  Tuples form the basis of vectors, tensors and matrix
+tosses occurred).  Tuples form the basis of vectors, tensors and matrix
 algebra, which we will discuss in a short while.  One should not confuse the
 fact that the set is ordered with it being sorted.  A sorted set is one in
 which the elements have been reordered according to some rule.
 
-In computer sience tuple is an overused term, which can mean an ordered
+In computer science tuple is an over-used term, which can mean an ordered
 multiset (although the term array is normally used for these) or it can mean
 an ordered set of unlike objects.  It is also used in this second sense by
 database designers.  Since most of the readers of this document will be more
 familiar with the term array, we will use that for ordered multisets, and
-restrict the use of tuple to the computer sience sense.
+restrict the use of tuple to the computer science sense.
 
 Arrays are normally denoted using `square brackets', so the first ordered
 multisets above should have been written as $[T,H,T,H,H]$.  Items in an
-ordered multiset are also distingushed by a subscripted index, such as $a_i$. 
+ordered multiset are also distinguished by a subscripted index, such as $a_i$. 
 
 \subsection{Ordered Sets}
 
 Although in mathematics it is traditional to write sets in their natural
 sorted order, there are only a few places where ordered sets are used in
-mathematics --- most mathematical formulations are actually independant of
-the order of the sets.  However, they are much more common in computer sience
-where they are normally refered to as lists, or sometimes, unique lists.
+mathematics --- most mathematical formulations are actually independent of
+the order of the sets.  However, they are much more common in computer science
+where they are normally referred to as lists, or sometimes, unique lists.
 
 \subsection{Maps and Structures}
 
 An ordered set or multiset has a natural index into the items --- first,
 second, etc.  It is conceptually simple to expand that concept to using more
-abstract indices (or keys).  These types of sets are refered to as maps
+abstract indices (or keys).  These types of sets are referred to as maps
 (which must not be confused with a mapping, which will be addressed later) or
 some times as keyed sets.  However, this becomes quite difficult using
 standard mathematically notation, and maps are not often used in mathematics. 
-Often in computer science the key and value pair from a map will be refered
+Often in computer science the key and value pair from a map will be referred
 to as a tuple.  Within this document the term keyed set will be reserved for
 sets where the key is a component of the value and the term map reserved for
 sets where the key is a not a component.  By nature the key must be unique
@@ -467,7 +467,7 @@ a \ac{PMF}, \ac{PDF} or CDF, which will not all be described here, since they ar
 documented in literature.  Each function takes a number of parameters
 (normally one to four parameters), which are known as the distribution
 parameters.  For reliability analysis we are mostly concerned with the
-normal and lognormal distributions.  However, we will return to them after
+normal and log-normal distributions.  However, we will return to them after
 discussing some of the general properties of distributions.
 
 Very often we wish to know what value of a random variable corresponds to a
@@ -591,7 +591,7 @@ It is possible to prove that the correlation coefficient has a range
 $\left[-1,1\right]$ and takes on a value of $0$ if the variables are
 independent, and $1$ or $-1$ if the variables are perfectly correlated.
 
-\subsection{The normal and multinormal distributions}
+\subsection{The normal and multi-normal distributions}
 
 By far the most widely used distribution is the normal or Gaussian
 distribution, the classic bell shaped curve.  The normal distribution is
@@ -624,7 +624,7 @@ The generalized form of the normal \ac{PDF} and CDF are:
 \end{align} 
 
 If we have more than one random variable then we define the multivariate
-normal (or multinormal) distribution as follows:
+normal (or multi-normal) distribution as follows:
 \begin{align}
 \operatorname{E}\left[X_1\right] & = \mu _1 \\
 \operatorname{Var}\left[X_1\right] & = \sigma _1^2 \\
@@ -704,24 +704,24 @@ The uncorrelated standard normal space is also rotational symmetric, so if
 we are interested in the probability contained within a region bounded by a
 hyper-plane then it is always possible to rotate that plane so that we can
 obtain the marginal CDF in only one dimension.  Since the marginal CDF of
-the multinormal distribution is also a normal distribution we can obtain the
+the multi-normal distribution is also a normal distribution we can obtain the
 following result:
 
 \[
 \Phi _n \left( {\mathbf{u}:\beta  - \mathbf{\alpha }^T \mathbf{u} \leqslant 0} \right) = \int\limits_{ - \infty }^\infty  { \cdots \int\limits_\beta ^\infty  {\text{j}_n \left( \mathbf{u} \right)du_1  \cdots } du_n }  = \Phi \left( { - \beta } \right)
 \]
 
-\subsection{The lognormal distribution}
+\subsection{The log-normal distribution}
 
 Many quantities in engineering, like length and elastic modulus, cannot be
 negative, and so require a distribution which does not predict non-zero
-probabilities for negative numbers.  For these quantities the lognormal
+probabilities for negative numbers.  For these quantities the log-normal
 distribution is used.  It is closely related to the normal distribution
 because it is obtained by assuming that the logs of the random variable are
 normally distributed.  We will only deal with a single random variable in
 this discussion.
 
-The lognormal distribution has two parameters: l and z, and the \ac{PDF} and CDF
+The log-normal distribution has two parameters: l and z, and the \ac{PDF} and CDF
 are defined as:
 
 \[
@@ -829,8 +829,8 @@ types of \textit{xi} and \textit{xj}.
 
 If \textit{xi} and \textit{xj} are both normal then \textit{ $\rho$
 }0\textit{,ij} equals \textit{ $\rho$ ij }by definition.  If \textit{xj} is
-lognormal, then \textit{ $\rho$ }0\textit{,ij} is given (exactly) by the
-following equations depending on whether \textit{xi} is normal or lognormal:
+log-normal, then \textit{ $\rho$ }0\textit{,ij} is given (exactly) by the
+following equations depending on whether \textit{xi} is normal or log-normal:
 
 \[
 \begin{gathered}
@@ -863,7 +863,7 @@ simplified:
 \end{gathered} 
 \]
 
-In addition if we have a lognormal distribution then:
+In addition if we have a log-normal distribution then:
 
 \[
 z_i  = \frac{{\ln x_i  - \lambda _i }}
@@ -898,7 +898,7 @@ Pavements are a different type of structure -- they are designed to
 progressively fail under continued loading, and so the `design life' is
 normally considered to be the expected time until major rehabilitation will
 have to be undertaken.  It is this progressive failure which presents the
-biggest problem in terms of characterising reliability within a pavement
+biggest problem in terms of characterizing reliability within a pavement
 structure, because it means that all of the loading needs to be considered
 and not just the worst cases.
 
@@ -969,7 +969,7 @@ Let us assume we have a bar of material, which is subject to some tensile
 force $T$, and which has a tensile load capacity of $C$, which is greater
 than zero.  Let us assume the $T$ is normally distributed, with a mean of
 10~kN, and a standard deviation of 4~kN.  Let us also assume that $C$ is
-lognormally distributed, and independent of $T$, with a mean of 15~kN and a
+log-normally distributed, and independent of $T$, with a mean of 15~kN and a
 standard deviation of 2~kN.  We will be using this example for the rest of
 the explanations in this section, even though it appears to have little to
 do with pavements.
@@ -1083,7 +1083,7 @@ method, where we perturb each random variable slightly and calculate the
 change in \textit{g}$(\mathbf{x})$, but this requires solving the system for
 $n$ random variables each time we need to determine the gradient vector.
 
-Finding \textbf{u*} requires solving an optimisation problem, which is to
+Finding \textbf{u*} requires solving an optimization problem, which is to
 find the closest point on $\{$ \textit{G}$(\mathbf{u})$=0 $\}$ to the
 origin.  Zhang and Der Kiureghian (1995)3 provide an efficient algorithm,
 known as the improved HL-RF algorithm, to solve this problem, which is
@@ -1123,7 +1123,7 @@ The term simulation covers a wide variety of methods in different
 mathematical fields, and covers all methodologies where numbers are
 generated in the space of possible input variables, and used to calculate
 the output of a mathematical representation of a system.  The output can
-then be analysed to draw conclusions about the behaviour of the system.  The
+then be analyzed to draw conclusions about the behavior of the system.  The
 theory of simulation is very well understood, and we will use a few minor
 shortcuts in the mathematical explanation here for simplicity.  In
 statistics, the basic simulation technique is known as Monte Carlo
@@ -1222,7 +1222,7 @@ estimate of where the failure region lies.
 
 Since the sampling distribution is independent of the probability
 distribution of the random variables themselves, we can choose a convenient
-distribution (such as a combination of normal and lognormal variables) and
+distribution (such as a combination of normal and log-normal variables) and
 we do not need to match the correlation structure of the random variables
 themselves.  This greatly simplifies the transform from $\mathbf{u}$
 $\rightarrow$ $\mathbf{x}$.  However, in practice we need to use a Nataf
@@ -1336,7 +1336,7 @@ with them further:
 We perform the calculations for each load individually, and use the
 principle of load superposition (which is valid for any elastic system) to
 sum the effects of each load at each evaluation location.  Because the loads
-are circular, the problem is therefore axi-symmetric around the centre of
+are circular, the problem is therefore axi-symmetric around the center of
 the load, and so we perform the calculations in a radial coordinate system.
 
 In this radial coordinate system we also have three normal stresses
@@ -1865,7 +1865,7 @@ f\left( r \right) = \Pi _a \left( r \right) = \left\{ {\begin{array}{*{20}c}
  \end{array} } \right.
 \]
 
-Which defines a circular load on the surface, centred at the origin, with
+Which defines a circular load on the surface, centered at the origin, with
 radius $a$ and a unit pressure.  Too obtain this load we combine an infinite
 number of Bessel function loads, each scaled such that the sum of the loads
 matches this applied load.  This is done through a Hankel transform of (9)
@@ -1909,7 +1909,7 @@ case.
 Unfortunately there are no closed form solutions to equations (11), and so
 we need to perform numerical integration.  Since the Bessel functions are
 smooth and we can compute them at any abscissa we use Gaussian-Legendre
-Quadrature to minimise the number of times we need to evaluate the system in
+Quadrature to minimize the number of times we need to evaluate the system in
 (11), including solving for $C$ $\infty$ , $D$ $\infty$ and \textit{Ai},
 \textit{Bi}, \textit{Ci} and \textit{Di} using (8) and (6), since these have
 to be performed at each \textit{m} value which we require for the
@@ -1919,7 +1919,7 @@ All numerical integration techniques make use of the fact that the integral
 of a function is the area under the function, and can therefore be
 approximated by taking the product of the average of the function over some
 range and the width of that range.  At the most basic level we merely
-evaluate the function at the centre of the range, but for better
+evaluate the function at the center of the range, but for better
 approximations we fit polynomials through a number of points in the range
 and establish the average value of the polynomial.
 
@@ -2011,7 +2011,7 @@ calculations once for each radial offset from each load type, and also (by
 the principle of superposition) that we can calculate for each load radius
 at a unit pressure, then scale the results based on the actual pressure.
 
-To minimise the number of calculations required the new calculation engine
+To minimize the number of calculations required the new calculation engine
 goes through the following procedure: First all of the $z$ positions of the
 evaluation locations are collected and a unique sorted list is compiled. 
 The layer that each of these $z$ positions falls within is then determined. 
@@ -2053,8 +2053,8 @@ known problem, of solving the eigenvalues of a matrix.  However, we are
 dealing with a 3x3 matrix, and so most numerical techniques are overkill. 
 This section describes the procedure used in \OP.  We begin with a general
 discussion of solving eigenvalues, based on that from `Numerical Recipes in
-C' (XXX: ref), then detailing the optimisations found in the procedure used
-in ELSYM5M, and then finally the optimisations used in \OP.
+C' (XXX: ref), then detailing the optimizations found in the procedure used
+in ELSYM5M, and then finally the optimizations used in \OP.
 
 
 \subsection{Numerical solution of eigenvalues}
@@ -2219,7 +2219,7 @@ to ensure that we always have the smaller root.  We can thus obtain:
 \]
 
 
-We can also simplfy (12), as:
+We can also simplify (12), as:
 
 \[
 \begin{gathered}
@@ -2269,7 +2269,7 @@ simpler stopping criteria is to use \textit{apq}.
 
 \subsection{Specialized solution for principal stresses}
 
-Using a generalised eigenvalue solution for a three by three stress tensor
+Using a generalized eigenvalue solution for a three by three stress tensor
 is not the best possible solution, since we can make a number of
 simplifications by `unrolling' the equations.  The first change is to always
 process all three off diagonal elements, rather than just the maximum
