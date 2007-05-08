@@ -160,7 +160,7 @@ considerably.  Here we will be detailing those differences, and refining the
 use of terms used later within the text.  In computer science the type of
 collection is referred to as a container.
 
-The objects which can be collected are are as varied as your imagination ---
+The objects which can be collected are as varied as your imagination ---
 anything which you can name can be an object.  We will discuss objects in
 more detail in a later section.  However, a distinction must be drawn between
 collections of like objects and dislike objects.  In mathematics, collections
@@ -177,11 +177,12 @@ consider na\"ive set theory, which is what most people have learnt in school.
 
 A set is a collection of objects, with no particular order and no repeated
 objects (or rather repeat objects are ignored).  In normal mathematical
-notation sets are denoted by `curly braces', such as $\{0,1,2\}$ or
+notation sets are denoted by `curly braces', such as $\{0,$ $1,$ $2\}$ or
 $\{\textrm{apple}\}$.  If we denote the heads and tails outcomes of tossing
 a coin as $H$ and $T$ respectively, then because sets do not contain repeated
-items the sets $\{H,T,T,T,H\}$ and $\{H,T\}$ are equivalent.  Similarly the
-sets $\{1,2,3,3,2,1\}$ and $\{1,2,3\}$ are also equivalent.
+items the sets $\{H,$ $T,$ $T,$ $T,$ $H\}$ and $\{H,$ $T\}$ are equivalent. 
+Similarly the sets $\{1,$ $2,$ $3,$ $3,$ $2,$ $1\}$ and $\{1,$ $2,$ $3\}$ are also
+equivalent.
 
 In mathematics, sets can be countably infinite --- meaning that the items in
 the set can be differentiated from one an other and not split into a smaller
@@ -197,32 +198,34 @@ since computers don't like dealing with infinite numbers.
 
 In mathematics a multiset is a set which can contain repeated items.  In
 computer science the same concept is often referred to as a bag.  Thus if you
-were to toss a coin five times and get the results $\{H,T,T,T,H\}$, then toss
-it a further five times and get $\{T,H,T,H,H\}$ then these would be different
-multisets.  However, the multisets $\{T,H,T,H,H\}$ and $\{T,T,H,H,H\}$ are
-equivalent.  Multisets are also denoted by `curly brackets', but can be
-distinguished by having repeated items.  
+were to toss a coin five times and get the results $\{H,$ $T,$ $T,$ $T,$
+$H\}$, then toss it a further five times and get $\{T,$ $H,$ $T,$ $H,$ $H\}$
+then these would be different multisets.  However, the multisets
+$\{T,$ $H,$ $T,$ $H,$ $H\}$ and $\{T,$ $T,$ $H,$ $H,$ $H\}$ are equivalent. 
+Multisets are also denoted by `curly brackets', but can be distinguished by
+having repeated items.
 
 \subsection{Ordered Multisets}
 
 In mathematics a tuple is an ordered multiset.  Thus if you are tossing a
-coin looking for the first heads the multisets $\{T,H,T,H,H\}$ and
-$\{T,T,H,H,H\}$ are different (if they represent the order in which the
-tosses occurred).  Tuples form the basis of vectors, tensors and matrix
-algebra, which we will discuss in a short while.  One should not confuse the
-fact that the set is ordered with it being sorted.  A sorted set is one in
-which the elements have been reordered according to some rule.
+coin looking for the first heads the multisets $\{T,$ $H,$ $T,$ $H,$ $H\}$ and
+$\{T,$ $T,$ $H,$ $H,$ $H\}$ are different (if they represent the order in
+which the tosses occurred).  Tuples form the basis of vectors, tensors and
+matrix algebra, which we will discuss in a short while.  One should not
+confuse the fact that the set is ordered with it being sorted.  A sorted set
+is one in which the elements have been reordered according to some rule.
 
 In computer science tuple is an over-used term, which can mean an ordered
 multiset (although the term array is normally used for these) or it can mean
 an ordered set of unlike objects.  It is also used in this second sense by
 database designers.  Since most of the readers of this document will be more
 familiar with the term array, we will use that for ordered multisets, and
-restrict the use of tuple to the computer science sense.
+restrict the use of tuple to the database sense.
 
 Arrays are normally denoted using `square brackets', so the first ordered
-multisets above should have been written as $[T,H,T,H,H]$.  Items in an
-ordered multiset are also distinguished by a subscripted index, such as $a_i$. 
+multisets above should have been written as $[T,$ $H,$ $T,$ $H,$ $H]$.  Items
+in an ordered multiset are also distinguished by a subscripted index, such as
+$a_i$.
 
 \subsection{Ordered Sets}
 
@@ -388,26 +391,26 @@ except to observe than the temperature is below average.  If we have the
 events $A$ and $B$, then we define the conditional probability of observing
 $A$ given that we have already observed $B$ (and therefore that the
 probability of observing $B$ is greater than zero), as:
-\[
+\begin{equation*}
 P\{A|B\}=\frac{P\{A\cap B\}}{P\{B\}}
-\]
+\end{equation*}
 or in other words, the probability of observing both $A$ and $B$, weighted
 by the probability of observing $B$.  Since probability is independent of
 observation, we can assume we measured $A$ first to obtain:
-\[
+\begin{equation*}
 P\{A\cap B\}=P\{A|B\}P\{B\}=P\{B|A\}P\{A\}
-\]
+\end{equation*}
 If the probability of $A$ is independent of the outcome $B$ then we say that
 the two events are independent:
-\[
+\begin{equation*}
 P\{A\cap B\}=P\{A\}P\{B\}=P\{B\}P\{A\}
-\]
+\end{equation*}
 When we are dealing with conditional probabilities, we refer to the
 unconditional probability of observing an event as the marginal probability. 
 Given that $B$ has outcomes $1$ to $n$, then we have:
-\[
-P\{A\}=\sum\limits_{b=1}^n{P\{A|B=b\}P\{B=b\}} 
-\]
+\begin{equation*}
+P\{A\}=\sum_{b=1}^n{P\{A|B=b\}P\{B=b\}} 
+\end{equation*}
 or that the total probability of observing $A$ is the sum of the
 probabilities of observing $A$ conditional on all of the outcomes of $B$.
 
@@ -432,32 +435,32 @@ discrete unbounded sets the same notation applies, except $n=\infty$) in the
 same order as in $A$, if $A$ is an ordered set.  The probability of
 observing one value $a$, from $1$ to $n$ is a function of the system being
 observed and given by:
-\[
+\begin{equation*}
 p_X\left(a\right)=P\{X=a\}
-\]
+\end{equation*}
 The probability that $x$ is less than or equal to $a$ is given by:
-\[
-F_X\left(a\right)=P\{X\leqslant a\}=\sum\limits_{x=1}^a{P\{X=x\}}
-\]
+\begin{equation*}
+F_X\left(a\right)=P\{X\leqslant a\}=\sum_{x=1}^a{P\{X=x\}}
+\end{equation*}
 These two functions are respectively known as the \ac{PMF} and \ac{CDF}. 
 Defining probability functions for continuous random variables is a little
 more tricky, because the probability of observing a particular value is
 zero.  We thus define a \ac{PDF}, which is the limiting probability of
 observing a value within a small increment:
-\[
+\begin{equation*}
 f_X\left(x\right)=\mathop{\lim}\limits_{\Delta x\to 0}
 	\frac{P\{x\leqslant X < x + \Delta x\}}{\Delta x}
-\]
+\end{equation*}
 and then define the CDF as:
-\[
-F_X\left(a\right)=P\{X\leqslant a\}=\int\limits_{-\infty}^a{f_X\left(x\right)dx}
-\]
+\begin{equation*}
+F_X\left(a\right)=P\{X\leqslant a\}=\int_{-\infty}^a{f_X\left(x\right)dx}
+\end{equation*}
 
 Note that the probability density function is a not constrained to the range
-$[0,1]$.  There is a unique relationship between the \ac{PMF} or \ac{PDF} and the CDF,
-so that if one is known then there is one and only one possible function
-will satisfy the conditions of the other.  For most of the rest of this
-discussion we will use the notation for continuous random variables.  In
+$[0,1]$.  There is a unique relationship between the \ac{PMF} or \ac{PDF} and
+the CDF, so that if one is known then there is one and only one possible
+function will satisfy the conditions of the other.  For most of the rest of
+this discussion we will use the notation for continuous random variables.  In
 either case the CDF is a non-decreasing function of $x$, with values from
 $0$ to $1$, and is defined as taking on a value of $0$ for undefined values
 of $x$.
@@ -473,15 +476,15 @@ discussing some of the general properties of distributions.
 Very often we wish to know what value of a random variable corresponds to a
 given probability (e.g. for what load is there a 95\% probability that a
 beam will fail).  This can be determined using the inverse CDF:
-\[
+\begin{equation*}
 x = F_X^{-1}\left(p\right) \text{ such that } p = F_X\left(x\right)
-\]
+\end{equation*}
 Also, in many cases we wish to know the probability that a value is greater
 than some threshold, which can be calculated using the complementary CDF:
-\[
-\bar F_X\left(a\right) = P\{X>a\} = \int\limits_a^\infty{f_X\left(x\right)dx} =
+\begin{equation*}
+\bar F_X\left(a\right) = P\{X>a\} = \int_a^\infty{f_X\left(x\right)dx} =
 	1-F_X\left(a\right)
-\]
+\end{equation*}
 
 In cases where we are numerically evaluating functions at probabilities very
 close to one it is often better to use a special complementary CDF routine
@@ -500,28 +503,41 @@ develop multivariate distributions for combinations of discrete and
 continuous random variables the mathematics is fairly hairy and we will
 avoid it.  For discrete random variables the joint \ac{PMF} and CDF can be
 defined as:
-\begin{align}
-  p_{XY}\left(x,y\right)& =P\{X=x\cap Y=y\} \\
-  F_{XY}\left(x,y\right)& =P\{X\leqslant x\cap Y\leqslant y\}=
-   	\sum\limits_{x_i\leqslant x}{\sum\limits_{y_j\leqslant y}{p_{XY}\left(x_i,y_j\right)}}
-\end{align} 
+\begin{align*}
+  p_{XY}\left(x,y\right) & = P\{X=x\cap Y=y\} \\
+\begin{split}
+  F_{XY}\left(x,y\right) & = P\{X\leqslant x\cap Y\leqslant y\} \\
+                         & = \sum_{x_i\leqslant x}
+                               {\sum_{y_j\leqslant y}
+                                {p_{XY}\left(x_i,y_j\right)}}
+\end{split}
+\end{align*} 
 and using the rules for conditional probability outlined above it is
 possible to develop a conditional \ac{PMF}:
-\[
+\begin{equation*}
 \begin{split}
 p_{X|Y}\left(x|y\right) & = \frac{P\{X=x\cap Y=y\}}{P\{Y=y\}} \\
                & = \frac{p_{XY}\left(x,y\right)}{p_Y\left(y\right)} \\
-               & = \frac{p_{XY}\left(x,y\right)}{\sum\limits_x{p_{XY}\left(x,y\right)}}
+               & = \frac{p_{XY}\left(x,y\right)}
+                     {\sum_x{p_{XY}\left(x,y\right)}}
 \end{split} 
-\]
+\end{equation*}
 A similar scheme applies for continuous random variables:
-\begin{align}
-F_{XY}\left(x,y\right) & = P\{X\leqslant x\cap Y\leqslant y\}
-	= \int\limits_{-\infty}^y{\int\limits_{-\infty}^x{f_{XY}\left(x,y\right)dxdy}} \\
-f_{XY}\left(x,y\right) & = \frac{\partial^2F_{XY}(x,y)}{\partial x\partial y} \\
-f_{X|Y}\left(x|y\right) & = \frac{f_{XY}\left(x,y\right)}{f_Y\left(y\right)} \\
-	& = \frac{f_{XY}\left(x,y\right)}{\int_{-\infty}^\infty{f_{XY}\left(x,y\right)dx}}
-\end{align}
+\begin{align*}
+\begin{split}
+F_{XY}\left(x,y\right) & = P\{X\leqslant x\cap Y\leqslant y\} \\
+	& = \int_{-\infty}^y{\int_{-\infty}^x
+              {f_{XY}\left(x,y\right)dxdy}}
+\end{split} \\
+f_{XY}\left(x,y\right) & = \frac{\partial^2F_{XY}(x,y)}
+                             {\partial x\partial y} \\
+\begin{split}
+f_{X|Y}\left(x|y\right) & = \frac{f_{XY}\left(x,y\right)}
+                              {f_Y\left(y\right)} \\
+	& = \frac{f_{XY}\left(x,y\right)}{\int_{-\infty}^\infty
+              {f_{XY}\left(x,y\right)dx}}
+\end{split}
+\end{align*}
 
 The extension of these formulae into $n$ dimensions is fairly obvious.  It
 should also be noted that the solution of the CDF requires an $n$-fold
@@ -536,11 +552,15 @@ reporting, and so we seek values which summarize the variable.  The most
 general summary is the mean, which is the value which we would expect to
 take when observed, which is a weighted average of all of the possible
 values:
-\begin{align}
-E\left[X\right]& =\mu_X = \frac{\sum\limits_x{xp_X\left(x\right)}}
-	{\sum\limits_x{p_X\left(x\right)}} = \sum\limits_x{x p_X\left(x\right)} \\
-E\left[X\right]& =\mu_X = \int\limits_{-\infty}^\infty{x f_X\left(x\right)dx}
-\end{align} 
+\begin{align*}
+\begin{split}
+E\left[X\right] =\mu_X & = \frac{\sum_x{xp_X\left(x\right)}}
+	                        {\sum_x{p_X\left(x\right)}} \\
+                       & = \sum_x{x p_X\left(x\right)}
+\end{split} \\
+E\left[X\right] =\mu_X & = \int_{-\infty}^\infty
+                            {x f_X\left(x\right)dx}
+\end{align*}
 where the $E\left[\bullet\right]$ operator denotes the expected value.  This
 is different from the median, which is the value below which half of the
 expected outcomes lie, and the mode, which is the point with the highest
@@ -549,23 +569,29 @@ probability mass or density.
 Now that we know what value to expect, we are also interested in the spread
 of the values.  The standard deviation is the expected absolute deviation
 from the mean, and is defined as:
-\[
+\begin{equation*}
 \sigma_X = \sqrt{Var\left[X\right]}
-\]
+\end{equation*}
 where:
-\begin{align}
-Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
-  = \sum\limits_x{\left(x-\mu_X\right)^2 p_X\left(x\right)} \\
-Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right]
-  = \int\limits_{-\infty }^\infty{\left(x-\mu_X\right)^2 f_X\left(x\right)dx}
-\end{align} 
+\begin{align*}
+\begin{split}
+Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right] \\
+                  & = \sum_x{\left(x-\mu_X\right)^2
+                        p_X\left(x\right)}
+\end{split} \\
+\begin{split}
+Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right] \\
+                  &  = \int_{-\infty }^\infty
+                         {\left(x-\mu_X\right)^2 f_X\left(x\right)dx}
+\end{split}
+\end{align*} 
 For most distributions in regular use both the mean and standard deviation
 are defined by some simple formula involving the distribution parameters. 
 It is often convenient to use the coefficient of variation (COV), which is
 defined as:
-\[
+\begin{equation*}
 \delta_X = \frac{\sigma_X}{\left|\mu_X\right|}
-\]
+\end{equation*}
 
 If we have two random variables $X$ and $Y$ then we often would like to know
 if there is any relationship between them.  The simplest measure of a
@@ -573,19 +599,28 @@ relationship is determine if, given that we know the deviation of an
 observation of one variable from it's mean, we can determine anything about
 the deviation of the other variable from it's mean.  This is known as
 covariance, and is defined as:
-\begin{align}
-Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
-  = \sum\limits_x{
-    \sum\limits_y{\left(x-\mu_X\right)\left(y-\mu_Y\right)p_{XY}\left(x,y\right)}} \\
-Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)\left(Y-\mu_Y\right)\right]
-	 = \int\limits_{-\infty}^\infty{\int\limits_{-\infty}^\infty{
-	 	\left(x-\mu_X\right)\left(y-\mu_Y\right)f_{XY}\left(x,y\right)dxdy}}
-\end{align} 
+\begin{align*}
+\begin{split}
+Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)
+                          \left(Y-\mu_Y\right)\right] \\
+                    & = \sum_x{ \sum_y{
+                          \left(x-\mu_X\right)\left(y-\mu_Y\right)
+                          p_{XY}\left(x,y\right)}}
+\end{split} \\
+\begin{split}
+Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)
+                          \left(Y-\mu_Y\right)\right] \\
+                    & = \int_{-\infty}^\infty{
+                          \int_{-\infty}^\infty{
+                          \left(x-\mu_X\right)\left(y-\mu_Y\right)
+                          f_{XY}\left(x,y\right)dxdy}}
+\end{split}
+\end{align*} 
 The covariance has units which are a product of the units for $X$ and $Y$,
 and so it is convenient to define the dimensionless correlation coefficient:
-\[
+\begin{equation*}
 \rho_{XY} = \frac{Cov\left[X,Y\right]}{\sigma_X\sigma_Y}
-\]
+\end{equation*}
 
 It is possible to prove that the correlation coefficient has a range
 $\left[-1,1\right]$ and takes on a value of $0$ if the variables are
@@ -601,11 +636,12 @@ we will first consider the standard normal distribution which has a mean of
 zero and a standard deviation of one.  The \ac{PDF} and CDF are defined (using
 traditional notation, including $u$ as the standard normal random variable)
 as:
-\begin{align}
+\begin{align*}
    U & \sim \operatorname{N}\left(0,1\right) \\
-   \varphi\left(u\right) & = \frac{1}{\sqrt{2\pi}}\exp \left(-\frac{u^2}{2}\right) \\
-   \Phi\left(u\right) & = \int\limits_{-\infty}^u{\varphi\left(u\right)}du
-\end{align} 
+   \varphi\left(u\right) & = \frac{1}{\sqrt{2\pi}}\exp
+     \left(-\frac{u^2}{2}\right) \\
+   \Phi\left(u\right) & = \int_{-\infty}^u{\varphi\left(u\right)}du
+\end{align*} 
 
 There is no closed form solution to the CDF of the normal distribution, and
 so it must either be evaluated using a numerical integration technique or
@@ -616,23 +652,23 @@ at least the computer's accuracy and are evaluated directly, without
 iteration.
 
 The generalized form of the normal \ac{PDF} and CDF are:
-\begin{align}
+\begin{align*}
 	X & \sim \operatorname{N}\left(\mu,\sigma^2\right) \\
 	f_X\left(x\right) & = \frac{1}{\sigma\sqrt{2\pi}}
    	\exp\left(-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right) \\
 	F_X\left(x\right) & = \Phi\left(\frac{x-\mu}{\sigma}\right)
-\end{align} 
+\end{align*} 
 
 If we have more than one random variable then we define the multivariate
 normal (or multi-normal) distribution as follows:
-\begin{align}
+\begin{align*}
 \operatorname{E}\left[X_1\right] & = \mu _1 \\
 \operatorname{Var}\left[X_1\right] & = \sigma _1^2 \\
 \operatorname{Cov}\left[X_2,X_1\right] & = \rho _{2\,1}\sigma _2\sigma _1
-\end{align}
+\end{align*}
 
 We can express this in matrix notation as:
-\begin{align}
+\begin{align*}
 \mathbf{M} = \begin{bmatrix}
    \mu _1 \\
    \mu _2 \\
@@ -652,32 +688,32 @@ We can express this in matrix notation as:
    \rho _{n\,1} & \rho _{n\,2} &  \cdots  & 1  \\
  \end{bmatrix} &&
  \mathbf{\Sigma} = \mathbf{DRD}
-\end{align}
+\end{align*}
 
-\begin{align}
+\begin{align*}
   \mathbf{X} & \sim \operatorname{N}\left(\mathbf{M},\mathbf{\Sigma}\right) \\
   f_\mathbf{X}\left(\mathbf{x}\right) & =
 		\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{\Sigma}\right|}}
 		\exp\left(-\frac{1}{2}\left(\mathbf{x}-\mathbf{M}\right)^{\operatorname{T}}
 			\mathbf{\Sigma}^{-1}\left(\mathbf{x}-\mathbf{M}\right)\right) \\
   F_\mathbf{X}\left(\mathbf{x}\right) & = 
-  	\int\limits_{-\infty}^{x_n}{\cdots\int\limits_{-\infty}^{x_1}
+  	\int_{-\infty}^{x_n}{\cdots\int_{-\infty}^{x_1}
   		{f_\mathbf{X}\left(\mathbf{x}\right) dx_1} \cdots dx_n }
-\end{align} 
+\end{align*} 
 
 If we are dealing with correlated standard normal variables (which we will
 denote with $\mathbf{z}$ throughout this discussion) then $\mathbf{M}$ is a zero matrix
 and $\mathbf{D}$ is the identity matrix, and the distribution reduces to:
-\begin{align}
+\begin{align*}
  \mathbf{Z} & \sim \operatorname{N}\left( 0,\mathbf{R}\right) \\
  \varphi _n\left(\mathbf{z},\mathbf{R}\right) & =
  	\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{R}\right|}}
  	\exp\left(-\frac{1}{2}\mathbf{z}^{\operatorname{T}}\mathbf{R}^{-1}\mathbf{z}\right)
-\end{align}
+\end{align*}
 
 We can further simplify this equation if we are working in the uncorrelated
 standard normal space to:
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    \mathbf{U}\sim\operatorname{N}(0,1)
  & {\phi_n(\mathbf{u}) = (2\pi)^{{-n\mathord{\left/\vphantom {{ - n} 2} \right.
@@ -685,20 +721,20 @@ standard normal space to:
 {2}\left\| \mathbf{u} \right\|^2 } \right)}  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 There are no closed form solutions to the $n$-fold integral in the CDF. 
 There are however a number of simplifications.  If we are dealing with two
 correlated standard normal variables then we can obtain the result:
 
-\[
+\begin{equation*}
 \begin{gathered}
-  \Phi _2 \left( {z_1 ,z_2 ,\rho } \right) = \Phi \left( {z_1 } \right)\Phi \left( {z_2 } \right) + \int\limits_0^\rho  {\text{j}_2 \left( {z_1 ,z_2 ,\rho } \right)d\rho }  \hfill \\
+  \Phi _2 \left( {z_1 ,z_2 ,\rho } \right) = \Phi \left( {z_1 } \right)\Phi \left( {z_2 } \right) + \int_0^\rho  {\text{j}_2 \left( {z_1 ,z_2 ,\rho } \right)d\rho }  \hfill \\
   \text{j}_2 \left( {z_1 ,z_2 ,\rho } \right) = \frac{1}
 {{2\pi \sqrt {1 - \rho ^2 } }}\exp \left( { - \frac{{\left( {z_1^2  - 2\rho z_1 z_2  + z_2^2 } \right)}}
 {{2\left( {1 - \rho ^2 } \right)}}} \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 The uncorrelated standard normal space is also rotational symmetric, so if
 we are interested in the probability contained within a region bounded by a
@@ -707,9 +743,9 @@ obtain the marginal CDF in only one dimension.  Since the marginal CDF of
 the multi-normal distribution is also a normal distribution we can obtain the
 following result:
 
-\[
-\Phi _n \left( {\mathbf{u}:\beta  - \mathbf{\alpha }^T \mathbf{u} \leqslant 0} \right) = \int\limits_{ - \infty }^\infty  { \cdots \int\limits_\beta ^\infty  {\text{j}_n \left( \mathbf{u} \right)du_1  \cdots } du_n }  = \Phi \left( { - \beta } \right)
-\]
+\begin{equation*}
+\Phi _n \left( {\mathbf{u}:\beta  - \mathbf{\alpha }^T \mathbf{u} \leqslant 0} \right) = \int_{ - \infty }^\infty  { \cdots \int_\beta ^\infty  {\text{j}_n \left( \mathbf{u} \right)du_1  \cdots } du_n }  = \Phi \left( { - \beta } \right)
+\end{equation*}
 
 \subsection{The log-normal distribution}
 
@@ -724,7 +760,7 @@ this discussion.
 The log-normal distribution has two parameters: l and z, and the \ac{PDF} and CDF
 are defined as:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {X \sim \operatorname{LN} \left( {\lambda ,\zeta ^2 } \right)} & {f_X \left( x \right) = \frac{1}
 {{\sqrt {2\pi } \zeta x}}\exp \left( { - \frac{1}
@@ -733,24 +769,24 @@ are defined as:
 {\zeta }} \right)}  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 l and z are not the mean and standard deviation.  These, and the coefficient
 of variation, are given by the following equations:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {\mu  = \exp \left( {\lambda  + {{\zeta ^2 } \mathord{\left/
  {\vphantom {{\zeta ^2 } 2}} \right.
  \kern-\nulldelimiterspace} 2}} \right)} & {\delta  = \sqrt {\exp \left( {\zeta ^2 } \right) - 1} } & {\sigma  = \mu \delta }  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 If we are given the mean and standard deviation (or the coefficient of
 variation) it is possible to derive l and z from the following equations:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {\zeta  = \sqrt {\ln \left( {1 + \left( {\frac{\sigma }
 {\mu }} \right)^2 } \right)}  = \sqrt {\ln \left( {1 + \delta ^2 } \right)} } & {\lambda  = \ln \mu  - {{\zeta ^2 } \mathord{\left/
@@ -758,7 +794,7 @@ variation) it is possible to derive l and z from the following equations:
  \kern-\nulldelimiterspace} 2}}  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 
 \subsection{Transformation to the standard normal space}
@@ -775,10 +811,10 @@ variables into the uncorrelated standard normal space.  To achieve this
 transformation, we make use of a family of multivariate distributions known
 as Nataf distributions.  Nataf distributions take the form:
 
-\[
+\begin{equation*}
 f_\mathbf{X} \left( \mathbf{x} \right) = \frac{{f_1 \left( {x_1 } \right)f_2 \left( {x_2 } \right) \cdots f_n \left( {x_n } \right)}}
 {{\varphi (z_1 )\varphi (z_2 ) \cdots \varphi (z_n )}}\varphi \left( {\mathbf{z},\mathbf{R}_0 } \right) = \varphi \left( \mathbf{u} \right)
-\]
+\end{equation*}
 
 Notice that only the marginal \ac{PDF} of each of the random variables appears in
 the function, but that the correlation matrix \textbf{R} is replaced by
@@ -789,7 +825,7 @@ requirement being that the mapping is one-to-one and reversible (i.e. we can
 go $\mathbf{x}$ $\rightarrow$ $\mathbf{u}$ $\rightarrow$ $\mathbf{x})$.  The
 most useful of these transformations for the Nataf family takes the form:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
    {X_i  \sim F_i \left( {x_i } \right)} & {\mu _i  = \operatorname{E} \left[ {X_i } \right]} & {\sigma _i^2  = \operatorname{Var} \left[ {X_i } \right]} & {\rho _{ij}  = \frac{{\operatorname{Cov} \left[ {X_i ,X_j } \right]}}
@@ -808,7 +844,7 @@ most useful of these transformations for the Nataf family takes the form:
 
  \end{array}  \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Where \textbf{L}0 is the lower triangle decomposition of \textbf{R}0,
 obtained by Cholesky decomposition.
@@ -830,19 +866,19 @@ If $x_i$ and $x_j$ are both normal then $\rho_{0,ij}$ equals $\rho_{ij}$ by
 definition.  If $x_j$ is log-normal, then $\rho_{0,ij}$ is given (exactly) by the following equations depending on
 whether $x_i$ is normal or log-normal:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \rho _{0,ij}  = \rho _{ij} \frac{{\delta _j }}
 {{\zeta _j }} \hfill \\
   \rho _{0,ij}  = \frac{{\ln \left( {1 + \rho _{ij} \delta _i \delta _j } \right)}}
 {{\zeta _i \zeta _j }} \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 If we only have normal distributions, then the mathematics is greatly
 simplified:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
    {X_i  \sim \operatorname{N} \left( {\mu _i ,\sigma _i } \right)} & {\rho _{ij}  = \frac{{\operatorname{Cov} \left[ {X_i ,X_j } \right]}}
@@ -859,14 +895,14 @@ simplified:
 
  \end{array}  \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 In addition if we have a log-normal distribution then:
 
-\[
+\begin{equation*}
 z_i  = \frac{{\ln x_i  - \lambda _i }}
 {{\zeta _i }}
-\]
+\end{equation*}
 
 This transformation is also reversible, and when going from the uncorrelated
 standard normal space to another distribution space we do not need to
@@ -939,14 +975,14 @@ $\{\mathbf{x}:g(\mathbf{x})\leq0\}$), where $\mathbf{x}$
 is a vector of random variables, which might include load and resistance
 variables.  These random variables have some probability distribution
 associated with them, and the joint probability mass function for these
-variables is denoted as $f$$\mathbf{X}(\mathbf{x})$, in keeping with
+variables is denoted as $f_{\mathbf{X}}(\mathbf{x})$, in keeping with
 customary statistical notation.  Additionally, we add vectors of parameters
 to the two functions, to explicitly show that they depend on some external
 information.  The probability of failure can thus be calculated as:
 
-\[
+\begin{equation*}
 p_f  = P\left\{ {g(\mathbf{x},\theta _g ) \leqslant 0} \right\} = \int_{\left\{ {\mathbf{x}:g(\mathbf{x},\theta _g ) \leqslant 0} \right\}} {f_\mathbf{X} \left( {\mathbf{x},\theta _f } \right)d\mathbf{x}} 
-\]
+\end{equation*}
 
 This is graphically represented in Figure 2.1.  In the top half of the
 figure we have probability density function, and in the bottom half, the
@@ -979,7 +1015,7 @@ tensile force exceeds the capacity then the bar will fail.  Since the
 variables are uncorrelated we have
 $f\mathbf{X}(\mathbf{x})=f_C(c)f_T(t)$.
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
    {\zeta  = \sqrt {\ln \left( {1 + \left( {\frac{2}
@@ -1010,9 +1046,9 @@ $f\mathbf{X}(\mathbf{x})=f_C(c)f_T(t)$.
    {f_\mathbf{X} \left( \mathbf{x} \right) = f_C \left( c \right)f_T \left( t \right)} & {g_\mathbf{X} \left( \mathbf{x} \right) = c - t}  \\
 
  \end{array}  \hfill \\
-  p_f  = \int_{\left\{ {\mathbf{x}:g(\mathbf{x}) \leqslant 0} \right\}} {f_\mathbf{X} \left( \mathbf{x} \right)d\mathbf{x}}  = \int\limits_{ - \infty }^\infty  {\int\limits_c^\infty  {f_C \left( c \right)f_T \left( t \right)dtdc} }  \hfill \\ 
+  p_f  = \int_{\left\{ {\mathbf{x}:g(\mathbf{x}) \leqslant 0} \right\}} {f_\mathbf{X} \left( \mathbf{x} \right)d\mathbf{x}}  = \int_{ - \infty }^\infty  {\int_c^\infty  {f_C \left( c \right)f_T \left( t \right)dtdc} }  \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Readers with a little knowledge of manipulation of the normal distribution
 will know that this integral cannot be solved mathematically.  Thus we have
@@ -1028,7 +1064,7 @@ space, using the method described above.  Since the two variables are
 uncorrelated \textbf{R}0 and hence \textbf{L}0 are both the identity matrix,
 and $\mathbf{u}$=\textbf{z} so we obtain the following:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
    {\mathbf{x} = \left[ {\begin{array}{*{20}c}
@@ -1048,14 +1084,14 @@ and $\mathbf{u}$=\textbf{z} so we obtain the following:
   G\left( \mathbf{u} \right) = g\left( \mathbf{x} \right) \hfill \\
   p_f  = \int_{\left\{ {\mathbf{u}:G(\mathbf{u}) \leqslant 0} \right\}} {\text{j}_2 \left( \mathbf{u} \right)d\mathbf{u}}  \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 This does not appear to have helped, because we still cannot solve the
 integral.  However, since we know that we can calculate the integral for a
 hyper-plane we take a first order approximation of the new function
 G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
 
-\[
+\begin{equation*}
 \begin{gathered}
   G\left( \mathbf{u} \right) \cong G\left( {\mathbf{u}^* } \right) + \nabla G\left( \mathbf{u} \right)^{\operatorname{T}}  \left| {_{\mathbf{u}^\mathbf{*} } \left( {\mathbf{u} - \mathbf{u}^\mathbf{*} } \right)} \right. \propto \beta  - \hat \alpha ^{\operatorname{T}}  \mathbf{u} \hfill \\
   \begin{array}{*{20}c}
@@ -1069,7 +1105,7 @@ G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
 {{f_i \left( {x_i } \right)}}} \right]\mathbf{L}_0  \hfill \\
   p_f  \simeq p_1  = \Phi \left( { - \beta } \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 A graphical example is shown in Figure 2.2.  Two problems remain:  to find a
 suitable \textbf{u*} and to determine the gradient vector of the limit state
@@ -1103,13 +1139,13 @@ consider if it is a parallel or a series system, or in other words, if it
 fails once all of the components have failed, or once one of the components
 has failed.  In the these two cases:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {\text{parallel:}} \hfill & {p_f  = \bigcap\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
    {\text{series:}} \hfill & {p_f  = \bigcup\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 Notice that the probability of failure for a series system is not the
 minimum of the probability of failure of each component.
@@ -1128,7 +1164,7 @@ statistics, the basic simulation technique is known as Monte Carlo
 simulation, and follows a very simple principle.  Random numbers in the
 $\mathbf{x}$ space are generated in such a way that the probability density
 function of an infinite number of such random numbers matches the function
-$f$$\mathbf{X}(\mathbf{x})$.  If these $\mathbf{x}$ values are tested
+$f_{\mathbf{X}}(\mathbf{x})$.  If these $\mathbf{x}$ values are tested
 against some criteria, to indicate the occurrence of the event $E$
 (or the corresponding indicator variable $I$), then we obtain an
 approximation of the probability of event $E$ occurring
@@ -1144,7 +1180,7 @@ convergence.
 \subsection{Generation of random numbers}
 
 To perform sampling, we require the generation of random numbers which
-conform to a specified distribution $f$$\mathbf{X}(\mathbf{x})$.  Most
+conform to a specified distribution $f_{\mathbf{X}}(\mathbf{x})$.  Most
 programming languages provide a good algorithm to provide semi-random
 numbers $r$ in the range (0,1), and so algorithms for performing this task
 will not be discussed here.  We need to perform the transformation into the
@@ -1152,12 +1188,12 @@ desired distribution.  If we are working in the uncorrelated standard normal
 space, and we can manipulate two numbers at a time, a simple transformation
 exists:
 
-\[
+\begin{equation*}
 \begin{gathered}
   u_1  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \sin \left( {2\pi r_2 } \right) \hfill \\
   u_2  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \cos \left( {2\pi r_2 } \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Since we generate the random numbers in the uncorrelated standard normal
 space, we need to perform an inverse transformation to our variable space
@@ -1172,7 +1208,7 @@ we need to replace the integration range by an indicator variable, which is
 zero when the condition is false, and one when it is true.  Equation~(1) can
 thus be expressed as:
 
-\[
+\begin{equation*}
 \begin{gathered}
   p_f  = \int {\operatorname{I} (\mathbf{x})f_\mathbf{X} \left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})} \right] \\ 
   \operatorname{I} (\mathbf{x}) = \left\{ {\begin{array}{*{20}c}
@@ -1181,9 +1217,9 @@ thus be expressed as:
 
  \end{array} } \right. \\ 
   \hat p_f  = \frac{1}
-{n}\sum\limits_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )}  \\ 
+{n}\sum_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )}  \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 $\mathbf{x}_i$ is a sample point in $\mathbf{x}$, with $n$ samples.
 
@@ -1192,19 +1228,19 @@ probability depends on the square root of $n$, the number of samples, and so
 we may need a large number of samples.  One improvement is to increase the
 sampling density in areas of interest, known as importance sampling:
 
-\[
+\begin{equation*}
 \begin{gathered}
   p_f  = \int {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
 {{h\left( \mathbf{x} \right)}}h\left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
 {{h\left( \mathbf{x} \right)}}} \right] \\ 
   \hat p_f  = \frac{1}
-{n}\sum\limits_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )\frac{{f_\mathbf{X} \left( {\mathbf{x}_i } \right)}}
+{n}\sum_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )\frac{{f_\mathbf{X} \left( {\mathbf{x}_i } \right)}}
 {{h\left( {\mathbf{x}_i } \right)}}}  \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 $h(\mathbf{x})$ is the sampling distribution, which needs to be
-non-zero wherever $f$$\mathbf{X}(\mathbf{x})$ and $I(\mathbf{x})$
+non-zero wherever $f_{\mathbf{X}}(\mathbf{x})$ and $I(\mathbf{x})$
 are non-zero.  It now remains to choose a suitable
 $h(\mathbf{x})$.  In some cases we might have prior knowledge
 which leads us to a particular distribution, but in others we need to adapt
@@ -1224,10 +1260,10 @@ distribution (such as a combination of normal and log-normal variables) and
 we do not need to match the correlation structure of the random variables
 themselves.  This greatly simplifies the transform from $\mathbf{u}$
 $\rightarrow$ $\mathbf{x}$.  However, in practice we need to use a Nataf
-distribution for $f$$\mathbf{X}(\mathbf{x})$, since we need to combine the
+distribution for $f_{\mathbf{X}}(\mathbf{x})$, since we need to combine the
 marginal \acp{PDF} and correlation matrix, and so we need to transform our
 problem into the standard normal space to compute
-$f$$\mathbf{X}(\mathbf{x})$.
+$f_{\mathbf{X}}(\mathbf{x})$.
 
 If we have multiple failure criteria (which is normally the case in \OP),
 then we calculate one sampling distribution for each failure criteria, and
@@ -1235,13 +1271,13 @@ perform an adaptive importance sampling procedure for each failure criteria.
 If we have $m$ failure criteria, we combine the sampling
 distributions by the simple formula:
 
-\[
+\begin{equation*}
 \begin{gathered}
-  h(\mathbf{x}) = \sum\limits_{j = 1}^m {p_j h_j (\mathbf{x})}  \hfill \\
+  h(\mathbf{x}) = \sum_{j = 1}^m {p_j h_j (\mathbf{x})}  \hfill \\
   p_j  = \frac{{n_j }}
-{{\sum\limits_{j = 1}^m {n_j } }} \hfill \\ 
+{{\sum_{j = 1}^m {n_j } }} \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 where $n_j$ is the number of samples from failure criteria $j$.
 
@@ -1300,7 +1336,7 @@ h_{i+1})$.
 The strains are defined in terms of the stresses and so we will not deal
 with them further:
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    {\varepsilon _x }  \\
    {\varepsilon _y }  \\
@@ -1327,7 +1363,7 @@ with them further:
    {\tau _{yz} }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 We perform the calculations for each load individually, and use the
 principle of load superposition (which is valid for any elastic system) to
@@ -1348,7 +1384,7 @@ _{z\theta}$) and three components of displacement
 The following coordinate transforms apply, for the coordinate systems itself
 and for stresses within the system:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
   {r = \sqrt {x^2  + y^2 } }{z = z} \\
@@ -1381,7 +1417,7 @@ and for stresses within the system:
 
  \end{array} } \right] \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 When $r=0$ then $sin^2(\theta )=\frac{1}{2}$.  If the outward normal to the face of the
 element is in the positive coordinate direction, then the positive normal
@@ -1411,7 +1447,7 @@ the following equations of equilibrium and compatibility for an axially
 symmetrical problem, based on the work of previous researchers such as Lamé,
 Clapeyron and Love.
 
-\[
+\begin{equation*}
 \begin{gathered}
   0 = \frac{{\partial \sigma _r }}
 {{\partial r}} + \frac{{\partial \tau _{rz} }}
@@ -1457,14 +1493,14 @@ Clapeyron and Love.
 {{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
 {{\partial r^2 }}} \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 
 They also show that these functions are satisfied by \textit{j}$(r,z)$ ,
 which is an Airy function, and known as the stress function, which satisfies
 the following equations:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \sigma _r  = \frac{\partial }
 {{\partial z}}\left( {\upsilon \left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
@@ -1500,9 +1536,9 @@ the following equations:
 {{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
 {{\partial z^2 }}} \right) \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
-\[
+\begin{equation*}
 0 = \frac{{\partial ^4 \varphi \left( {r,z} \right)}}
 {{\partial r^4 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
 {{r\partial r^3 }} + 2\frac{{\partial ^4 \varphi \left( {r,z} \right)}}
@@ -1510,15 +1546,15 @@ the following equations:
 {{r^2 \partial r^2 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
 {{r\partial r\partial z^2 }} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
 {{\partial z^4 }}
-\]
+\end{equation*}
 
 Michelow suggested the following solution for the stress function, for layer
 \textit{i} in an $n$-layered system, with the addition of an arbitrary
 constant parameter \textit{m}:
 
-\[
+\begin{equation*}
 \varphi _i \left( {r,z,m} \right) = J_0 \left( {mr} \right)\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)
-\]
+\end{equation*}
 
 
 Where \textit{J}0$(x)$ is a Bessel function of the first kind with order
@@ -1526,7 +1562,7 @@ zero, and $A$, $B$, $C$ and $D$ are constants for each layer which are only
 a function of \textit{m}.  This gives the following solution to (1) and
 satisfies (2).
 
-\[
+\begin{equation*}
 \begin{gathered}
   \sigma _z^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
   \tau _{rz}^i  = m^2 J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
@@ -1542,29 +1578,29 @@ satisfies (2).
 {r}\frac{{E_i }}
 {{1 + \upsilon _i }}\Delta r^i  \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 If we consider the a load applied to the surface which is given by:
 
-\[
+\begin{equation*}
 f\left( r \right) = J_0 \left( {mr} \right)
-\]
+\end{equation*}
 
 
 Then we have the following solutions to (3) at $z$=0:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \tau _{rz}^1 \left| {_{z = 0}  = 0 = } \right.m^2 J_1 \left( {mr} \right)\left( {2\upsilon _1 \left( {B_1  - D_1 } \right) + m\left( {A_1  + C_1 } \right)} \right) \hfill \\
   \sigma _z^1 \left| {_{z = 0} } \right. = J_0 \left( {mr} \right) = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _1 } \right)\left( {B_1  + D_1 } \right) - m\left( {A_1  - C_1 } \right)} \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 
 and we can formulate the following equations to solve for $A$, $B$, $C$ and
 $D$ in the first layer:
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    0  \\
    {\frac{1}
@@ -1587,7 +1623,7 @@ $D$ in the first layer:
    {D_1 }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 Unfortunately, we only have two equations for the four unknowns, and so we
 need to seek further equations in terms of the remaining constants for the
@@ -1595,7 +1631,7 @@ lower layers.  Since we require four constants per layer, but have six
 equations for the elastic response, we use only the first four from (3).  We
 can develop the following matrix notation for these four equations:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {S_i \left( z \right) = \left[ {\begin{array}{*{20}c}
    {\sigma _z^i }  \\
@@ -1633,14 +1669,14 @@ can develop the following matrix notation for these four equations:
  \end{array} } \right]}  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 If we consider the layer interface, shown in Figure 2.2, we can match the
 stress across a very small layer just above the layer interface to obtain:
 
-\[
+\begin{equation*}
 \mathop {\lim }\limits_{\varepsilon  \to 0} S_i \left( {h_{i + 1}  - \varepsilon } \right) = S_{i + 1} \left( {h_{i + 1} } \right)
-\]
+\end{equation*}
 
 
 
@@ -1648,7 +1684,7 @@ stress across a very small layer just above the layer interface to obtain:
 
 Combining with (5) and rearranging we obtain:
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    {A_i }  \\
    {B_i }  \\
@@ -1662,9 +1698,9 @@ Combining with (5) and rearranging we obtain:
    {D_{i + 1} }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
-\[
+\begin{equation*}
 X_i \left( z \right) = \frac{1}
 {{4\upsilon _i  - 4}}\left[ {\begin{array}{*{20}c}
    \hfill { - mz - 1} & \hfill 1 & \hfill { - mz + 1} & \hfill 1 \\
@@ -1689,9 +1725,9 @@ X_i \left( z \right) = \frac{1}
    \hfill 1 & \hfill {mz + 4v_{i + 1}  - 2} & \hfill 1 & \hfill {mz - 4v_{i + 1}  + 2} \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    {A_i }  \\
    {B_i }  \\
@@ -1705,7 +1741,7 @@ X_i \left( z \right) = \frac{1}
    {D_{i + 1} }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 Which can be used to solve for $A$, $B$, $C$ and $D$ in each layer down to
 the $n$th layer.  Unfortunately we still have four unknowns.  If we consider
@@ -1715,7 +1751,7 @@ $\infty$ , $B$ $\infty$ must tend to zero.  Thus we need to solve for $C$
 $\infty$ , $D$ $\infty$ .  The following matrix is obtained for a rigid base
 at depth \textit{hn}+1 (this is from the ELSY5M source code):
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    {A_n }  \\
    {B_n }  \\
@@ -1743,12 +1779,12 @@ at depth \textit{hn}+1 (this is from the ELSY5M source code):
    {D_\infty  }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 In the case where \textit{hn}+1 $\rightarrow$  $\infty$  then this reduces
 to:
 
-\[
+\begin{equation*}
 \mathop {\lim }\limits_{h_{n + 1}  \to \infty } R_n \left( {h_{n + 1} } \right) = \left[ {\begin{array}{*{20}c}
    0 & 0  \\
    0 & 0  \\
@@ -1756,29 +1792,29 @@ to:
    0 & 1  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 We can combine (4), (6) and (7) to obtain the following system of equations
 for $C$ $\infty$ , $D$ $\infty$ which we can solve using a variety of
 techniques:
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    0  \\
    {\frac{1}
 {{m^2 }}}  \\
 
- \end{array} } \right] = B_1 \prod\limits_{j = 1}^{n - 1} {\left( {D^{ - 1} \left( {h_{j + 1} } \right)X_j \left( {h_{j + 1} } \right)D\left( {h_{j + 1} } \right)} \right)} R_n \left( {h_{n + 1} } \right)\left[ {\begin{array}{*{20}c}
+ \end{array} } \right] = B_1 \prod_{j = 1}^{n - 1} {\left( {D^{ - 1} \left( {h_{j + 1} } \right)X_j \left( {h_{j + 1} } \right)D\left( {h_{j + 1} } \right)} \right)} R_n \left( {h_{n + 1} } \right)\left[ {\begin{array}{*{20}c}
    {C_\infty  }  \\
    {D_\infty  }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 In \OP, as with ELSYM5M, we use Cramer's rule, which is a simple solution to
 a system of two linear equations:
 
-\[
+\begin{equation*}
 \begin{array}{*{20}c}
    {\left[ {\begin{array}{*{20}c}
    e  \\
@@ -1819,11 +1855,11 @@ a system of two linear equations:
  \end{array} } \right| \ne 0}  \\
 
  \end{array} 
-\]
+\end{equation*}
 
 We can make one more simplification to (8) if we notice that:
 
-\[
+\begin{equation*}
 D\left( {h_j } \right)D^{ - 1} \left( {h_{j + 1} } \right) = \operatorname{diag} \left[ {\begin{array}{*{20}c}
    {me^{mh_j } }  \\
    {e^{mh_j } }  \\
@@ -1845,13 +1881,13 @@ D\left( {h_j } \right)D^{ - 1} \left( {h_{j + 1} } \right) = \operatorname{diag}
    {e^{m\left( {h_{j + 1}  - h_j } \right)} }  \\
 
  \end{array} } \right] = T\left( {h_{j + 1} } \right)
-\]
+\end{equation*}
 
 Now that we have solved the system, we turn back to the applied load.  We
 have used an applied load which is a Bessel function, which is not very
 useful.  We need to solve the system under an applied load of:
 
-\[
+\begin{equation*}
 f\left( r \right) = \Pi _a \left( r \right) = \left\{ {\begin{array}{*{20}c}
   1{\text{if }r < a} \\
   {\tfrac{1}
@@ -1859,7 +1895,7 @@ f\left( r \right) = \Pi _a \left( r \right) = \left\{ {\begin{array}{*{20}c}
   \text{0}{\text{if }r > a} \\
 
  \end{array} } \right.
-\]
+\end{equation*}
 
 Which defines a circular load on the surface, centered at the origin, with
 radius $a$ and a unit pressure.  Too obtain this load we combine an infinite
@@ -1868,30 +1904,30 @@ matches this applied load.  This is done through a Hankel transform of (9)
 (which is also known as a Fourier-Bessel transform).  The result for the
 square function $\Pi$ $a(r)$ is well known:
 
-\[
-\Pi _a \left( r \right) = \int\limits_0^\infty  {aJ_1 \left( {ma} \right)J_0 \left( {mr} \right)dm} 
-\]
+\begin{equation*}
+\Pi _a \left( r \right) = \int_0^\infty  {aJ_1 \left( {ma} \right)J_0 \left( {mr} \right)dm} 
+\end{equation*}
 
 Using the principle of load superposition, we can extend (3) for this new
 load case:
 
-\[
+\begin{equation*}
 \begin{gathered}
-  \sigma _z^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \tau _{rz}^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \sigma _z^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \tau _{rz}^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
   \Delta r^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}a\int\limits_0^\infty  {mJ_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
   \Delta z^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}a\int\limits_0^\infty  {mJ_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {2\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \sigma _r^i  = a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {2\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \sigma _r^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
    - \frac{1}
 {r}\frac{{E_i }}
 {{1 + \upsilon _i }}\Delta r^i  \\ 
-  \sigma _\theta ^i  = 2\upsilon _i a\int\limits_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right)dm}  + \frac{1}
+  \sigma _\theta ^i  = 2\upsilon _i a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right)dm}  + \frac{1}
 {r}\frac{{E_i }}
 {{1 + \upsilon _i }}\Delta r^i  \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 These integrals run from zero, and astute readers will notice that many of
 the limit statements in the derivations above do not apply when
@@ -1930,14 +1966,14 @@ and the weights for any polynomial independently of the coefficients of the
 polynomial.  If we have $n$ Gauss points in the range (-1,1) at points
 \textit{xi} and with weights \textit{wi} then the following formula applies:
 
-\[
-\int\limits_a^b {f\left( x \right)dx = \frac{{b - a}}
-{2}\int\limits_{ - 1}^1 {f\left( {\frac{{a + b}}
+\begin{equation*}
+\int_a^b {f\left( x \right)dx = \frac{{b - a}}
+{2}\int_{ - 1}^1 {f\left( {\frac{{a + b}}
 {2} + \frac{{b - a}}
-{2}\xi } \right)d\xi  \cong \sum\limits_{i = 1}^n {w_i } f\left( {\frac{{a + b}}
+{2}\xi } \right)d\xi  \cong \sum_{i = 1}^n {w_i } f\left( {\frac{{a + b}}
 {2} + \frac{{b - a}}
 {2}\xi _i } \right)} } 
-\]
+\end{equation*}
 
 Figure 2.3 shows the two Bessel functions, and it can be seen that the
 oscillate about zero, and decay as \textit{m} increases.  However, it is not
@@ -1970,14 +2006,14 @@ and are given (approximately) by the formula $r$/$a$+2.  If we wish to fit a
 polynomial with at least twice the order of the product of the Bessel
 functions (to ensure high accuracy) then we can determine $n$ as follows:
 
-\[
+\begin{equation*}
 \begin{gathered}
   2\left( {\frac{r}
 {a} + 2} \right) = 2n - 1 \hfill \\
   n = \operatorname{int} \left( {\frac{r}
 {a} + 3} \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 \textbf{Figure 2.4: Products of Bessel functions}
 
@@ -2059,7 +2095,7 @@ An Eigenvalue l, and corresponding (nonzero) eigenvector $\mathbf{x}$, of an
 $n$ $\times$ $n$ matrix \textbf{A} are defined as those solving the
 following equation:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \mathbf{Ax} = \lambda \mathbf{x} \\ 
   \left[ {\begin{array}{*{20}c}
@@ -2082,7 +2118,7 @@ following equation:
 
  \end{array} } \right] \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Since $\mathbf{x}$ could be scaled by any quantity, we typically require
 $\mathbf{x}$ to be a unit normal vector (i.e. it has length one).  The
@@ -2093,9 +2129,9 @@ equal.
 The eigenvalues can be solved through using the determinant of the equation
 above:
 
-\[
+\begin{equation*}
 \left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| = 0
-\]
+\end{equation*}
 
 which is a polynomial of degree $n$.  However, solving using a root finder
 is firstly, not optimal, and secondly does not provide the eigenvectors. 
@@ -2105,7 +2141,7 @@ diagonal matrix are it's diagonal terms.  These diagonalization procedures
 make use of a `similarity transform', which does not alter the eigenvalues
 of the matrix:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \mathbf{D} = \mathbf{X}^{ - 1} \mathbf{AX} \\ 
   \left\| {\mathbf{D} - \lambda \mathbf{I}} \right\| = \left\| {\mathbf{X}^{ - 1} \mathbf{AX} - \lambda \mathbf{I}} \right\| \\ 
@@ -2113,7 +2149,7 @@ of the matrix:
    = \left\| {\mathbf{X}^{ - 1} } \right\|\left\| {\left( {\mathbf{A} - \lambda \mathbf{I}} \right)} \right\|\left\| \mathbf{X} \right\| \\ 
    = \left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Another advantage of this scheme is that the eigenvalues are the columns of
 the matrix $\mathbf{X}$.  However, finding $\mathbf{X}$ is non-trivial, and
@@ -2128,7 +2164,7 @@ the matrix has only two dimensions, then this rotation only needs to be
 applied once (and this is in fact how the principal stresses are solved in a
 Mohr Circle formulation).  The matrix $\mathbf{X}$ takes the form:
 
-\[
+\begin{equation*}
 X_i  = \left[ {\begin{array}{*{20}c}
    1 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 0  \\
     \vdots  &  \ddots  &  \vdots  & {} &  \vdots  & {} &  \vdots   \\
@@ -2139,7 +2175,7 @@ X_i  = \left[ {\begin{array}{*{20}c}
    0 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 1  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 The largest off diagonal element is normally zeroed first, and the process
 repeated, and it can be shown that repeated application is guaranteed to
@@ -2148,7 +2184,7 @@ expensive, and requires storage space, and so the procedure is applied in
 place.  If the rotation applies to the element \textit{apq} then we have the
 following equations:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \begin{array}{*{20}c}
    {a'_{rp}  = a'_{pr}  = \cos \left( \phi  \right)a_{rp}  - \sin \left( \phi  \right)a_{rq} } & {r = 1 \ldots n}  \\
@@ -2159,20 +2195,20 @@ following equations:
   a'_{qq}  = \cos ^2 \left( \phi  \right)a_{qq}  + \sin ^2 \left( \phi  \right)a_{pp}  + 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \hfill \\
   a'_{pq}  = a'_{qp}  = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{qq}  - a_{pp} } \right) \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 We solve for $f$ such that \textit{a $\prime$ pq} is zero, giving:
 
-\[
+\begin{equation*}
 \theta  \equiv \cot \left( {2\phi } \right) \equiv \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
 {{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} = \frac{{\left( {a_{qq}  - a_{pp} } \right)}}
 {{2a_{pq} }}
-\]
+\end{equation*}
 
 There are eight solutions in the first rotation, and so to get the first we
 use:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \theta  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
 {{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} \\ 
@@ -2193,12 +2229,12 @@ use:
    = \frac{{\operatorname{sgn} \left( {a_{qq}  - a_{pp} } \right)2a_{pq} }}
 {{\left| {a_{qq}  - a_{pp} } \right| + \sqrt {\left( {a_{qq}  - a_{pp} } \right)^2  + \left( {2a_{pq} } \right)^2 } }} \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 where the lesser known closed form solution for a quadratic equation is used
 to ensure that we always have the smaller root.  We can thus obtain:
 
-\[
+\begin{equation*}
 \begin{gathered}
   \cos \left( \phi  \right) = \frac{1}
 {{\sqrt {\frac{1}
@@ -2212,12 +2248,12 @@ to ensure that we always have the smaller root.  We can thus obtain:
    = \frac{t}
 {{\sqrt {t^2  + 1} }} \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 
 We can also simplify (12), as:
 
-\[
+\begin{equation*}
 \begin{gathered}
   a'_{pq}  = 0 = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{pp}  - a_{qq} } \right) \\ 
   a_{qq}  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq} }}
@@ -2242,19 +2278,19 @@ We can also simplify (12), as:
  {\vphantom {{\left( {a_{rq}  + ta_{rp} } \right)} {\sqrt {t^2  + 1} }}} \right.
  \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 We also need to establish a stopping criteria for the iterative process. 
 The normal procedure is to stop when the sum of the squares of the off
 diagonal elements drops below some small threshold.  It is possible to show
 that:
 
-\[
+\begin{equation*}
 \begin{gathered}
-  S = \sum\limits_{r \ne s} {a_{rs}^2 }  \hfill \\
+  S = \sum_{r \ne s} {a_{rs}^2 }  \hfill \\
   S' = S - 2a_{pq}^2  \hfill \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 However, this is not stable under numerical calculation.  If the matrix is
 small then \textit{S} can be recalculated after every iteration, otherwise,
@@ -2273,21 +2309,21 @@ element before checking the stopping criteria.  If we process the elements
 in a fixed order, there are certain other simplifications which can be made. 
 The stress tensor consists of:
 
-\[
+\begin{equation*}
 \left[ {\begin{array}{*{20}c}
    {\sigma _x } & {\tau _{xy} } & {\tau _{xz} }  \\
    {\tau _{xy} } & {\sigma _y } & {\tau _{yz} }  \\
    {\tau _{xz} } & {\tau _{yz} } & {\sigma _z }  \\
 
  \end{array} } \right]
-\]
+\end{equation*}
 
 although for most of this discussion we will make use of the notation from
 the previous section.  We process the elements in the order \textit{txz},
 \textit{txy},\textit{tyz} for no particular reason.  Expanding (13) with
 \textit{p}=1,\textit{q}=3 we have:
 
-\[
+\begin{equation*}
 \begin{gathered}
   a'_{11}  = a_{11}  - ta_{13}  \\ 
   a'_{33}  = a_{33}  + ta_{13}  \\ 
@@ -2299,13 +2335,13 @@ the previous section.  We process the elements in the order \textit{txz},
  \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
   a'_{13}  = 0 \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 
 Thus we modify five of the six elements of interest (leaving only one of the
 diagonal elements unchanged).  We then move to $a$12 and obtain:
 
-\[
+\begin{equation*}
 \begin{gathered}
   a'_{11}  = a_{11}  - ta_{12}  \\ 
   a'_{22}  = a_{22}  + ta_{12}  \\ 
@@ -2321,11 +2357,11 @@ diagonal elements unchanged).  We then move to $a$12 and obtain:
  \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
   a'_{12}  = 0 \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 Finally we process $a$23 and obtain:
 
-\[
+\begin{equation*}
 \begin{gathered}
   a'_{22}  = a_{22}  - ta_{23}  \\ 
   a'_{33}  = a_{33}  + ta_{23}  \\ 
@@ -2341,7 +2377,7 @@ Finally we process $a$23 and obtain:
  \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
   a'_{23}  = 0 \\ 
 \end{gathered} 
-\]
+\end{equation*}
 
 We need to recalculate \textit{t} between each stage.
 

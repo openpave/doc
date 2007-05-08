@@ -21,13 +21,13 @@
 %\usepackage{eulervm}
 %\usepackage[utopia]{mathdesign}
 
-\usepackage[fleqn]{amsmath}
+\usepackage[fleqn,intlimits]{mathtools}
  
 \clubpenalty=10000
 \widowpenalty=10000 
 \displaywidowpenalty=10000
-%\hyphenpenalty=1000
-%\tolerance=1000
+\hyphenpenalty=1000
+\tolerance=1000
 
 \renewcommand{\topfraction}{.85}
 \renewcommand{\bottomfraction}{.7}
