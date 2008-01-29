@@ -1,9 +1,11 @@
-*.log
-*.dvi
-*.pdf
-*.ps
 *.aux
 *.bbl
 *.blg
+*.dvi
+*.log
+*.mpx
+*.pdf
+*.ps
 *.toc
+*.[0-9]
 theory.mp

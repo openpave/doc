@@ -1,9 +1,27 @@
-%%% ====================================================================
-%%% 	optech.cls - A TeX document class for OpenPave Technical docs
-%%%   	(c) Openpave.org, 2006.
-%%%
-%%% $OpenPave$
-%%% ====================================================================
+%
+% optech.cls - A TeX document class for OpenPave Technical docs
+%
+% $OpenPave$
+%
+% The contents of this file are subject to the Academic Development
+% and Distribution License Version 1.0 (the "License"); you may not
+% use this file except in compliance with the License.  You should
+% have received a copy of the License with this file.  If you did not
+% then please contact whoever distributed this file too you, since
+% they may be in violation of the License, and this may affect your
+% rights under the License.
+%
+% Software distributed under the License is distributed on an "AS IS"
+% basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+% the License for the specific language governing rights and
+% limitations under the License.
+%
+% The Initial Developer of the Original Software is Jeremy Lea.
+%
+% Portions Copyright (C) 2006-2008 OpenPave.org.
+%
+% Contributor(s): Jeremy Lea <reg@openpave.org>.
+%
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{optech}
@@ -63,21 +81,25 @@
 \makeatletter
 
 \newsavebox{\opchapbox}
-\newcommand\opchapbox@marker[1][40mm]{%
-\sbox\opchapbox{%
-	\resizebox{!}{#1}{\fboxsep=0.2em%
-		\colorbox{opgreen}{\color{white}\thechapter}%
-}}%
-\rotatebox{90}{%
- \resizebox{%
-  \heightof{\usebox{\opchapbox}}+\depthof{\usebox{\opchapbox}}}%
-   {!}{\scshape\@chapapp}}\quad%
- \raisebox{\depthof{\usebox{\opchapbox}}}{\usebox{\opchapbox}}%
+\newcommand\opchapbox@marker[1][40mm]{
+\sbox\opchapbox{
+ \resizebox{!}{#1}{\fboxsep=0.2em
+  \colorbox{opgreen}{\color{white}\thechapter}
+ }
 }
-\newcommand\opchapm[1][40mm]{%
- \centering
- \sbox\opchapbox{\opchapbox@marker[6\baselineskip]}%
- \makebox[0pt][c]{\usebox\opchapbox}%
+\rotatebox{90}{
+ \resizebox{
+  \heightof{\usebox{\opchapbox}}+\depthof{\usebox{\opchapbox}}
+ }{!}{\scshape\@chapapp}
+}\quad
+\raisebox{\depthof{\usebox{\opchapbox}}}{\usebox{\opchapbox}}
+}
+\newcommand\opchapm{
+ \sbox\opchapbox{\opchapbox@marker[6\baselineskip]}
+ \makebox[\marginparwidth][r]{
+  \raisebox{1.5\baselineskip-\heightof{\usebox{\opchapbox}}-\depthof{\usebox{\opchapbox}}}
+ 	 {\usebox{\opchapbox}}
+ }
 }
 
 \makechapterstyle{optech}{
@@ -85,7 +107,7 @@
 	\renewcommand\chaptitlefont{\normalfont\huge\bfseries\scshape\color{opgreen}}
 	\renewcommand\chapternamenum{}
 	\renewcommand\printchaptername{}
-	\renewcommand\printchapternum{\par\marginpar{\opchapm}\par}
+	\renewcommand\printchapternum{\marginpar{\opchapm}}
 	\renewcommand\afterchapternum{}
 	\renewcommand\printchaptertitle[1]{\chaptitlefont\raggedright ##1\par}
 	\setlength{\beforechapskip}{\baselineskip}
@@ -96,19 +118,19 @@
 	\setsubsubsecheadstyle{\normalfont\normalsize\itshape\raggedright}
 }
 
-\renewcommand{\makeheadrule}[3]{%
-  \@namedef{#1headrule}{%
+\renewcommand{\makeheadrule}[3]{
+  \@namedef{#1headrule}{
     \color{opgreen}\hrule\@width #2\@height #3 \vskip-#3}
 }
-\renewcommand{\makefootrule}[4]{%
-  \@namedef{#1footrule}{%
+\renewcommand{\makefootrule}[4]{
+  \@namedef{#1footrule}{
     \vskip-#4\vskip-#3
     \color{opgreen}\hrule\@width #2\@height #3 \vskip #4}
 }
 
-\newcommand{\@opmarks}{%
+\newcommand{\@opmarks}{
   \let\@mkboth\markboth
-  \def\chaptermark##1{%
+  \def\chaptermark##1{
     \markboth{##1}{}}
   \def\sectionmark##1{\markright{##1}}
   \def\tocmark{\markboth{\contentsname}{}}
@@ -131,6 +153,10 @@
 \copypagestyle{opchap}{optech}
 \makeevenhead{opchap}{}{}{}
 \makeoddhead{opchap}{}{}{}
+
+\newcommand{\marginemp}[2]{
+\marginpar{\centering\empuse{#1}\par \sffamily \bfseries \small #2}
+}
 
 \makeatother
 
