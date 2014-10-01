@@ -23,22 +23,10 @@
 % Contributor(s): Jeremy Lea <reg@openpave.org>.
 %
 
-verbatimtex
-\documentclass[11pt]{optech}
-
-\begin{document}
-\fontfamily{\sfdefault}
-\fontsize{6}{10}
-\selectfont
-etex
-
-input optech.mp;
-
 pickup pencircle scaled 0.18mm;
 ahlength := 0.018*w;
 numeric axis; axis = 1.2;
-fgalpha := 0.05;
-bgalpha := 0.05;
+alpha := 0.05;
 alphafill perspect(-axis,-axis,0)--perspect(-axis,0,0)--
      perspect(0,0,0)--perspect(0,-axis,0)--cycle;
 alphafill perspect(0,-axis,-axis)--perspect(0,0,-axis)--
@@ -82,18 +70,18 @@ fill fullcircle scaled 0.75mm shifted perspect(0,0,-1/3) withcolor opgreen;
 fill fullcircle scaled 0.75mm shifted perspect(0,0,1/3) withcolor opgreen;
 fill fullcircle scaled 0.75mm shifted perspect(0,0,1) withcolor opgreen;
 fill fullcircle scaled 0.75mm shifted perspect(0,0,0) withcolor opgreen;
-label.lrt(btex $-1$ etex, perspect(-1,0,0));
-label.llft(btex $-1$ etex, perspect(0,-1,0));
-label.rt(btex $-1$ etex, perspect(0,0,-1));
-label.lrt(btex $-\frac{1}{3}$ etex, perspect(0,0,-1/3));
-label.lrt(btex $1$ etex, perspect(1,0,0));
-label.llft(btex $1$ etex, perspect(0,1,0));
-label.lft(btex $1$ etex, perspect(0,0,1));
-label.lft(btex $\frac{1}{3}$ etex, perspect(0,0,1/3));
-label.lrt(btex $\xi$ etex, perspect(1.2*axis,0,0));
-label.llft(btex $\eta$ etex, perspect(0,1.2*axis,0));
-label.lft(btex $\zeta$ etex, perspect(0,0,1.2*axis));
-label.llft(btex O etex, perspect(0,0,0));
+label.lrt("$-1$", perspect(-1,0,0));
+label.llft("$-1$", perspect(0,-1,0));
+label.rt("$-1$", perspect(0,0,-1));
+label.lrt("$-\frac{1}{3}$", perspect(0,0,-1/3));
+label.lrt("$1$", perspect(1,0,0));
+label.llft("$1$", perspect(0,1,0));
+label.lft("$1$", perspect(0,0,1));
+label.lft("$\frac{1}{3}$", perspect(0,0,1/3));
+label.lrt("$\xi$", perspect(1.2*axis,0,0));
+label.llft("$\eta$", perspect(0,1.2*axis,0));
+label.lft("$\zeta$", perspect(0,0,1.2*axis));
+label.llft("O", perspect(0,0,0));
 
 pickup pencircle scaled 0.13mm;
 draw perspect(-1,-1,-1)--perspect(1,-1,-1)--
@@ -126,23 +114,19 @@ fill fullcircle scaled 1mm shifted perspect(-1,-1, 1);
 fill fullcircle scaled 1mm shifted perspect(-1, 1, 1);
 fill fullcircle scaled 1mm shifted perspect( 1,-1, 1);
 fill fullcircle scaled 1mm shifted perspect( 1, 1, 1);
-label.ulft(btex \textbf{ 1} etex, perspect(-1,-1,-1));
-label.rt(btex   \textbf{ 2} etex, perspect(-1, 1,-1));
-label.lft(btex  \textbf{ 3} etex, perspect( 1,-1,-1));
-label.bot(btex  \textbf{ 4} etex, perspect( 1, 1,-1));
-label.rt(btex   \textbf{ 5} etex, perspect(-1,-1,-1/3));
-label.rt(btex   \textbf{ 6} etex, perspect(-1, 1,-1/3));
-label.lft(btex  \textbf{ 7} etex, perspect( 1,-1,-1/3));
-label.lft(btex  \textbf{ 8} etex, perspect( 1, 1,-1/3));
-label.rt(btex   \textbf{ 9} etex, perspect(-1,-1, 1/3));
-label.rt(btex   \textbf{10} etex, perspect(-1, 1, 1/3));
-label.lft(btex  \textbf{11} etex, perspect( 1,-1, 1/3));
-label.lft(btex  \textbf{12} etex, perspect( 1, 1, 1/3));
-label.top(btex  \textbf{13} etex, perspect(-1,-1, 1));
-label.rt(btex   \textbf{14} etex, perspect(-1, 1, 1));
-label.lft(btex  \textbf{15} etex, perspect( 1,-1, 1));
-label.llft(btex \textbf{16} etex, perspect( 1, 1, 1));
-
-verbatimtex
-\end{document}
-etex
+label.ulft("\textbf{ 1}", perspect(-1,-1,-1));
+label.rt(  "\textbf{ 2}", perspect(-1, 1,-1));
+label.lft( "\textbf{ 3}", perspect( 1,-1,-1));
+label.bot( "\textbf{ 4}", perspect( 1, 1,-1));
+label.rt(  "\textbf{ 5}", perspect(-1,-1,-1/3));
+label.rt(  "\textbf{ 6}", perspect(-1, 1,-1/3));
+label.lft( "\textbf{ 7}", perspect( 1,-1,-1/3));
+label.lft( "\textbf{ 8}", perspect( 1, 1,-1/3));
+label.rt(  "\textbf{ 9}", perspect(-1,-1, 1/3));
+label.rt(  "\textbf{10}", perspect(-1, 1, 1/3));
+label.lft( "\textbf{11}", perspect( 1,-1, 1/3));
+label.lft( "\textbf{12}", perspect( 1, 1, 1/3));
+label.top( "\textbf{13}", perspect(-1,-1, 1));
+label.rt(  "\textbf{14}", perspect(-1, 1, 1));
+label.lft( "\textbf{15}", perspect( 1,-1, 1));
+label.llft("\textbf{16}", perspect( 1, 1, 1));

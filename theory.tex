@@ -23,7 +23,7 @@
 % Contributor(s): Jeremy Lea <reg@openpave.org>.
 %
 
-\documentclass[11pt,oneside,letterpaper]{optech}
+\documentclass[11pt,twoside,letterpaper]{optech}
 \settrimmedsize{11in}{210mm}{*}
 \setlength{\trimtop}{0.38197\stockheight-0.38197\paperheight}
 \setlength{\trimedge}{0.5\stockwidth-0.5\paperwidth}
@@ -37,7 +37,8 @@
 \setlength{\headwidth}{\textwidth}
   \addtolength{\headwidth}{\marginparsep}
   \addtolength{\headwidth}{\marginparwidth}
-
+\mathindent=0em
+ 
 \aliaspagestyle{chapter}{opchap}
 \chapterstyle{optech}
 \pagestyle{optech}
@@ -47,22 +48,27 @@
 	/Title (OpenPave.org Theory)
 	/Subject (The theory behind the OpenPave.org software)
 	/Author (Jeremy D. Lea)
-	/Keywords (Pavement design, Layered elastic theory)
+	/Keywords (Pavement design; Layered elastic theory)
 }
 \fi
 \usepackage{lscape,rotating,flafter}
+\usepackage[absolute]{textpos}
 
 \usepackage{emp}
 \empTeX{\documentclass[11pt]{optech}}
-\empaddtoTeX{\fontfamily{\sfdefault}
-  \fontsize{8}{10}
-  \selectfont}
-\empprelude{input rboxes}
+\empprelude{
+input rboxes;^^J
+input latexmp;^^J
+setupLaTeXMP(mode=normal,textextlabel=enable,^^J
+	class="optech",options="11pt");^^J
+latexmp_prepend:="\fontfamily{\sfdefault}\fontsize{6}{10}\selectfont ";^^J
+def resetattachstrings_latexmp = "" enddef;^^J
+input optech.mp;^^J
+}
 
 % Bibliographic reference style.
 \usepackage[round,comma,authoryear,sort&compress]{natbib}
-\usepackage[nolist]{acronym}
-\usepackage[absolute]{textpos}
+\usepackage[nolist,nohyperlinks]{acronym}
 
 %\DoubleSpacing
 
@@ -70,6 +76,11 @@
 \newcommand*{\Fortran}{\textsc{Fortran}}
 \newcommand*{\CC}{C\nolinebreak\hspace{-.06em}\raisebox{.5ex}{\tiny\textbf
   +}\nolinebreak\hspace{-.09em}\raisebox{.5ex}{\tiny\textbf +}}
+
+\DeclareMathOperator{\sgn}{sgn}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\deter{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
 
 \begin{document}
 \begin{empfile}
@@ -129,8 +140,8 @@
 
 \OP\ is committed to supplying the best possible open source software for
 pavement engineering.  To that end it is important that the theoretical and
-mathematical foundation underlying that software are well understood, and
-that the mathematics are accurately and faithfully translated into code. 
+mathematical foundations underlying that software are well understood, and
+that the mathematics are accurately and faithfully translated into code.
 Thus, this document outlines the mathematics of the software, and how this is
 carried down to level of source code.  The source code makes reference to
 this document rather than extensive comments, since it is hard to express
@@ -159,20 +170,20 @@ appropriate time in the text, the following general conventions are used
 within the general text of this document:
 \begin{description}
 \tightlist
-\item[\textrm{Roman}] is used for general text.
-\item[\textit{Italics}] are used for emphasis.
-\item[\texttt{Typewriter}] is used for source code.
+\item[\normalfont\textrm{Roman}] is used for general text.
+\item[\normalfont\textit{Italics}] are used for emphasis.
+\item[\normalfont\texttt{Typewriter}] is used for source code.
 \end{description}
 
 Within mathematical formulas the following conventions are generally used,
 although they need to be broken once in a while.
 \begin{description}
 \tightlist
-\item[$\mathrm{Roman}$] is used for functions and operators.
-\item[$\mathit{Italics}$] are used for scalars.
-\item[$\mathbf{Bold}$] is used for vectors and matrices.
-\item[$\mathtt{Typewriter}$] is used for puesdo-mathematics in code.
-\item[$\mathsf{Sans-serif}$] is used for tensors.
+\item[\normalfont$\mathrm{Roman}$] is used for functions and operators.
+\item[\normalfont$\mathit{Italics}$] are used for scalars.
+\item[\normalfont$\mathbf{Bold}$] is used for vectors and matrices.
+\item[\normalfont$\mathtt{Typewriter}$] is used for pseudo-mathematics in code.
+\item[\normalfont$\mathsf{Sans-serif}$] is used for tensors.
 \end{description}
 
 \chapter{Numbers and Computers}
@@ -203,8 +214,10 @@ The objects which can be collected are as varied as your imagination ---
 anything which you can name can be an object.  We will discuss objects in
 more detail in a later section.  However, a distinction must be drawn between
 collections of like objects and dislike objects.  In mathematics, collections
-normally only contain like objects.  The objects within a collection are
-referred to as elements.
+normally only contain like objects and in this document collections of like
+objects will be referred to as sets.  Collections of unlike objects will be
+referred to as tuples.  The objects within a collection are referred to as
+elements.
 
 \subsection{Sets}
 
@@ -218,17 +231,21 @@ A set is a collection of objects, with no particular order and no repeated
 objects (or rather repeat objects are ignored).  In normal mathematical
 notation sets are denoted by `curly braces', such as $\{0,$ $1,$ $2\}$ or
 $\{\textrm{apple}\}$.  If we denote the heads and tails outcomes of tossing
-a coin as $H$ and $T$ respectively, then because sets do not contain repeated
-items the sets $\{H,$ $T,$ $T,$ $T,$ $H\}$ and $\{H,$ $T\}$ are equivalent. 
+a coin as $H$ and $T$ respectively, then, because sets do not contain repeated
+items, the sets $\{H,$ $T,$ $T,$ $T,$ $H\}$ and $\{H,$ $T\}$ are equivalent.
 Similarly the sets $\{1,$ $2,$ $3,$ $3,$ $2,$ $1\}$ and $\{1,$ $2,$ $3\}$ are also
 equivalent.
 
 In mathematics, sets can be countably infinite --- meaning that the items in
-the set can be differentiated from one an other and not split into a smaller
-item, and thus can be counted, but that there are an infinite number of items
-in the set, or they can uncountable --- meaning that the items in the set can
-always be split into smaller items, or the set can be finite.  In computer science
-sets are always finite, since computers don't like dealing with infinite numbers.
+the set can be differentiated from one an other and not split into smaller
+items, and thus can be counted, but that there are an infinite number of
+items in the set, or they can uncountable --- meaning that the items in the
+set can always be split into smaller items, or the set can be finite.  In
+computer science sets are always finite, since computers don't like dealing
+with infinite numbers.  No programming languages directly implement the
+mathematical concept of a set, since it is too general to be handled by
+computer code, although some languages have containers which are called sets
+within the documentation of that language.
 
 \subsection{Multisets}
 
@@ -237,11 +254,13 @@ computer science the same concept is often referred to as a bag.  Thus if you
 were to toss a coin five times and get the results $\{H,$ $T,$ $T,$ $T,$
 $H\}$, then toss it a further five times and get $\{T,$ $H,$ $T,$ $H,$ $H\}$
 then these would be different multisets.  However, the multisets
-$\{T,$ $H,$ $T,$ $H,$ $H\}$ and $\{T,$ $T,$ $H,$ $H,$ $H\}$ are equivalent. 
+$\{T,$ $H,$ $T,$ $H,$ $H\}$ and $\{T,$ $T,$ $H,$ $H,$ $H\}$ are equivalent.
 Multisets are also denoted by `curly brackets', but can be distinguished by
-having repeated items.
+having repeated items.  In mathematics, multisets are normally ordered, as
+discussed below, since there is little reason for their use if they are
+unordered.
 
-\subsection{Ordered Multisets}
+\subsection{Ordered Multisets (Arrays)}
 
 In mathematics a tuple is an ordered multiset.  Thus if you are tossing a
 coin looking for the first heads the multisets $\{T,$ $H,$ $T,$ $H,$ $H\}$ and
@@ -249,27 +268,57 @@ $\{T,$ $T,$ $H,$ $H,$ $H\}$ are different (if they represent the order in
 which the tosses occurred).  Tuples form the basis of vectors, tensors and
 matrix algebra, which we will discuss in a short while.  One should not
 confuse the fact that the set is ordered with it being sorted.  A sorted set
-is one in which the elements have been reordered according to some rule.
+is one in which the elements have been reordered according to some rule.  If
+one encounters a multiset in mathematics it is generally ordered.
 
 In computer science tuple is an over-used term, which can mean an ordered
 multiset (although the term array is normally used for these) or it can mean
 an ordered set of unlike objects.  It is also used in this second sense by
 database designers.  Since most of the readers of this document will be more
 familiar with the term array, we will use that for ordered multisets, and
-restrict the use of tuple to the database sense.
+restrict the use of tuple to the database sense, which will be discussed
+below.
 
 Arrays are normally denoted using `square brackets', so the first ordered
 multiset above should have been written as $[T,$ $H,$ $T,$ $H,$ $H]$.  Items
 in an ordered multiset are also distinguished by a subscripted index, such as
-$a_i$.
+$a_i$.  Most computer programming languages implement arrays of some form.
+However, these can be distinguished from the mathematical concept of a ordered
+multiset in two ways: they are never infinite, and they often have more than
+on index.  The first issue is seldom a problem since infinite quantities are
+not handled well by computers in general, and so must be handled explicitly
+in the programming.  The second is really a convenience for a `set of sets',
+which can be handled in a number of different ways.
 
-\subsection{Ordered Sets}
+The terms vector and matrix are also heavily over-used, and we will narrow
+their definitions in a later section.
+
+\subsection{Ordered Sets (Lists)}
 
 Although in mathematics it is traditional to write sets in their natural
 sorted order, there are only a few places where ordered sets are used in
 mathematics --- most mathematical formulations are actually independent of
 the order of the sets.  However, they are much more common in computer science
 where they are normally referred to as lists, or sometimes, unique lists.
+
+\subsection{Sets of Unlike Objects (Tuples)}
+
+In mathematics sets generally contain objects defined from some domain, which
+is normally one of the very early assumptions in various proofs or
+definitions.  The need to handle unlike objects is seldom encountered, and so
+mathematicians have taken to using the term tuple to ordered multisets (or
+arrays).  The term vector is also often used for the same concept.
+
+However, in computers there are many instances where pieces of information
+are logically grouped but of distinct types.  The classic example is
+someone's name, address and telephone number.  These are all objects, in the
+general sense, but not of any meaningful value in mathematics.  However, they
+must be stored in a set.  We will use the term tuple for these types of sets.
+
+Sometimes the data stored in a tuple can also be represented by an array (an
+ordered multiset), such as coordinates for a point, which are all real
+numbers.  However, the ordering is important --- so important that one can
+argue that although they look the same, they are very different things.
 
 \subsection{Maps and Structures}
 
@@ -278,31 +327,48 @@ second, etc.  It is conceptually simple to expand that concept to using more
 abstract indices (or keys).  These types of sets are referred to as maps
 (which must not be confused with a mapping, which will be addressed later) or
 some times as keyed sets.  However, this becomes quite difficult using
-standard mathematically notation, and maps are not often used in mathematics. 
+standard mathematically notation, and maps are not often used in mathematics.
 Often in computer science the key and value pair from a map will be referred
-to as a tuple.  Within this document the term keyed set will be reserved for
-sets where the key is a component of the value and the term map reserved for
-sets where the key is a not a component.  By nature the key must be unique
-(since otherwise one cannot find the items --- one cannot have two first
-items in a list), and so a keyed set is naturally not capable of being a
-multiset, while a map could have multiple equal values and thus be a multiset
-(although if you consider the key and value tuple as a single object then a
-map and keyed set are equivalent).
+to as a tuple, since they are unlike objects with a particular order.  Within
+this document the term keyed set will be reserved for sets where the key is a
+component of the value and the term map reserved for sets where the key is a
+not a component.  However, one can always convert directly between these two
+representations, by either defining a keyed set which contains tuples of the
+keys and values from a map, or by splitting the tuples in a keyed set into
+seperate keys and values and defining a map from these.
+
+By nature the key must be unique (since otherwise one cannot find the items
+--- one cannot have two first items in a list), and so a keyed set is
+naturally not capable of being a multiset, while a map could have multiple
+equal values and thus be a multiset.
 
 One major use of maps in computer science is to provide names for the
 different slots in a tuple (since a tuple stores unlike objects).  In this
 way one can handle unordered tuples.  All modern computer languages also
-provide the concept of structures, which are a ordered tuple with named
+provide the concept of structures, which are an ordered tuple with named
 members.  A map and a structure are logically completely equivalent and some
 computer languages allow one to convert easily between the two.  However, the
 members of a structure are normally determined in advance, while a map could
 conceivably hold an infinite number of elements.
+
+\section{Containers}
+
+The various sets listed above can all be implemented in a computer in a
+number of different ways depending on the characteristics of the process
+being modelled by the software.  These go beyond what is normally required
+for mathematics, although some are used in various branches of operations
+research.
+
+\subsection{Arrays}
+
+
 
 \section{Numbers}
 
 \section{Vectors and Tensors}
 
 \section{Linear Algebra}
+
 
 \chapter{Statistics}
 
@@ -327,20 +393,20 @@ The three basic building blocks of statistics are variables, events and
 probabilities.  A variable is a number, which in general can take on a value
 within some range, but has a fixed value when actually evaluated.  Variables
 can either be discrete (integer) or continuous (real) numbers.  There are
-three basic types of variables: constants, parameters and random variables. 
+three basic types of variables: constants, parameters and random variables.
 A constant is, fairly obviously, a constant number whose value is known
 precisely (normally fairly rare in engineering).  A parameter is a variable
 whose value has been determined based on past data, and a random variable is,
-well, random --- when measured it could take on any value within it's range. 
+well, random --- when measured it could take on any value within it's range.
 However, a random variable can be observed (under a given state of the
 system) and the observed value of a random variable is fixed and is known as
 an observation.  Observations are often in pairs or sets of random variables
 observed under the same state of the system.
 
 Random variables can be classified as exogenous and endogenous, which refer
-to variables which are explain the randomness in the system (hence they are
+to variables that explain the randomness in the system (hence they are
 also called explanatory variables) and variables which are explained by the
-randomness in the system.  Thus, when a random variable is modeled as a
+randomness in the system.  Thus, when a random variable is modelled as a
 function of other random variables (i.e. $y=f(\mathbf{x})$), the
 $\mathbf{x}$ variables are exogenous, and the $y$ variable endogenous.  The
 value of $y$ might be observable, but the randomness this value is assumed
@@ -352,15 +418,15 @@ variable, which can be represented as an indicator variable.  The act of
 observing an event, to determine an outcome, is a trial.
 
 There are different kinds of randomness in any analysis system.  The first
-type is inherent randomness -- things that cannot be control
+type is inherent randomness --- things that cannot be control
 \textit{mathematically}, such as layer thickness, material properties or
 wheel loads.  While these can be controlled physically, they are represented
 by random variables whose variability cannot be reduced mathematically.  The
 second kind are errors: These are problems while observing the random
-variable which result in the observation being different to the real value. 
-These errors can be random -- they have some variance but zero mean, or
-systematic -- they have a non-zero mean.  The randomness can also be due to
-a lack of data -- the more observations which have been made, the more is
+variable which result in the observation being different to the real value.
+These errors can be random --- they have some variance but zero mean, or
+systematic --- they have a non-zero mean.  The randomness can also be due to
+a lack of data --- the more observations which have been made, the more is
 known about the system.  The first two kinds of randomness tend to affect
 the individual outcomes, while the third tends to affect the parameters.
 
@@ -402,7 +468,7 @@ interval.  Thus the statement `The thickness should be $150\pm10$~mm at
 $95\%$ confidence' is correct, while the statement `The thickness should be
 $150\pm10$~mm with a $95\%$ probability' is not.  After observing the
 thickness we may be able to state that `The thickness is $150\pm10$~mm with
-$98.2\%$ probability', which leads to the concept of hypothesis testing. 
+$98.2\%$ probability', which leads to the concept of hypothesis testing.
 The first statement is a hypothesis, while the last is a fact.  If the facts
 agree with the hypothesis, then we conclude that the hypothesis is correct
 (although there is a chance that we reject a true hypothesis or accept one
@@ -411,9 +477,9 @@ which is not true).
 Based on these groupings of variables and probabilities, there are three
 main groupings of statistical analysis, although they overlap somewhat.  The
 first is the analysis of the probabilities of random variables, known as
-probability modeling.  The second is the analysis of endogenous random
+probability modelling.  The second is the analysis of endogenous random
 variables as functions of exogenous random variables, known as statistical
-modeling, and the third is the testing of hypotheses, known as statistical
+modelling, and the third is the testing of hypotheses, known as statistical
 inference, which is determining whether the probability that an event might
 be observed compared to the confidence with which we wish it to be observed.
 
@@ -442,10 +508,10 @@ the two events are independent:
 P\{A\cap B\}=P\{A\}P\{B\}=P\{B\}P\{A\}
 \end{equation*}
 When we are dealing with conditional probabilities, we refer to the
-unconditional probability of observing an event as the marginal probability. 
+unconditional probability of observing an event as the marginal probability.
 Given that $B$ has outcomes $1$ to $n$, then we have:
 \begin{equation*}
-P\{A\}=\sum_{b=1}^n{P\{A|B=b\}P\{B=b\}} 
+P\{A\}=\sum_{b=1}^n{P\{A|B=b\}P\{B=b\}}
 \end{equation*}
 or that the total probability of observing $A$ is the sum of the
 probabilities of observing $A$ conditional on all of the outcomes of $B$.
@@ -463,7 +529,7 @@ a discrete number of points.  For this reason we talk about probability
 density in continuous random variables, and probability mass in discrete
 random variables.
 
-Given a random variable $X$, we denote any particular observation as $x$. 
+Given a random variable $X$, we denote any particular observation as $x$.
 We will begin by considering a discrete random variable, which might take on
 any value in the set $A$, with $n$ elements.  No matter what the actual
 values in $A$, we can map these values as integers from $1$ to $n$ (for
@@ -478,7 +544,7 @@ The probability that $x$ is less than or equal to $a$ is given by:
 \begin{equation*}
 F_X\left(a\right)=P\{X\leqslant a\}=\sum_{x=1}^a{P\{X=x\}}
 \end{equation*}
-These two functions are respectively known as the \ac{PMF} and \ac{CDF}. 
+These two functions are respectively known as the \ac{PMF} and \ac{CDF}.
 Defining probability functions for continuous random variables is a little
 more tricky, because the probability of observing a particular value is
 zero.  We thus define a \ac{PDF}, which is the limiting probability of
@@ -547,7 +613,7 @@ defined as:
                                {\sum_{y_j\leqslant y}
                                 {p_{XY}\left(x_i,y_j\right)}}
 \end{split}
-\end{align*} 
+\end{align*}
 and using the rules for conditional probability outlined above it is
 possible to develop a conditional \ac{PMF}:
 \begin{equation*}
@@ -556,7 +622,7 @@ p_{X|Y}\left(x|y\right) & = \frac{P\{X=x\cap Y=y\}}{P\{Y=y\}} \\
                & = \frac{p_{XY}\left(x,y\right)}{p_Y\left(y\right)} \\
                & = \frac{p_{XY}\left(x,y\right)}
                      {\sum_x{p_{XY}\left(x,y\right)}}
-\end{split} 
+\end{split}
 \end{equation*}
 A similar scheme applies for continuous random variables:
 \begin{align*}
@@ -620,13 +686,13 @@ Var\left[X\right] & = E\left[\left(X-\mu_X\right)^2\right] \\
                   &  = \int_{-\infty }^\infty
                          {\left(x-\mu_X\right)^2 f_X\left(x\right)dx}
 \end{split}
-\end{align*} 
+\end{align*}
 For most distributions in regular use both the mean and standard deviation
-are defined by some simple formula involving the distribution parameters. 
+are defined by some simple formula involving the distribution parameters.
 It is often convenient to use the coefficient of variation (COV), which is
 defined as:
 \begin{equation*}
-\delta_X = \frac{\sigma_X}{\left|\mu_X\right|}
+\delta_X = \frac{\sigma_X}{\abs*{\mu_X}}
 \end{equation*}
 
 If we have two random variables $X$ and $Y$ then we often would like to know
@@ -651,7 +717,7 @@ Cov\left[X,Y\right] & = E\left[\left(X-\mu_X\right)
                           \left(x-\mu_X\right)\left(y-\mu_Y\right)
                           f_{XY}\left(x,y\right)dxdy}}
 \end{split}
-\end{align*} 
+\end{align*}
 The covariance has units which are a product of the units for $X$ and $Y$,
 and so it is convenient to define the dimensionless correlation coefficient:
 \begin{equation*}
@@ -677,7 +743,7 @@ as:
    \varphi\left(u\right) & = \frac{1}{\sqrt{2\pi}}\exp
      \left(-\frac{u^2}{2}\right) \\
    \Phi\left(u\right) & = \int_{-\infty}^u{\varphi\left(u\right)}du
-\end{align*} 
+\end{align*}
 
 There is no closed form solution to the CDF of the normal distribution, and
 so it must either be evaluated using a numerical integration technique or
@@ -693,7 +759,7 @@ The generalized form of the normal \ac{PDF} and CDF are:
 	f_X\left(x\right) & = \frac{1}{\sigma\sqrt{2\pi}}
    	\exp\left(-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right) \\
 	F_X\left(x\right) & = \Phi\left(\frac{x-\mu}{\sigma}\right)
-\end{align*} 
+\end{align*}
 
 If we have more than one random variable then we define the multivariate
 normal (or multi-normal) distribution as follows:
@@ -732,10 +798,10 @@ We can express this in matrix notation as:
 		\frac{\left(2\pi\right)^{-n/2}}{\sqrt{\left|\mathbf{\Sigma}\right|}}
 		\exp\left(-\frac{1}{2}\left(\mathbf{x}-\mathbf{M}\right)^{\operatorname{T}}
 			\mathbf{\Sigma}^{-1}\left(\mathbf{x}-\mathbf{M}\right)\right) \\
-  F_\mathbf{X}\left(\mathbf{x}\right) & = 
+  F_\mathbf{X}\left(\mathbf{x}\right) & =
   	\int_{-\infty}^{x_n}{\cdots\int_{-\infty}^{x_1}
   		{f_\mathbf{X}\left(\mathbf{x}\right) dx_1} \cdots dx_n }
-\end{align*} 
+\end{align*}
 
 If we are dealing with correlated standard normal variables (which we will
 denote with $\mathbf{z}$ throughout this discussion) then $\mathbf{M}$ is a zero matrix
@@ -756,10 +822,10 @@ standard normal space to:
  \kern-\nulldelimiterspace} 2}} \exp \left( { - \frac{1}
 {2}\left\| \mathbf{u} \right\|^2 } \right)}  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
-There are no closed form solutions to the $n$-fold integral in the CDF. 
+There are no closed form solutions to the $n$-fold integral in the CDF.
 There are however a number of simplifications.  If we are dealing with two
 correlated standard normal variables then we can obtain the result:
 
@@ -768,8 +834,8 @@ correlated standard normal variables then we can obtain the result:
   \Phi _2 \left( {z_1 ,z_2 ,\rho } \right) = \Phi \left( {z_1 } \right)\Phi \left( {z_2 } \right) + \int_0^\rho  {\text{j}_2 \left( {z_1 ,z_2 ,\rho } \right)d\rho }  \hfill \\
   \text{j}_2 \left( {z_1 ,z_2 ,\rho } \right) = \frac{1}
 {{2\pi \sqrt {1 - \rho ^2 } }}\exp \left( { - \frac{{\left( {z_1^2  - 2\rho z_1 z_2  + z_2^2 } \right)}}
-{{2\left( {1 - \rho ^2 } \right)}}} \right) \hfill \\ 
-\end{gathered} 
+{{2\left( {1 - \rho ^2 } \right)}}} \right) \hfill \\
+\end{gathered}
 \end{equation*}
 
 The uncorrelated standard normal space is also rotational symmetric, so if
@@ -804,7 +870,7 @@ are defined as:
 {\zeta }} \right)^2 } \right)} & {F_X \left( x \right) = \Phi \left( {\frac{{\ln x - \lambda }}
 {\zeta }} \right)}  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 l and z are not the mean and standard deviation.  These, and the coefficient
@@ -816,7 +882,7 @@ of variation, are given by the following equations:
  {\vphantom {{\zeta ^2 } 2}} \right.
  \kern-\nulldelimiterspace} 2}} \right)} & {\delta  = \sqrt {\exp \left( {\zeta ^2 } \right) - 1} } & {\sigma  = \mu \delta }  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 If we are given the mean and standard deviation (or the coefficient of
@@ -829,7 +895,7 @@ variation) it is possible to derive l and z from the following equations:
  {\vphantom {{\zeta ^2 } 2}} \right.
  \kern-\nulldelimiterspace} 2}}  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 
@@ -858,7 +924,7 @@ the function, but that the correlation matrix \textbf{R} is replaced by
 also, that the function assumes that some transformation from $\mathbf{x}$
 to $\mathbf{u}$ exists.  Many such transformations might exist, the only
 requirement being that the mapping is one-to-one and reversible (i.e. we can
-go $\mathbf{x}$ $\rightarrow$ $\mathbf{u}$ $\rightarrow$ $\mathbf{x})$.  The
+go $\mathbf{x}\rightarrow\mathbf{u}\rightarrow\mathbf{x}$).  The
 most useful of these transformations for the Nataf family takes the form:
 
 \begin{equation*}
@@ -878,8 +944,8 @@ most useful of these transformations for the Nataf family takes the form:
 
  \end{array} } & {\mathbf{z} = \left[ {z_i } \right]} & {z_i  = \Phi ^{ - 1} \left( {F_i \left( {x_i } \right)} \right)}  \\
 
- \end{array}  \hfill \\ 
-\end{gathered} 
+ \end{array}  \hfill \\
+\end{gathered}
 \end{equation*}
 
 Where \textbf{L}0 is the lower triangle decomposition of \textbf{R}0,
@@ -895,8 +961,8 @@ transform of the coordinate system, based on the correlation structure in the
 standard normal space.  The only mathematically intractable component is the
 integral in the equation above (because we have to solve for $\rho_{0,ij}$
 and not $\rho_{ij}$) and Liu and Der Kiureghian (1989)1 supply a number of
-closed form approximations for $\rho_{0,ij}$ as a function of \textit{ $\rho$
-ij} and the distribution types of $x_i$ and $x_j$.
+closed form approximations for $\rho_{0,ij}$ as a function of $\rho_{ij}$ and
+the distribution types of $x_i$ and $x_j$.
 
 If $x_i$ and $x_j$ are both normal then $\rho_{0,ij}$ equals $\rho_{ij}$ by
 definition.  If $x_j$ is log-normal, then $\rho_{0,ij}$ is given (exactly) by the following equations depending on
@@ -907,8 +973,8 @@ whether $x_i$ is normal or log-normal:
   \rho _{0,ij}  = \rho _{ij} \frac{{\delta _j }}
 {{\zeta _j }} \hfill \\
   \rho _{0,ij}  = \frac{{\ln \left( {1 + \rho _{ij} \delta _i \delta _j } \right)}}
-{{\zeta _i \zeta _j }} \hfill \\ 
-\end{gathered} 
+{{\zeta _i \zeta _j }} \hfill \\
+\end{gathered}
 \end{equation*}
 
 If we only have normal distributions, then the mathematics is greatly
@@ -929,8 +995,8 @@ simplified:
  \end{array} } & {\mathbf{z} = \left[ {\frac{{x_i  - \mu _i }}
 {{\sigma _i }}} \right]}  \\
 
- \end{array}  \hfill \\ 
-\end{gathered} 
+ \end{array}  \hfill \\
+\end{gathered}
 \end{equation*}
 
 In addition if we have a log-normal distribution then:
@@ -1006,7 +1072,7 @@ probability of failure or $p_f$.  The basis for all calculations in
 reliability analysis is a function which defines whether the system has
 failed or not.  This is known as the `limit state surface' and denoted by
 $g(\mathbf{x})$.  By convention, the failure region is the set of
-$\mathbf{x}$ such that the limit state function is negative (i.e. 
+$\mathbf{x}$ such that the limit state function is negative (i.e.
 $\{\mathbf{x}:g(\mathbf{x})\leq0\}$), where $\mathbf{x}$
 is a vector of random variables, which might include load and resistance
 variables.  These random variables have some probability distribution
@@ -1017,7 +1083,7 @@ to the two functions, to explicitly show that they depend on some external
 information.  The probability of failure can thus be calculated as:
 
 \begin{equation*}
-p_f  = P\left\{ {g(\mathbf{x},\theta _g ) \leqslant 0} \right\} = \int_{\left\{ {\mathbf{x}:g(\mathbf{x},\theta _g ) \leqslant 0} \right\}} {f_\mathbf{X} \left( {\mathbf{x},\theta _f } \right)d\mathbf{x}} 
+p_f  = P\left\{ {g(\mathbf{x},\theta _g ) \leqslant 0} \right\} = \int_{\left\{ {\mathbf{x}:g(\mathbf{x},\theta _g ) \leqslant 0} \right\}} {f_\mathbf{X} \left( {\mathbf{x},\theta _f } \right)d\mathbf{x}}
 \end{equation*}
 
 This is graphically represented in Figure 2.1.  In the top half of the
@@ -1034,7 +1100,7 @@ base of the lower plot).
 
 \textbf{Figure 2.1: Graphical representation of failure prediction}
 
-Now that we have some notation, a simple example to illustrate the concept. 
+Now that we have some notation, a simple example to illustrate the concept.
 Let us assume we have a bar of material, which is subject to some tensile
 force $T$, and which has a tensile load capacity of $C$, which is greater
 than zero.  Let us assume the $T$ is normally distributed, with a mean of
@@ -1082,8 +1148,8 @@ $f\mathbf{X}(\mathbf{x})=f_C(c)f_T(t)$.
    {f_\mathbf{X} \left( \mathbf{x} \right) = f_C \left( c \right)f_T \left( t \right)} & {g_\mathbf{X} \left( \mathbf{x} \right) = c - t}  \\
 
  \end{array}  \hfill \\
-  p_f  = \int_{\left\{ {\mathbf{x}:g(\mathbf{x}) \leqslant 0} \right\}} {f_\mathbf{X} \left( \mathbf{x} \right)d\mathbf{x}}  = \int_{ - \infty }^\infty  {\int_c^\infty  {f_C \left( c \right)f_T \left( t \right)dtdc} }  \hfill \\ 
-\end{gathered} 
+  p_f  = \int_{\left\{ {\mathbf{x}:g(\mathbf{x}) \leqslant 0} \right\}} {f_\mathbf{X} \left( \mathbf{x} \right)d\mathbf{x}}  = \int_{ - \infty }^\infty  {\int_c^\infty  {f_C \left( c \right)f_T \left( t \right)dtdc} }  \hfill \\
+\end{gathered}
 \end{equation*}
 
 Readers with a little knowledge of manipulation of the normal distribution
@@ -1118,14 +1184,14 @@ and $\mathbf{u}$=\textbf{z} so we obtain the following:
  \end{array}  \hfill \\
   f_\mathbf{X} \left( \mathbf{x} \right) = \text{j}_2 \left( \mathbf{u} \right) \hfill \\
   G\left( \mathbf{u} \right) = g\left( \mathbf{x} \right) \hfill \\
-  p_f  = \int_{\left\{ {\mathbf{u}:G(\mathbf{u}) \leqslant 0} \right\}} {\text{j}_2 \left( \mathbf{u} \right)d\mathbf{u}}  \hfill \\ 
-\end{gathered} 
+  p_f  = \int_{\left\{ {\mathbf{u}:G(\mathbf{u}) \leqslant 0} \right\}} {\text{j}_2 \left( \mathbf{u} \right)d\mathbf{u}}  \hfill \\
+\end{gathered}
 \end{equation*}
 
 This does not appear to have helped, because we still cannot solve the
 integral.  However, since we know that we can calculate the integral for a
 hyper-plane we take a first order approximation of the new function
-G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
+$G(\mathbf{u})$ at a point $\mathbf{u}^*$ on the line $G(\mathbf{u})=0$:
 
 \begin{equation*}
 \begin{gathered}
@@ -1139,15 +1205,15 @@ G$(\mathbf{u})$ at a point \textbf{u*} on the line G$(\mathbf{u})$=0 :
   \mathbf{J}_{\mathbf{U},\mathbf{X}}^{ - 1}  = \mathbf{J}_{\mathbf{X},\mathbf{U}}  = \left[ {\frac{{\partial x_i }}
 {{\partial u_j }}} \right] = \operatorname{diag} \left[ {\frac{{\varphi \left( {z_i } \right)}}
 {{f_i \left( {x_i } \right)}}} \right]\mathbf{L}_0  \hfill \\
-  p_f  \simeq p_1  = \Phi \left( { - \beta } \right) \hfill \\ 
-\end{gathered} 
+  p_f  \simeq p_1  = \Phi \left( { - \beta } \right) \hfill \\
+\end{gathered}
 \end{equation*}
 
 A graphical example is shown in Figure 2.2.  Two problems remain:  to find a
 suitable \textbf{u*} and to determine the gradient vector of the limit state
 function.  For our example the calculation is simple, but for many
 engineering problems it is not possible to differentiate the failure
-function with respect all of the random variables involved in the problem. 
+function with respect all of the random variables involved in the problem.
 It is possible to approximate the gradient vector using a finite difference
 method, where we perturb each random variable slightly and calculate the
 change in $g(\mathbf{x})$, but this requires solving the system for
@@ -1180,7 +1246,7 @@ has failed.  In the these two cases:
    {\text{parallel:}} \hfill & {p_f  = \bigcap\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
    {\text{series:}} \hfill & {p_f  = \bigcup\limits_{i = 1}^m {P\left\{ {g_i \left( {\mathbf{x},\theta _g } \right)} \right\}} } \hfill  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 Notice that the probability of failure for a series system is not the
@@ -1193,9 +1259,9 @@ The term simulation covers a wide variety of methods in different
 mathematical fields, and covers all methodologies where numbers are
 generated in the space of possible input variables, and used to calculate
 the output of a mathematical representation of a system.  The output can
-then be analyzed to draw conclusions about the behavior of the system.  The
+then be analysed to draw conclusions about the behaviour of the system.  The
 theory of simulation is very well understood, and we will use a few minor
-shortcuts in the mathematical explanation here for simplicity.  In
+short-cuts in the mathematical explanation here for simplicity.  In
 statistics, the basic simulation technique is known as Monte Carlo
 simulation, and follows a very simple principle.  Random numbers in the
 $\mathbf{x}$ space are generated in such a way that the probability density
@@ -1206,35 +1272,30 @@ against some criteria, to indicate the occurrence of the event $E$
 approximation of the probability of event $E$ occurring
 ($p_E$), by fitting a probability model to all of the outcomes of
 $I$.  Monte Carlo simulation is based on the most fundamental
-definition of probability -- that the probability of an event is defined by
+definition of probability --- that the probability of an event is defined by
 the proportion of such events occurring in an infinitely large number of
 trials.  Because of this, the result obtained is guaranteed to converge to
 the correct result, although the there is no guarantee about the rate of
 convergence.
-
 
 \subsection{Generation of random numbers}
 
 To perform sampling, we require the generation of random numbers which
 conform to a specified distribution $f_{\mathbf{X}}(\mathbf{x})$.  Most
 programming languages provide a good algorithm to provide semi-random
-numbers $r$ in the range (0,1), and so algorithms for performing this task
+numbers $r$ in the range $(0,1)$, and so algorithms for performing this task
 will not be discussed here.  We need to perform the transformation into the
 desired distribution.  If we are working in the uncorrelated standard normal
 space, and we can manipulate two numbers at a time, a simple transformation
 exists:
-
-\begin{equation*}
-\begin{gathered}
-  u_1  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \sin \left( {2\pi r_2 } \right) \hfill \\
-  u_2  = \text{ }\sqrt { - 2\ln \left( {r_1 } \right)} \cos \left( {2\pi r_2 } \right) \hfill \\ 
-\end{gathered} 
-\end{equation*}
+\begin{align*}
+  u_1 & = \sqrt{-2\ln(r_1)\sin(2\pi r_2)} \\
+  u_2 & = \sqrt{-2\ln(r_1)\cos(2\pi r_2)} \\
+\end{align*}
 
 Since we generate the random numbers in the uncorrelated standard normal
 space, we need to perform an inverse transformation to our variable space
-(i.e. $\mathbf{u}$ $\rightarrow$ \textbf{x)} as described above.
-
+(i.e. $\mathbf{u}\rightarrow\mathbf{x}$ as described above.
 
 \subsection{Adaptive Importance Sampling}
 
@@ -1246,15 +1307,15 @@ thus be expressed as:
 
 \begin{equation*}
 \begin{gathered}
-  p_f  = \int {\operatorname{I} (\mathbf{x})f_\mathbf{X} \left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})} \right] \\ 
+  p_f  = \int {\operatorname{I} (\mathbf{x})f_\mathbf{X} \left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})} \right] \\
   \operatorname{I} (\mathbf{x}) = \left\{ {\begin{array}{*{20}c}
    {1\text{ if }\mathbf{x} \in \left\{ {\mathbf{x}:\bigcup\limits_{j = 1}^m {g(\mathbf{x}) \leqslant 0} } \right\}}  \\
    {\text{0 if }\mathbf{x} \in \left\{ {\mathbf{x}:\bigcup\limits_{j = 1}^m {g(\mathbf{x}) > 0} } \right\}}  \\
 
- \end{array} } \right. \\ 
+ \end{array} } \right. \\
   \hat p_f  = \frac{1}
-{n}\sum_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )}  \\ 
-\end{gathered} 
+{n}\sum_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )}  \\
+\end{gathered}
 \end{equation*}
 
 $\mathbf{x}_i$ is a sample point in $\mathbf{x}$, with $n$ samples.
@@ -1268,11 +1329,11 @@ sampling density in areas of interest, known as importance sampling:
 \begin{gathered}
   p_f  = \int {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
 {{h\left( \mathbf{x} \right)}}h\left( \mathbf{x} \right).d\mathbf{x}}  = \operatorname{E} \left[ {\operatorname{I} (\mathbf{x})\frac{{f_\mathbf{X} \left( \mathbf{x} \right)}}
-{{h\left( \mathbf{x} \right)}}} \right] \\ 
+{{h\left( \mathbf{x} \right)}}} \right] \\
   \hat p_f  = \frac{1}
 {n}\sum_{i = 1}^n {\operatorname{I} (\mathbf{x}_i )\frac{{f_\mathbf{X} \left( {\mathbf{x}_i } \right)}}
-{{h\left( {\mathbf{x}_i } \right)}}}  \\ 
-\end{gathered} 
+{{h\left( {\mathbf{x}_i } \right)}}}  \\
+\end{gathered}
 \end{equation*}
 
 $h(\mathbf{x})$ is the sampling distribution, which needs to be
@@ -1283,10 +1344,10 @@ which leads us to a particular distribution, but in others we need to adapt
 to the problem at hand.  Adaptive importance sampling begins by sampling a
 small number of points from $f_{\mathbf{X}}(\mathbf{x})$ and then uses the
 results of this sampling to determine a suitable distribution for
-$h(\mathbf{x})$, by centering $h(\mathbf{x})$ around the
-points where $I(\mathbf{x})=1$.  This process can be repeated to
+$h(\mathbf{x})$, by centring $h(\mathbf{x})$ around the
+points where $\operatorname{I}(\mathbf{x})=1$.  This process can be repeated to
 continue to improve $h(\mathbf{x})$.  If in addition to the
-$I(\mathbf{x})$ values we also store the $g(\mathbf{x})$
+$\operatorname{I}(\mathbf{x})$ values we also store the $g(\mathbf{x})$
 values then we can sort these values and use them to obtain a better
 estimate of where the failure region lies.
 
@@ -1294,8 +1355,8 @@ Since the sampling distribution is independent of the probability
 distribution of the random variables themselves, we can choose a convenient
 distribution (such as a combination of normal and log-normal variables) and
 we do not need to match the correlation structure of the random variables
-themselves.  This greatly simplifies the transform from $\mathbf{u}$
-$\rightarrow$ $\mathbf{x}$.  However, in practice we need to use a Nataf
+themselves.  This greatly simplifies the transform from $\mathbf{u}
+\rightarrow \mathbf{x}$.  However, in practice we need to use a Nataf
 distribution for $f_{\mathbf{X}}(\mathbf{x})$, since we need to combine the
 marginal \acp{PDF} and correlation matrix, and so we need to transform our
 problem into the standard normal space to compute
@@ -1303,18 +1364,13 @@ $f_{\mathbf{X}}(\mathbf{x})$.
 
 If we have multiple failure criteria (which is normally the case in \OP),
 then we calculate one sampling distribution for each failure criteria, and
-perform an adaptive importance sampling procedure for each failure criteria. 
+perform an adaptive importance sampling procedure for each failure criteria.
 If we have $m$ failure criteria, we combine the sampling
 distributions by the simple formula:
-
-\begin{equation*}
-\begin{gathered}
-  h(\mathbf{x}) = \sum_{j = 1}^m {p_j h_j (\mathbf{x})}  \hfill \\
-  p_j  = \frac{{n_j }}
-{{\sum_{j = 1}^m {n_j } }} \hfill \\ 
-\end{gathered} 
-\end{equation*}
-
+\begin{align*}
+  h(\mathbf{x}) & = \sum_{j=1}^m{p_j h_j (\mathbf{x})} \\
+  p_j           & = \frac{n_j}{\sum_{j=1}^m{n_j}}
+\end{align*}
 where $n_j$ is the number of samples from failure criteria $j$.
 
 \chapter{Layered Elastic Calculation Engine}
@@ -1335,7 +1391,7 @@ For reliability analysis (and other tasks, such as back-calculation) the
 layered elastic calculation engine must be run a large number of times, and
 so it needs to be as efficient as possible. It is also desirable to have an
 $n$-layered calculation program, so that we can do more sophisticated
-modeling. The converted \Fortran\ code was very difficult to read, and so
+modelling. The converted \Fortran\ code was very difficult to read, and so
 also difficult to check and maintain. For these reasons the main calculation
 engine of \OP\ was re-written into a \CC\ class, and is capable of
 $n$-layer, $n$-load and $n$-location.
@@ -1351,14 +1407,14 @@ to better match the actual calculations performed in the code.
 
 Before we begin any discussion on the evaluation of the layered elastic
 system we need to establish some basic definitions.  Within the pavement
-structure we report our results in an inverted ($x$, $y$, $z$) coordinate
+structure we report our results in an inverted $(x,y,z)$ coordinate
 system (i.e. $z$ is positive down). In this system we have three normal
-stresses ($\sigma _x$, $\sigma _y$, $\sigma _z$), six shear stresses ($\tau
-_{xy}=\tau _{yx}$, $\tau _{xz}=\tau _{zx}$, $\tau _{yz}=\tau _{yz}$), three
-normal strains ($\epsilon _x$, $\epsilon _y$, $\epsilon _z$), six shear
-strains ($\gamma _{xy}=\gamma _{yx}$, $\gamma _{xz}=\gamma _{zx}$, $\gamma
-_{yz}=\gamma _{yz}$)and three components of displacement ($\Delta _x$,
-$\Delta _y$, $\Delta _z$).  We have a $m$ number of circular loads, each at
+stresses ($\sigma_x$, $\sigma_y$, $\sigma_z$), six shear stresses (
+$\tau_{xy}=\tau_{yx}$, $\tau_{xz}=\tau_{zx}$, $\tau_{yz}=\tau_{yz}$), three
+normal strains ($\epsilon_x$, $\epsilon_y$, $\epsilon_z$), six shear
+strains ($\gamma_{xy}=\gamma_{yx}$, $\gamma_{xz}=\gamma_{zx}$,
+$\gamma_{yz}=\gamma_{yz}$)and three components of displacement ($\Delta_x$,
+$\Delta_y$, $\Delta_z$).  We have a $m$ number of circular loads, each at
 some $(x_j,y_j)$ position, and with a load $P_j$ and load radius $a_j$.  We
 also have a $o$ evaluation locations, each defined by an $(x_k,y_k,z_k)$
 coordinate.  The layered system, with $n$ layers, is defined by a number of
@@ -1371,88 +1427,74 @@ h_{i+1})$.
 
 The strains are defined in terms of the stresses and so we will not deal
 with them further:
-
-\begin{equation*}
-\left[ {\begin{array}{*{20}c}
-   {\varepsilon _x }  \\
-   {\varepsilon _y }  \\
-   {\varepsilon _z }  \\
-   {\gamma _{xy} }  \\
-   {\gamma _{xz} }  \\
-   {\gamma _{yz} }  \\
-
- \end{array} } \right] = \frac{1}
-{{E_i }}\left[ {\begin{array}{*{20}c}
-   1 & {} & {} & {} & {} & {\text{sym}\text{.}}  \\
-   { - \upsilon _i } & 1 & {} & {} & {} & {}  \\
-   { - \upsilon _i } & { - \upsilon _i } & 1 & {} & {} & {}  \\
-   0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)} & {} & {}  \\
-   0 & 0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)} & {}  \\
-   0 & 0 & 0 & 0 & 0 & {2\left( {\upsilon _i  + 1} \right)}  \\
-
- \end{array} } \right]\left[ {\begin{array}{*{20}c}
-   {\sigma _x }  \\
-   {\sigma _y }  \\
-   {\sigma _z }  \\
-   {\tau _{xy} }  \\
-   {\tau _{xz} }  \\
-   {\tau _{yz} }  \\
-
- \end{array} } \right]
-\end{equation*}
+\begin{equation*}\cramped[\scriptstyle]{
+\begin{bmatrix}
+  \epsilon_x  \\
+  \epsilon_y  \\
+  \epsilon_z  \\
+  \gamma_{xy} \\
+  \gamma_{xz} \\
+  \gamma_{yz}
+\end{bmatrix} = \frac{1}{E_i}\begin{bmatrix}
+  1      & {}     & {} & {}         & {}         & \text{sym.} \\
+  -\nu_i & 1      & {} & {}         & {}         & {}          \\
+  -\nu_i & -\nu_i & 1  & {}         & {}         & {}          \\
+  0      & 0      & 0  & 2(\nu_i+1) & {}         & {}          \\
+  0      & 0      & 0  & 0          & 2(\nu_i+1) & {}          \\
+  0      & 0      & 0  & 0          & 0          & 2(\nu_i+1)
+\end{bmatrix}\begin{bmatrix}
+  \sigma_x  \\
+  \sigma_y  \\
+  \sigma_z  \\
+  \tau_{xy} \\
+  \tau_{xz} \\
+  \tau_{yz}
+\end{bmatrix}
+}\end{equation*}
 
 We perform the calculations for each load individually, and use the
 principle of load superposition (which is valid for any elastic system) to
 sum the effects of each load at each evaluation location.  Because the loads
-are circular, the problem is therefore axi-symmetric around the center of
+are circular, the problem is therefore axi-symmetric around the centre of
 the load, and so we perform the calculations in a radial coordinate system.
 
-In this radial coordinate system we also have three normal stresses ($\sigma
-_r$,$\sigma _{\theta}$,$\sigma _z$), six shear stresses ($\tau
-_{r\theta}=\tau _{\theta r}$,$\tau _{rz}=\tau _{zr}$,$\tau _{\theta z}=\tau
-_{z\theta}$) and three components of displacement
-($\Delta _r$,$\Delta _{\theta}$,$\Delta _z$).  These are shown in Figure 2.1.
-
-
+In this radial coordinate system we also have three normal stresses ($\sigma_r$,
+$\sigma_\theta$, $\sigma_z$), six shear stresses ($\tau_{r\theta}=\tau_{\theta r}$,
+$\tau_{rz}=\tau_{zr}$, $\tau_{\theta z}=\tau_{z\theta}$) and three components of
+displacement ($\Delta_r$, $\Delta_\theta$, $\Delta_z$).  These are shown in Figure 2.1.
 
 \textbf{Figure 2.1: Radial coordinate system}
 
 The following coordinate transforms apply, for the coordinate systems itself
 and for stresses within the system:
-
+\begin{align*}
+             r & = \sqrt{x^2+y^2} \\
+  \cos(\theta) & = \frac{x}{r}    \\
+  \sin(\theta) & = \frac{y}{r}
+\end{align*}
 \begin{equation*}
-\begin{gathered}
-  \begin{array}{*{20}c}
-  {r = \sqrt {x^2  + y^2 } }{z = z} \\
-  {\cos \theta  = \frac{x}
-{r}}{\sin \theta  = \frac{y}
-{r}} \\
-
- \end{array}  \hfill \\
-  \left[ {\begin{array}{*{20}c}
-   {\sigma _x }  \\
-   {\sigma _y }  \\
-   {\sigma _z }  \\
-   {\tau _{xy} }  \\
-   {\tau _{xz} }  \\
-   {\tau _{yz} }  \\
-
- \end{array} } \right] = \left[ {\begin{array}{*{20}c}
-   {\cos ^2 \theta } & {\sin ^2 \theta } & 0 & 0  \\
-   {\sin ^2 \theta } & {\cos ^2 \theta } & 0 & 0  \\
-   0 & 0 & 1 & 0  \\
-   {\cos \theta \sin \theta } & { - \cos \theta \sin \theta } & 0 & 0  \\
-   0 & 0 & 0 & {\cos \theta }  \\
-   0 & 0 & 0 & {\sin \theta }  \\
-
- \end{array} } \right]\left[ {\begin{array}{*{20}c}
-   {\sigma _r }  \\
-   {\sigma _\theta  }  \\
-   {\sigma _z }  \\
-   {\tau _{rz} }  \\
-
- \end{array} } \right] \hfill \\ 
-\end{gathered} 
+\begin{bmatrix}
+  \sigma_x  \\
+  \sigma_y  \\
+  \sigma_z  \\
+  \tau_{xy} \\
+  \tau_{xz} \\
+  \tau_{yz}
+\end{bmatrix} =
+\begin{bmatrix}
+  \cos^2(\theta)           & \sin^2(\theta)            & 0 & 0            \\
+  \sin^2(\theta)           & \cos^2(\theta)            & 0 & 0            \\
+  0                        & 0                         & 1 & 0            \\
+  \cos(\theta)\sin(\theta) & -\cos(\theta)\sin(\theta) & 0 & 0            \\
+  0                        & 0                         & 0 & \cos(\theta) \\
+  0                        & 0                         & 0 & \sin(\theta)
+\end{bmatrix}
+\begin{bmatrix}
+  \sigma_r      \\
+  \sigma_\theta \\
+  \sigma_z      \\
+  \tau_{rz}
+\end{bmatrix}
 \end{equation*}
 
 When $r=0$ then $sin^2(\theta )=\frac{1}{2}$.  If the outward normal to the face of the
@@ -1461,7 +1503,6 @@ and shear stresses acting on that face are in the positive coordinate
 direction and, if the outward normal to the face is in the negative
 coordinate direction, then the positive stresses on that face are in the
 negative coordinate direction.
-
 
 \subsection{Determination of system response}
 
@@ -1472,10 +1513,10 @@ stresses, the six shear stresses and the three displacements for the element
 depicted in Figure 2.1.  As already noted, for equilibrium in the element
 the complementary shear strains must be equal, removing three unknowns.
 
-Because of the radial coordinate system require that there be no
-displacement or shear in the direction of rotation, since the radial plane
-must remain plane.  This implies \textit{trq}=0,\textit{ tqz}=0 and
-\textit{Dq}=0.  We thus have six remaining unknowns.
+Because of the radial coordinate system require that there be no displacement
+or shear in the direction of rotation, since the radial plane must remain
+plane.  This implies $\tau_{r\theta}=0$, $\tau_{\theta z}=0$ and
+$\Delta_\theta=0$.  We thus have six remaining unknowns.
 
 The four remaining unknown components of stress have to satisfy the
 conditions of equilibrium and compatibility.  Timoshenko and Goodier gave
@@ -1483,138 +1524,146 @@ the following equations of equilibrium and compatibility for an axially
 symmetrical problem, based on the work of previous researchers such as Lamé,
 Clapeyron and Love.
 
-\begin{equation*}
-\begin{gathered}
-  0 = \frac{{\partial \sigma _r }}
-{{\partial r}} + \frac{{\partial \tau _{rz} }}
-{{\partial z}} + \frac{{\sigma _r  - \sigma _\theta  }}
-{r} \hfill \\
-  0 = \frac{{\partial \sigma _z }}
-{{\partial z}} + \frac{{\partial \tau _{rz} }}
-{{\partial r}} + \frac{{\tau _{rz} }}
-{r} \hfill \\
-  0 = \frac{{\partial ^2 \sigma _r }}
-{{\partial r^2 }} + \frac{{\partial \sigma _r }}
-{{r\partial r}} + \frac{{\partial ^2 \sigma _r }}
-{{\partial z^2 }} - \frac{2}
-{{r^2 }}\left( {\sigma _r  - \sigma _\theta  } \right) + \frac{1}
-{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
-{{\partial r^2 }}} \right) \hfill \\
-  0 = \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial r^2 }} + \frac{{\partial \sigma _\theta  }}
-{{r\partial r}} + \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial z^2 }} + \frac{2}
-{{r^2 }}\left( {\sigma _r  - \sigma _\theta  } \right) + \frac{1}
-{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
-{{\partial r^2 }}} \right) \hfill \\
-  0 = \frac{{\partial ^2 \sigma _z }}
-{{\partial r^2 }} + \frac{{\partial \sigma _z }}
-{{r\partial r}} + \frac{{\partial ^2 \sigma _z }}
-{{\partial z^2 }} + \frac{1}
-{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
-{{\partial r^2 }}} \right) \hfill \\
-  0 = \frac{{\partial ^2 \tau _{rz} }}
-{{\partial r^2 }} + \frac{{\partial \tau _{rz} }}
-{{r\partial r}} + \frac{{\partial ^2 \tau _{rz} }}
-{{\partial z^2 }} - \frac{1}
-{{r^2 }}\tau _{rz}  + \frac{1}
-{{1 + \upsilon }}\left( {\frac{{\partial ^2 \sigma _r }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _\theta  }}
-{{\partial r^2 }} + \frac{{\partial ^2 \sigma _z }}
-{{\partial r^2 }}} \right) \hfill \\ 
-\end{gathered} 
-\end{equation*}
+\begin{align*}
+  0 & = \frac{\partial\sigma_r}{\partial r}
+     + \frac{\partial\tau_{rz}}{\partial z}
+     + \frac{\sigma_r-\sigma_\theta}{r} \\
+  0 & = \frac{\partial\sigma_z}{\partial z}
+     + \frac{\partial\tau_{rz}}{\partial r}
+     + \frac{\tau_{rz}}{r} \\
+  0 & = \begin{multlined}[t][0.7\columnwidth]
+        \frac{\partial^2\sigma_r}{\partial r^2}
+     + \frac{\partial\sigma_r}{r\partial r}
+     + \frac{\partial^2\sigma_r}{\partial z^2}
+     - \frac{2}{r^2}\left(\sigma_r-\sigma_\theta\right) \\
+  \shoveright{\hfill + \frac{1}{1+\nu}\left(
+       \frac{\partial^2\sigma_r}{\partial r^2}
+     + \frac{\partial^2\sigma_\theta}{\partial r^2}
+     + \frac{\partial^2\sigma_z}{\partial r^2}
+     \right)}\end{multlined} \\
+  0 & = \begin{multlined}[t][0.7\columnwidth]
+       \frac{\partial^2\sigma_\theta}{\partial r^2}
+     + \frac{\partial\sigma_\theta}{r\partial r}
+     + \frac{\partial^2\sigma_\theta}{\partial z^2}
+     + \frac{2}{r^2}\left(\sigma_r-\sigma_\theta\right) \\
+  \shoveright{\hfill + \frac{1}{1+\nu}\left(
+       \frac{\partial^2\sigma_r}{\partial r^2}
+     + \frac{\partial^2\sigma_\theta}{\partial r^2}
+     + \frac{\partial^2\sigma_z}{\partial r^2}
+     \right)}\end{multlined} \\
+  0 & = \begin{multlined}[t][0.7\columnwidth]
+       \frac{\partial^2\sigma_z}{\partial r^2}
+     + \frac{\partial\sigma_z}{r\partial r}
+     + \frac{\partial^2\sigma_z}{\partial z^2} \\
+  \shoveright{\hfill + \frac{1}{1+\nu}\left(
+       \frac{\partial^2\sigma_r}{\partial r^2}
+     + \frac{\partial^2\sigma_\theta}{\partial r^2}
+     + \frac{\partial^2\sigma_z}{\partial r^2}
+     \right)}\end{multlined} \\
+  0 & = \begin{multlined}[t][0.7\columnwidth]
+       \frac{\partial^2\tau_{rz}}{\partial r^2}
+     + \frac{\partial\tau_{rz}}{r\partial r}
+     + \frac{\partial^2\tau_{rz}}{\partial z^2}
+     - \frac{1}{r^2}\tau_{rz} \\
+  \shoveright{\hfill + \frac{1}{1+\nu}\left(
+       \frac{\partial^2\sigma_r}{\partial r^2}
+     + \frac{\partial^2\sigma_\theta}{\partial r^2}
+     + \frac{\partial^2\sigma_z}{\partial r^2}
+     \right)}\end{multlined}
+\end{align*}
 
-
-They also show that these functions are satisfied by \textit{j}$(r,z)$ ,
+They also show that these functions are satisfied by $\varphi(r,z)$,
 which is an Airy function, and known as the stress function, which satisfies
 the following equations:
-
-\begin{equation*}
-\begin{gathered}
-  \sigma _r  = \frac{\partial }
-{{\partial z}}\left( {\upsilon \left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }}} \right) \\ 
-  \sigma _\theta   = \frac{\partial }
-{{\partial z}}\left( {\upsilon \left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) - \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}}} \right) \\ 
-  \sigma _z  = \frac{\partial }
-{{\partial z}}\left( {\left( {2 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) \\ 
-  \tau _{rz}  = \frac{\partial }
-{{\partial r}}\left( {\left( {1 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) \\ 
-  \Delta r =  - \frac{{\left( {1 + \upsilon } \right)}}
-{E}\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r\partial z}} \\ 
-  \Delta z = \frac{{\left( {1 + \upsilon } \right)}}
-{E}\left( {2\left( {1 - \upsilon } \right)\left( {\frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial r^2 }} + \frac{{\partial \varphi \left( {r,z} \right)}}
-{{r\partial r}} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) - \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^2 }}} \right) \\ 
-\end{gathered} 
-\end{equation*}
-
+\begin{align*}
+  \sigma_r      & = \frac{\partial}{\partial z}\left(
+    \nu\left(
+         \frac{\partial^2\varphi(r,z)}{\partial r^2}
+       + \frac{\partial\varphi(r,z)}{r\partial r}
+       + \frac{\partial^2\varphi(r,z)}{\partial z^2}
+    \right) - \frac{\partial^2\varphi(r,z)}{\partial r^2}
+  \right) \\
+  \sigma_\theta & = \frac{\partial}{\partial z}\left(
+    \nu\left(
+         \frac{\partial^2\varphi(r,z)}{\partial r^2}
+       + \frac{\partial\varphi(r,z)}{r\partial r}
+       + \frac{\partial^2\varphi(r,z)}{\partial z^2}
+    \right) - \frac{\partial\varphi(r,z)}{r\partial r}
+  \right) \\
+  \sigma_z      & = \begin{multlined}[t]
+  \frac{\partial}{\partial z}\left(
+    \left(2-\nu\right)\left(
+         \frac{\partial^2\varphi(r,z)}{\partial r^2}
+       + \frac{\partial\varphi(r,z)}{r\partial r}
+  \right.\right. \\
+  \shoveright{\hfill\left.\left.
+       + \frac{\partial^2\varphi(r,z)}{\partial z^2}
+    \right) - \frac{\partial^2\varphi(r,z)}{\partial z^2}
+  \right)}\end{multlined} \\
+  \tau_{rz}     & =  \begin{multlined}[t]
+  \frac{\partial}{\partial r}\left(
+    \left(1-\nu\right)\left(
+         \frac{\partial^2\varphi(r,z)}{\partial r^2}
+       + \frac{\partial\varphi(r,z)}{r\partial r}
+  \right.\right. \\
+  \shoveright{\hfill\left.\left.
+       + \frac{\partial^2\varphi(r,z)}{\partial z^2}
+    \right) - \frac{\partial^2\varphi(r,z)}{\partial z^2}
+  \right)}\end{multlined} \\
+  \Delta_r      & = -\frac{1+\nu}{E}
+    \frac{\partial^2\varphi(r,z)}{\partial r\partial z} \\
+  \Delta_z      & =  \begin{multlined}[t]
+  \frac{1+\nu}{E}\left(
+    2\left(1-\nu\right)\left(
+         \frac{\partial^2\varphi(r,z)}{\partial r^2}
+       + \frac{\partial\varphi(r,z)}{r\partial r}
+  \right.\right. \\
+  \shoveright{\hfill\left.\left.
+       + \frac{\partial^2\varphi(r,z)}{\partial z^2}
+    \right) - \frac{\partial^2\varphi(r,z)}{\partial z^2}
+  \right)}\end{multlined} \\
 % XXX: This equation is wrong it should be del(del(airy))
-\begin{equation*}
-0 = \frac{{\partial ^4 \varphi \left( {r,z} \right)}}
-{{\partial r^4 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
-{{r\partial r^3 }} + 2\frac{{\partial ^4 \varphi \left( {r,z} \right)}}
-{{\partial r^2 \partial z^2 }} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{r^2 \partial r^2 }} + 2\frac{{\partial ^3 \varphi \left( {r,z} \right)}}
-{{r\partial r\partial z^2 }} + \frac{{\partial ^2 \varphi \left( {r,z} \right)}}
-{{\partial z^4 }}
-\end{equation*}
+  0 & =  \begin{multlined}[t]
+       \frac{\partial^4\varphi(r,z)}{\partial r^4}
+    + 2\frac{\partial^3\varphi(r,z)}{r\partial r^3}
+    + 2\frac{\partial^4\varphi(r,z)}{\partial r^2\partial z^2} \\
+  \shoveright{\hfill
+    +  \frac{\partial^2\varphi(r,z)}{r^2\partial r^2}
+    + 2\frac{\partial^3\varphi(r,z)}{r\partial r\partial z^2}
+    +  \frac{\partial^2\varphi(r,z)}{\partial z^4}
+  }\end{multlined}
+\end{align*}
 
 Michelow suggested the following solution for the stress function, for layer
-\textit{i} in an $n$-layered system, with the addition of an arbitrary
-constant parameter \textit{m}:
+$i$ in an $n$-layered system, with the addition of an arbitrary
+constant parameter $m$:
 
 \begin{equation*}
 \varphi _i \left( {r,z,m} \right) = J_0 \left( {mr} \right)\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)
 \end{equation*}
 
 
-Where \textit{J}0$(x)$ is a Bessel function of the first kind with order
+Where $J_0(x)$ is a Bessel function of the first kind with order
 zero, and $A$, $B$, $C$ and $D$ are constants for each layer which are only
-a function of \textit{m}.  This gives the following solution to (1) and
+a function of $m$.  This gives the following solution to (1) and
 satisfies (2).
 
 \begin{equation*}
 \begin{gathered}
-  \sigma _z^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
-  \tau _{rz}^i  = m^2 J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
-  \Delta r^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}mJ_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
-  \Delta z^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}mJ_0 \left( {mr} \right)\left( {\left( {2 - 4\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
-  \sigma _r^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\ 
+  \sigma _z^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\nu _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\
+  \tau _{r z}^i  = m^2 J_1 \left( {mr} \right)\left( {2\nu _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\
+  \Delta r^i  = \frac{{1 + \nu _i }}
+{{E_i }}mJ_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\
+  \Delta z^i  = \frac{{1 + \nu _i }}
+{{E_i }}mJ_0 \left( {mr} \right)\left( {\left( {2 - 4\nu _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\
+  \sigma _r^i  = m^2 J_0 \left( {mr} \right)\left( {\left( {1 + 2\nu _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right) \\
    - \frac{1}
 {r}\frac{{E_i }}
-{{1 + \upsilon _i }}\Delta r^i  \\ 
-  \sigma _\theta ^i  = 2\upsilon _i m^2 J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + \frac{1}
+{{1 + \nu _i }}\Delta r^i  \\
+  \sigma _\theta ^i  = 2\nu _i m^2 J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + \frac{1}
 {r}\frac{{E_i }}
-{{1 + \upsilon _i }}\Delta r^i  \\ 
-\end{gathered} 
+{{1 + \nu _i }}\Delta r^i  \\
+\end{gathered}
 \end{equation*}
 
 If we consider the a load applied to the surface which is given by:
@@ -1624,13 +1673,13 @@ f\left( r \right) = J_0 \left( {mr} \right)
 \end{equation*}
 
 
-Then we have the following solutions to (3) at $z$=0:
+Then we have the following solutions to (3) at $z=0$:
 
 \begin{equation*}
 \begin{gathered}
-  \tau _{rz}^1 \left| {_{z = 0}  = 0 = } \right.m^2 J_1 \left( {mr} \right)\left( {2\upsilon _1 \left( {B_1  - D_1 } \right) + m\left( {A_1  + C_1 } \right)} \right) \hfill \\
-  \sigma _z^1 \left| {_{z = 0} } \right. = J_0 \left( {mr} \right) = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _1 } \right)\left( {B_1  + D_1 } \right) - m\left( {A_1  - C_1 } \right)} \right) \hfill \\ 
-\end{gathered} 
+  \tau _{r z}^1 \left| {_{z = 0}  = 0 = } \right.m^2 J_1 \left( {mr} \right)\left( {2\nu _1 \left( {B_1  - D_1 } \right) + m\left( {A_1  + C_1 } \right)} \right) \hfill \\
+  \sigma _z^1 \left| {_{z = 0} } \right. = J_0 \left( {mr} \right) = m^2 J_0 \left( {mr} \right)\left( {\left( {1 - 2\nu _1 } \right)\left( {B_1  + D_1 } \right) - m\left( {A_1  - C_1 } \right)} \right) \hfill \\
+\end{gathered}
 \end{equation*}
 
 
@@ -1672,7 +1721,7 @@ can develop the following matrix notation for these four equations:
 \begin{array}{*{20}c}
    {S_i \left( z \right) = \left[ {\begin{array}{*{20}c}
    {\sigma _z^i }  \\
-   {\tau _{rz}^i }  \\
+   {\tau _{r z}^i }  \\
    {u^i }  \\
    {w^i }  \\
 
@@ -1685,9 +1734,9 @@ can develop the following matrix notation for these four equations:
  \end{array} } \right]} & {K_i  = \operatorname{diag} \left[ {\begin{array}{*{20}c}
    { - m^2 J_0 (mr)}  \\
    {m^2 J_1 (mr)}  \\
-   {\frac{{1 + \upsilon _i }}
+   {\frac{{1 + \nu _i }}
 {{E_i }}mJ_1 (mr)}  \\
-   { - \frac{{1 + \upsilon _i }}
+   { - \frac{{1 + \nu _i }}
 {{E_i }}mJ_0 (mr)}  \\
 
  \end{array} } \right]}  \\
@@ -1705,14 +1754,14 @@ can develop the following matrix notation for these four equations:
 
  \end{array} } \right]}  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 If we consider the layer interface, shown in Figure 2.2, we can match the
 stress across a very small layer just above the layer interface to obtain:
 
 \begin{equation*}
-\mathop {\lim }\limits_{\varepsilon  \to 0} S_i \left( {h_{i + 1}  - \varepsilon } \right) = S_{i + 1} \left( {h_{i + 1} } \right)
+\mathop {\lim }\limits_{\epsilon  \to 0} S_i \left( {h_{i + 1}  - \epsilon } \right) = S_{i + 1} \left( {h_{i + 1} } \right)
 \end{equation*}
 
 
@@ -1739,20 +1788,20 @@ Combining with (5) and rearranging we obtain:
 
 \begin{equation*}
 X_i \left( z \right) = \frac{1}
-{{4\upsilon _i  - 4}}\left[ {\begin{array}{*{20}c}
+{{4\nu _i  - 4}}\left[ {\begin{array}{*{20}c}
    \hfill { - mz - 1} & \hfill 1 & \hfill { - mz + 1} & \hfill 1 \\
-   \hfill {mz + 4\upsilon _i  - 2} & \hfill { - 1} & \hfill { - mz + 4\upsilon _i  - 2} & \hfill 1 \\
-   \hfill {mz + 2\upsilon _i  - 1} & \hfill { - 1} & \hfill {mz - 2\upsilon _i  + 1} & \hfill { - 1} \\
-   \hfill {mz - 2\upsilon _i } & \hfill 1 & \hfill {mz - 2\upsilon _i } & \hfill { - 1} \\
+   \hfill {mz + 4\nu _i  - 2} & \hfill { - 1} & \hfill { - mz + 4\nu _i  - 2} & \hfill 1 \\
+   \hfill {mz + 2\nu _i  - 1} & \hfill { - 1} & \hfill {mz - 2\nu _i  + 1} & \hfill { - 1} \\
+   \hfill {mz - 2\nu _i } & \hfill 1 & \hfill {mz - 2\nu _i } & \hfill { - 1} \\
 
  \end{array} } \right]^{\operatorname{T}}  \operatorname{diag} \left[ {\begin{array}{*{20}c}
    1  \\
    1  \\
-   {\frac{{1 + \upsilon _{i + 1} }}
-{{1 + \upsilon _i }}\frac{{E_i }}
+   {\frac{{1 + \nu _{i + 1} }}
+{{1 + \nu _i }}\frac{{E_i }}
 {{E_{i + 1} }}}  \\
-   {\frac{{1 + \upsilon _{i + 1} }}
-{{1 + \upsilon _i }}\frac{{E_i }}
+   {\frac{{1 + \nu _{i + 1} }}
+{{1 + \nu _i }}\frac{{E_i }}
 {{E_{i + 1} }}}  \\
 
  \end{array} } \right]\left[ {\begin{array}{*{20}c}
@@ -1782,11 +1831,11 @@ X_i \left( z \right) = \frac{1}
 
 Which can be used to solve for $A$, $B$, $C$ and $D$ in each layer down to
 the $n$th layer.  Unfortunately we still have four unknowns.  If we consider
-the case where $z$ $\rightarrow$ $\infty$ then, we know that all of the
-system responses must tend to zero, and we can determine from (3) that $A$
-$\infty$ , $B$ $\infty$ must tend to zero.  Thus we need to solve for $C$
-$\infty$ , $D$ $\infty$ .  The following matrix is obtained for a rigid base
-at depth \textit{hn}+1 (this is from the ELSY5M source code):
+the case where $z\rightarrow\infty$ then, we know that all of the system
+responses must tend to zero, and we can determine from (3) that $A_\infty$,
+$B_\infty$ must tend to zero.  Thus we need to solve for $C_\infty$,
+$D_\infty$ .  The following matrix is obtained for a rigid base at depth
+$h_{n+1}$ (this is from the ELSY5M source code):
 
 \begin{equation*}
 \left[ {\begin{array}{*{20}c}
@@ -1796,14 +1845,14 @@ at depth \textit{hn}+1 (this is from the ELSY5M source code):
    {D_n }  \\
 
  \end{array} } \right] = \left[ {\begin{array}{*{20}c}
-   {\frac{{1 - 4\upsilon _n  - 2mh_{n + 1} }}
-{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } } & {\frac{{4{{\left( {2\upsilon _n  - 1} \right)} \mathord{\left/
- {\vphantom {{\left( {2\upsilon _n  - 1} \right)} m}} \right.
+   {\frac{{1 - 4\nu _n  - 2mh_{n + 1} }}
+{{3 - 4\nu _n }}e^{ - 2mh_{n + 1} } } & {\frac{{4{{\left( {2\nu _n  - 1} \right)} \mathord{\left/
+ {\vphantom {{\left( {2\nu _n  - 1} \right)} m}} \right.
  \kern-\nulldelimiterspace} m} - 2mh_{n + 1}^2 }}
-{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } }  \\
+{{3 - 4\nu _n }}e^{ - 2mh_{n + 1} } }  \\
    {\frac{{2m}}
-{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } } & {\frac{{1 - 4\upsilon _n  + 2mh_{n + 1} }}
-{{3 - 4\upsilon _n }}e^{ - 2mh_{n + 1} } }  \\
+{{3 - 4\nu _n }}e^{ - 2mh_{n + 1} } } & {\frac{{1 - 4\nu _n  + 2mh_{n + 1} }}
+{{3 - 4\nu _n }}e^{ - 2mh_{n + 1} } }  \\
    1 & 0  \\
    0 & 1  \\
 
@@ -1818,7 +1867,7 @@ at depth \textit{hn}+1 (this is from the ELSY5M source code):
  \end{array} } \right]
 \end{equation*}
 
-In the case where \textit{hn}+1 $\rightarrow$  $\infty$  then this reduces
+In the case where $h_{n+1}\rightarrow\infty$  then this reduces
 to:
 
 \begin{equation*}
@@ -1832,7 +1881,7 @@ to:
 \end{equation*}
 
 We can combine (4), (6) and (7) to obtain the following system of equations
-for $C$ $\infty$ , $D$ $\infty$ which we can solve using a variety of
+for $C_\infty$, $D_\infty$ which we can solve using a variety of
 techniques:
 
 \begin{equation*}
@@ -1891,7 +1940,7 @@ a system of two linear equations:
 
  \end{array} } \right| \ne 0}  \\
 
- \end{array} 
+ \end{array}
 \end{equation*}
 
 We can make one more simplification to (8) if we notice that:
@@ -1942,7 +1991,7 @@ matches this applied load.  This is done through a Hankel transform of (9)
 square function $\Pi$ $a(r)$ is well known:
 
 \begin{equation*}
-\Pi _a \left( r \right) = \int_0^\infty  {aJ_1 \left( {ma} \right)J_0 \left( {mr} \right)dm} 
+\Pi _a \left( r \right) = \int_0^\infty  {aJ_1 \left( {ma} \right)J_0 \left( {mr} \right)dm}
 \end{equation*}
 
 Using the principle of load superposition, we can extend (3) for this new
@@ -1950,39 +1999,38 @@ load case:
 
 \begin{equation*}
 \begin{gathered}
-  \sigma _z^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \tau _{rz}^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {2\upsilon _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \Delta r^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \Delta z^i  = \frac{{1 + \upsilon _i }}
-{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {2\left( {1 - 2\upsilon _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
-  \sigma _r^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 + 2\upsilon _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\ 
+  \sigma _z^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 - 2\nu _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\
+  \tau _{r z}^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {2\nu _i \left( {B_i e^{mz}  - D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\
+  \Delta r^i  = \frac{{1 + \nu _i }}
+{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_1 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz}  + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\
+  \Delta z^i  = \frac{{1 + \nu _i }}
+{{E_i }}a\int_0^\infty  {mJ_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {2\left( {1 - 2\nu _i } \right)\left( {B_i e^{mz}  - D_i e^{ - mz} } \right) - m\left( {\left( {A_i  + B_i z} \right)e^{mz}  + \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\
+  \sigma _r^i  = a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {\left( {1 + 2\nu _i } \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right) + m\left( {\left( {A_i  + B_i z} \right)e^{mz}  - \left( {C_i  + D_i z} \right)e^{ - mz} } \right)} \right)dm}  \\
    - \frac{1}
 {r}\frac{{E_i }}
-{{1 + \upsilon _i }}\Delta r^i  \\ 
-  \sigma _\theta ^i  = 2\upsilon _i a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right)dm}  + \frac{1}
+{{1 + \nu _i }}\Delta r^i  \\
+  \sigma _\theta ^i  = 2\nu _i a\int_0^\infty  {m^2 J_1 \left( {ma} \right)J_0 \left( {mr} \right)\left( {B_i e^{mz}  + D_i e^{ - mz} } \right)dm}  + \frac{1}
 {r}\frac{{E_i }}
-{{1 + \upsilon _i }}\Delta r^i  \\ 
-\end{gathered} 
+{{1 + \nu _i }}\Delta r^i  \\
+\end{gathered}
 \end{equation*}
 
 These integrals run from zero, and astute readers will notice that many of
 the limit statements in the derivations above do not apply when
-\textit{m}=0.  However, the function \textit{J}1(\textit{ma}) is zero when
-\textit{m}=0., and so we do not need to solve for the constants in this
+$m$=0.  However, the function $J_1$($ma$) is zero when
+$m$=0., and so we do not need to solve for the constants in this
 case.
 
 
 \subsection{Gaussian-Legendre Quadrature over products of Bessel functions}
 
-Unfortunately there are no closed form solutions to equations (11), and so
-we need to perform numerical integration.  Since the Bessel functions are
-smooth and we can compute them at any abscissa we use Gaussian-Legendre
-Quadrature to minimize the number of times we need to evaluate the system in
-(11), including solving for $C$ $\infty$ , $D$ $\infty$ and \textit{Ai},
-\textit{Bi}, \textit{Ci} and \textit{Di} using (8) and (6), since these have
-to be performed at each \textit{m} value which we require for the
-integration.
+Unfortunately there are no closed form solutions to equations (11), and so we
+need to perform numerical integration.  Since the Bessel functions are smooth
+and we can compute them at any abscissa we use Gaussian-Legendre Quadrature
+to minimize the number of times we need to evaluate the system in (11),
+including solving for $C_\infty$, $D_\infty$ and $A_i$, $B_i$, $C_i$ and
+$D_i$ using (8) and (6), since these have to be performed at each $m$ value
+which we require for the integration.
 
 All numerical integration techniques make use of the fact that the integral
 of a function is the area under the function, and can therefore be
@@ -1994,14 +2042,14 @@ and establish the average value of the polynomial.
 
 Gaussian-Legendre Quadrature, often called Gaussian integration, makes use
 of fact that a polynomial of degree $N$ is defined by $N$+1 coefficients,
-and the definite integral of this polynomial is can be determined exactly. 
+and the definite integral of this polynomial is can be determined exactly.
 If we choose both the $x$ positions at which we evaluate the function and
-the weights which we assign to each of the $n$ positions, then we have 2$n$
-coefficients, which we can fit a polynomial of degree 2$n$-1 exactly.  Some
+the weights which we assign to each of the $n$ positions, then we have $2n$
+coefficients, which we can fit a polynomial of degree $2n-1$ exactly.  Some
 manipulation shows that it is possible to determine the optimal locations
 and the weights for any polynomial independently of the coefficients of the
-polynomial.  If we have $n$ Gauss points in the range (-1,1) at points
-\textit{xi} and with weights \textit{wi} then the following formula applies:
+polynomial.  If we have $n$ Gauss points in the range $(-1,1)$ at points
+$\xi_i$ and with weights $w_i$ then the following formula applies:
 
 \begin{equation*}
 \int_a^b {f\left( x \right)dx = \frac{{b - a}}
@@ -2009,11 +2057,11 @@ polynomial.  If we have $n$ Gauss points in the range (-1,1) at points
 {2} + \frac{{b - a}}
 {2}\xi } \right)d\xi  \cong \sum_{i = 1}^n {w_i } f\left( {\frac{{a + b}}
 {2} + \frac{{b - a}}
-{2}\xi _i } \right)} } 
+{2}\xi _i } \right)} }
 \end{equation*}
 
 Figure 2.3 shows the two Bessel functions, and it can be seen that the
-oscillate about zero, and decay as \textit{m} increases.  However, it is not
+oscillate about zero, and decay as $m$ increases.  However, it is not
 these functions which we need to integrate, but rather the product of two
 Bessel functions, one scaled by $a$ and the other by $r$.  This results in a
 function which oscillates in an even more pronounced fashion around zero
@@ -2027,18 +2075,18 @@ Since these functions oscillate we need to either approximate them by a high
 order polynomial or perform piece wise integration over small ranges.  In
 ELSYM5M the later approach is used.  It's integration procedure always uses
 four Gauss points, and then breaks the integral at the points the roots of
-\textit{J}1$(x)$.  For evaluation radii smaller than $a$ it uses
-$x$=\textit{ma} and for those larger than a it uses $x$=\textit{mr}.  As a
+$J_1(x)$.  For evaluation radii smaller than $a$ it uses
+$x=ma$ and for those larger than a it uses $x=mr$.  As a
 result the products always have less than three turning points in the
 integration range, and so the 7th order polynomial approximation is fairly
 accurate.  However, this means that the integration points, and therefore
-\textit{m} values have to be reselected for each evaluation radius outside
+$m$ values have to be reselected for each evaluation radius outside
 of the load, which in turn means that the constants have to be recomputed
 for each evaluation location, slowing down the calculations.
 
 In \OP\ the other approach is adopted.  It can be seen from Figure 2.4 that
 the number of turning points between any two roots of
-\textit{J}1(\textit{ma}) in the products are a function of the ratio $r$/$a$
+$J_1$($ma$) in the products are a function of the ratio $r$/$a$
 and are given (approximately) by the formula $r$/$a$+2.  If we wish to fit a
 polynomial with at least twice the order of the product of the Bessel
 functions (to ensure high accuracy) then we can determine $n$ as follows:
@@ -2048,79 +2096,79 @@ functions (to ensure high accuracy) then we can determine $n$ as follows:
   2\left( {\frac{r}
 {a} + 2} \right) = 2n - 1 \hfill \\
   n = \operatorname{int} \left( {\frac{r}
-{a} + 3} \right) \hfill \\ 
-\end{gathered} 
+{a} + 3} \right) \hfill \\
+\end{gathered}
 \end{equation*}
 
 \textbf{Figure 2.4: Products of Bessel functions}
 
-In the ELSYM5M procedure the number of Gauss points between 0 and the first
-root of \textit{J}1(\textit{ma}) for $r$/$a$=10 would 40, while for this
-method it is 13.  In addition, if we use max$(r)$ for all of the evaluation
+In the ELSYM5M procedure the number of Gauss points between $0$ and the first
+root of $J_1$($ma$) for $r/a=10$ would $40$, while for this
+method it is 13.  In addition, if we use $max(r)$ for all of the evaluation
 radii then we only need to compute the constants once.  The integral is
-calculated over \textit{m} from 0 to $\infty$ and so we need to compute for
-successive roots of \textit{J}1(\textit{ma}) until the integral converges or
+calculated over $m$ from $0$ to $\infty$ and so we need to compute for
+successive roots of $J_1$($ma$) until the integral converges or
 until it becomes numerically unstable.  The biggest contributor to numerical
-instability are the evaluations of exp(\textit{m}max$(z))$ in the evaluation
-of the constants at the rigid base.  For a computer using IEEE double
-precision floating point numbers, the maximum value of \textit{m}max$(z)$ is
-approximately 618.  Thus we can only integrate to \textit{m} $<$
-600/max$(z)$ to ensure that we do not have infinite numbers occurring in the
-calculations.  In practice we stop the integration once the relative change
-from adding a new panel is less than 10-6.
+instability are the evaluations of $exp(m max(z))$ in the evaluation of the
+constants at the rigid base.  For a computer using IEEE double precision
+floating point numbers, the maximum value of $m max(z)$ is approximately 618. 
+Thus we can only integrate to $m<600/max(z)$ to ensure that we do not have
+infinite numbers occurring in the calculations.  In practice we stop the
+integration once the relative change from adding a new panel is less than
+10-6.
 
 
 \subsection{Load superposition algorithm}
 
-Because the new calculation engine can be passed any number of loads and
+Because the calculation engine can be passed any number of loads and
 evaluation locations it is important that it handle these intelligently to
 avoid doing unnecessary work.  Because the calculations are performed in a
 radial coordinate system this means that we need only perform the
 calculations once for each radial offset from each load type, and also (by
-the principle of superposition) that we can calculate for each load radius
-at a unit pressure, then scale the results based on the actual pressure.
+the principle of superposition) that we can calculate for each load radius at
+a unit pressure, then scale the results based on the actual pressure.
 
 To minimize the number of calculations required the new calculation engine
 goes through the following procedure: First all of the $z$ positions of the
-evaluation locations are collected and a unique sorted list is compiled. 
-The layer that each of these $z$ positions falls within is then determined. 
-Following this we collect and compile a unique sorted list of all of the
-load radii, since the load radius is the most intrusive parameter in the
+evaluation locations are collected and a unique sorted list is compiled. The
+layer that each of these $z$ positions falls within is then determined.
+Following this we collect and compile a unique sorted list of all of the load
+radii, since the load radius is the most intrusive parameter in the
 calculations.  We then loop through the list of load radii performing the
 calculations.
 
 To perform the calculations we need to determine the radial coordinates of
 each evaluation location from each load (which has the load radius we are
-considering).  To do this we calculate the horizontal distance from each
-load to each evaluation location and develop another unique sorted list.  We
-take the maximum value from this sorted list and use that to calculate the
-number of Gauss points, as detailed above.  We then calculate the maximum
-\textit{m} value based on the depth to the rigid base, and proceed to
+considering).  To do this we calculate the horizontal distance from each load
+to each evaluation location and develop another unique sorted list.  We take
+the maximum value from this sorted list and use that to calculate the number
+of Gauss points, as detailed above.  We then calculate the maximum
+$m$ value based on the depth to the rigid base, and proceed to
 calculate the layer constants for each Gauss point.
 
 Once we have established the integration constants we then loop through the
-evaluation radii and depths performing the actual integration.  The result
-of this integration is a set of six radial stress, strain or displacement
-values for each $(r,z)$ position.  We only perform this calculation for
-combinations of $(r,z)$ which are valid (which in practice means that we
-build yet another unique sorted list of $z$ positions and use that rather
-than the global list.  Once we have establish the radial responses to this
-particular load we proceed to add these to Cartesian responses at the
-relevant evaluation locations, scaling by the pressure applied.
+evaluation radii and depths performing the actual integration.  The result of
+this integration is a set of six radial stress, strain or displacement values
+for each $(r,z)$ position.  We only perform this calculation for combinations
+of $(r,z)$ which are valid (which in practice means that we build yet another
+unique sorted list of $z$ positions and use that rather than the global list. 
+Once we have establish the radial responses to this particular load we
+proceed to add these to Cartesian responses at the relevant evaluation
+locations, scaling by the pressure applied.
 
-We then proceed to the through the load radii, repeating the calculations
-and accumulating the responses at each location.  Once we are complete we
+We then proceed to the through the load radii, repeating the calculations and
+accumulating the responses at each location.  Once we are complete we
 calculate the principal stresses and also the strains at each evaluation
 location.
 
 
 \section{Calculation of Principal Stresses}
 
-After we have obtained the stresses in a Cartesian coordinate system, we
-need to transform these into principal stresses and strains.  This is a well
-known problem, of solving the eigenvalues of a matrix.  However, we are
-dealing with a 3x3 matrix, and so most numerical techniques are overkill. 
-This section describes the procedure used in \OP.  We begin with a general
+After we have obtained the stresses in a Cartesian coordinate system, we need
+to transform these into principal stresses and strains.  This is a well known
+problem, of solving the eigenvalues of a matrix.  However, we are dealing
+with a 3x3 matrix, and so most numerical techniques are overkill. This
+section describes the procedure used in \OP.  We begin with a general
 discussion of solving eigenvalues, based on that from `Numerical Recipes in
 C' (XXX: ref), then detailing the optimizations found in the procedure used
 in ELSYM5M, and then finally the optimizations used in \OP.
@@ -2128,65 +2176,61 @@ in ELSYM5M, and then finally the optimizations used in \OP.
 
 \subsection{Numerical solution of eigenvalues}
 
-An Eigenvalue l, and corresponding (nonzero) eigenvector $\mathbf{x}$, of an
-$n$ $\times$ $n$ matrix \textbf{A} are defined as those solving the
+An Eigenvalue $\lambda$, and corresponding (nonzero) eigenvector $mathbf{x}$,
+of an $n\times n$ matrix $\mathbf{A}$ are defined as those solving the
 following equation:
-
-\begin{equation*}
-\begin{gathered}
-  \mathbf{Ax} = \lambda \mathbf{x} \\ 
-  \left[ {\begin{array}{*{20}c}
-   {a_{11}  - \lambda } & {a_{12} } &  \cdots  & {a_{1n} }  \\
-   {a_{21} } & {a_{22}  - \lambda } &  \cdots  & {a_{2n} }  \\
-    \vdots  &  \vdots  &  \ddots  &  \vdots   \\
-   {a_{n1} } & {a_{n2} } &  \cdots  & {a_{nn}  - \lambda }  \\
-
- \end{array} } \right]\left[ {\begin{array}{*{20}c}
-   {x_1 }  \\
-   {x_2 }  \\
-    \vdots   \\
-   {x_n }  \\
-
- \end{array} } \right] = \left[ {\begin{array}{*{20}c}
-   0  \\
-   0  \\
-    \vdots   \\
-   0  \\
-
- \end{array} } \right] \\ 
-\end{gathered} 
-\end{equation*}
+\begin{align*}
+  \mathbf{A}\mathbf{x} & = \lambda\mathbf{x} \\
+  \begin{bmatrix}
+   a_{11}-\lambda & a_{12}         & \cdots & a_{1n} \\
+   a_{21}         & a_{22}-\lambda & \cdots & a_{2n} \\
+   \vdots         & \vdots         & \ddots & \vdots \\
+   a_{n1}         & a_{n2}         & \cdots & a_{nn}-\lambda
+  \end{bmatrix}
+  \begin{bmatrix}
+   x_1    \\
+   x_2    \\
+   \vdots \\
+   x_n
+  \end{bmatrix} & =
+  \begin{bmatrix}
+   0      \\
+   0      \\
+   \vdots \\
+   0
+  \end{bmatrix}
+\end{align*}
 
 Since $\mathbf{x}$ could be scaled by any quantity, we typically require
 $\mathbf{x}$ to be a unit normal vector (i.e. it has length one).  The
-matrix \textbf{A} can then have at most $n$ distinct eigenvalues.  The
+matrix $mathbf{A}$ can then have at most $n$ distinct eigenvalues.  The
 matrix is said to be `degenerate' if two or more of the eigenvalues are
 equal.
 
 The eigenvalues can be solved through using the determinant of the equation
 above:
-
 \begin{equation*}
-\left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| = 0
+\deter*{\mathbf{A}-\lambda\mathbf{I}} = 0
 \end{equation*}
 
-which is a polynomial of degree $n$.  However, solving using a root finder
-is firstly, not optimal, and secondly does not provide the eigenvectors. 
-Thus most eigenvalue solutions are by diagonalization of the matrix, because
-it is obvious from the equations above that the $n$ eigenvalues of a
-diagonal matrix are it's diagonal terms.  These diagonalization procedures
-make use of a `similarity transform', which does not alter the eigenvalues
-of the matrix:
-
-\begin{equation*}
-\begin{gathered}
-  \mathbf{D} = \mathbf{X}^{ - 1} \mathbf{AX} \\ 
-  \left\| {\mathbf{D} - \lambda \mathbf{I}} \right\| = \left\| {\mathbf{X}^{ - 1} \mathbf{AX} - \lambda \mathbf{I}} \right\| \\ 
-   = \left\| {\mathbf{X}^{ - 1} \left( {\mathbf{A} - \lambda \mathbf{I}} \right)\mathbf{X}} \right\| \\ 
-   = \left\| {\mathbf{X}^{ - 1} } \right\|\left\| {\left( {\mathbf{A} - \lambda \mathbf{I}} \right)} \right\|\left\| \mathbf{X} \right\| \\ 
-   = \left\| {\mathbf{A} - \lambda \mathbf{I}} \right\| \\ 
-\end{gathered} 
-\end{equation*}
+which is a polynomial of degree $n$.  However, solving using a root finder is
+firstly, not optimal, and secondly does not provide the eigenvectors. Thus
+most eigenvalue solutions are by diagonalization of the matrix, because it is
+obvious from the equations above that the $n$ eigenvalues of a diagonal
+matrix are it's diagonal terms.  These diagonalization procedures make use of
+a `similarity transform', involving a matrix $\mathbf{X}$, which transforms
+$\mathbf{A}$, such that the result is a diagonal matrix $\mathbf{D} =
+\mathbf{X}^{-1}\mathbf{A}\mathbf{X}$, which does not alter the eigenvalues of
+the matrix:
+\begin{align*}
+  \deter*{\mathbf{D}-\lambda\mathbf{I}} & =
+     \deter*{\mathbf{X}^{-1}\mathbf{A}\mathbf{X}-\lambda\mathbf{I}} \\
+   & = \deter*{\mathbf{X}^{-1}\left(\mathbf{A}
+     -\lambda\mathbf{I}\right)\mathbf{X}} \\
+   & = \deter*{\mathbf{X}^{-1}}\deter*{\left(\mathbf{A}
+     -\lambda\mathbf{I}\right)}\deter*{\mathbf{X}} \\
+   & = \deter*{\mathbf{A}-\lambda\mathbf{I}}
+\end{align*}
 
 Another advantage of this scheme is that the eigenvalues are the columns of
 the matrix $\mathbf{X}$.  However, finding $\mathbf{X}$ is non-trivial, and
@@ -2200,232 +2244,202 @@ dimensions of the matrix, to zero out one of the off diagonal elements.  If
 the matrix has only two dimensions, then this rotation only needs to be
 applied once (and this is in fact how the principal stresses are solved in a
 Mohr Circle formulation).  The matrix $\mathbf{X}$ takes the form:
-
 \begin{equation*}
-X_i  = \left[ {\begin{array}{*{20}c}
-   1 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 0  \\
-    \vdots  &  \ddots  &  \vdots  & {} &  \vdots  & {} &  \vdots   \\
-   0 &  \cdots  & {\cos \left( \phi  \right)} &  \cdots  & {\sin \left( \phi  \right)} &  \cdots  & 0  \\
-    \vdots  & {} &  \vdots  & 1 &  \vdots  & {} &  \vdots   \\
-   0 &  \cdots  & { - \sin \left( \phi  \right)} &  \cdots  & {\cos \left( \phi  \right)} &  \cdots  & 0  \\
-    \vdots  & {} &  \vdots  & {} &  \vdots  &  \ddots  &  \vdots   \\
-   0 &  \cdots  & 0 &  \cdots  & 0 &  \cdots  & 1  \\
-
- \end{array} } \right]
+\mathbf{X} = \begin{bmatrix}
+  1       & \cdots & 0           & \cdots & 0          & \cdots & 0      \\
+  \vdots  & \ddots & \vdots      & {}     & \vdots     & {}     & \vdots \\
+  0       & \cdots & \cos(\phi)  & \cdots & \sin(\phi) & \cdots & 0      \\
+  \vdots  & {}     & \vdots      & 1      & \vdots     & {}     & \vdots \\
+  0       & \cdots & -\sin(\phi) & \cdots & \cos(\phi) & \cdots & 0      \\
+  \vdots  & {}     & \vdots      & {}     & \vdots     & \ddots & \vdots \\
+  0       & \cdots & 0           & \cdots & 0          & \cdots & 1
+\end{bmatrix}
 \end{equation*}
 
 The largest off diagonal element is normally zeroed first, and the process
 repeated, and it can be shown that repeated application is guaranteed to
 result in a diagonal matrix.  However, doing matrix multiplication is
 expensive, and requires storage space, and so the procedure is applied in
-place.  If the rotation applies to the element \textit{apq} then we have the
+place.  If the rotation applies to the element $a_{pq}$ then we have the
 following equations:
-
+\begin{align*}
+  a'_{rp} & = a'_{pr} = \cos(\phi)a_{rp} - \sin(\phi)a_{rq} \\
+  a'_{rq} & = a'_{qr} = \cos(\phi)a_{rq} + \sin(\phi)a_{rp} \\
+  a'_{pp} & = \cos^2(\phi)a_{pp} + \sin^2(\phi)a_{qq}
+     - 2\cos(\phi)\sin(\phi)a_{pq} \\
+  a'_{qq} & = \cos^2(\phi)a_{qq} + \sin^2(\phi)a_{pp}
+     + 2\cos(\phi)\sin(\phi)a_{pq} \\
+  a'_{pq} & = a'_{qp} = \begin{multlined}[t]
+    \left(\cos^2(\phi)-\sin^2(\phi)\right)a_{pq} \\
+  \shoveright{+ \cos(\phi)\sin(\phi)\left(a_{qq}-a_{pp}\right)}
+  \end{multlined}
+\end{align*}
+where $r=1\ldots n,r\ne p,r\ne q$.  We solve for $\phi$ such that $a'_{pq}$
+is zero, giving:
 \begin{equation*}
-\begin{gathered}
-  \begin{array}{*{20}c}
-   {a'_{rp}  = a'_{pr}  = \cos \left( \phi  \right)a_{rp}  - \sin \left( \phi  \right)a_{rq} } & {r = 1 \ldots n}  \\
-   {a'_{rq}  = a'_{qr}  = \cos \left( \phi  \right)a_{rq}  + \sin \left( \phi  \right)a_{rp} } & {r \ne p,r \ne q}  \\
-
- \end{array}  \hfill \\
-  a'_{pp}  = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)a_{qq}  - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \hfill \\
-  a'_{qq}  = \cos ^2 \left( \phi  \right)a_{qq}  + \sin ^2 \left( \phi  \right)a_{pp}  + 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \hfill \\
-  a'_{pq}  = a'_{qp}  = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{qq}  - a_{pp} } \right) \hfill \\ 
-\end{gathered} 
-\end{equation*}
-
-We solve for $f$ such that \textit{a $\prime$ pq} is zero, giving:
-
-\begin{equation*}
-\theta  \equiv \cot \left( {2\phi } \right) \equiv \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
-{{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} = \frac{{\left( {a_{qq}  - a_{pp} } \right)}}
-{{2a_{pq} }}
+\theta \equiv \cot(2\phi) \equiv
+  \frac{\cos^2(\phi)-\sin^2(\phi)}{2\cos(\phi)\sin(\phi)}
+  = \frac{a_{qq}-a_{pp}}{2a_{pq}}
 \end{equation*}
 
 There are eight solutions in the first rotation, and so to get the first we
 use:
-
-\begin{equation*}
-\begin{gathered}
-  \theta  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)}}
-{{2\cos \left( \phi  \right)\sin \left( \phi  \right)}} \\ 
-  2\cos \left( \phi  \right)\sin \left( \phi  \right)\theta  = \cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right) \\ 
-  2\frac{{\sin \left( \phi  \right)}}
-{{\cos \left( \phi  \right)}}\theta  = 1 - \frac{{\sin ^2 \left( \phi  \right)}}
-{{\cos ^2 \left( \phi  \right)}} \\ 
-  \frac{{\sin ^2 \left( \phi  \right)}}
-{{\cos ^2 \left( \phi  \right)}} + 2\frac{{\sin \left( \phi  \right)}}
-{{\cos \left( \phi  \right)}}\theta  - 1 = 0 \\ 
-  t \equiv \frac{{\sin \left( \phi  \right)}}
-{{\cos \left( \phi  \right)}} = \frac{{\operatorname{sgn} \left( \theta  \right)}}
-{{\left| \theta  \right| + \sqrt {\theta ^2  + 1} }} = \frac{{\operatorname{sgn} \left( {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
-{{2a_{pq} }}} \right)}}
-{{\left| {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
-{{2a_{pq} }}} \right| + \sqrt {\left( {\frac{{\left( {a_{qq}  - a_{pp} } \right)}}
-{{2a_{pq} }}} \right)^2  + 1} }} \\ 
-   = \frac{{\operatorname{sgn} \left( {a_{qq}  - a_{pp} } \right)2a_{pq} }}
-{{\left| {a_{qq}  - a_{pp} } \right| + \sqrt {\left( {a_{qq}  - a_{pp} } \right)^2  + \left( {2a_{pq} } \right)^2 } }} \\ 
-\end{gathered} 
-\end{equation*}
-
+\begin{gather*}
+\begin{split}
+  \theta & = \frac{\cos^2(\phi)-\sin^2(\phi)}{{2\cos(\phi)\sin(\phi)}} \\
+  2\cos(\phi)\sin(\phi)\theta & = \cos^2(\phi)-\sin^2(\phi) \\
+  2\frac{\sin(\phi)}{\cos(\phi)}\theta & =
+      1-\frac{\sin^2(\phi)}{\cos^2(\phi)} \\
+  0 & = \frac{\sin^2(\phi)}{\cos^2(\phi)} +
+      2\frac{\sin(\phi)}{\cos(\phi)}\theta - 1
+\end{split} \\
+\begin{split}
+  t \equiv \frac{\sin(\phi)}{\cos(\phi)}
+   & = \frac{\sgn(\theta)}{\abs*{\theta}+\sqrt{\theta^2+1}} \\
+   & = \frac{\sgn\left(\frac{a_{qq}-a_{pp}}{2a_{pq}}\right)}
+        {\abs*{\frac{a_{qq}-a_{pp}}{2a_{pq}}} + 
+          \sqrt{\left(\frac{a_{qq}-a_{pp}}{2a_{pq}}\right)^2+1}} \\
+   & = \frac{\sgn\left(a_{qq}-a_{pp}\right)2a_{pq}}
+        {\abs*{a_{qq}-a_{pp}} + \sqrt{\left(a_{qq}-a_{pp}\right)^2
+           + \left(2a_{pq}\right)^2}}
+\end{split}
+\end{gather*}
 where the lesser known closed form solution for a quadratic equation is used
-to ensure that we always have the smaller root.  We can thus obtain:
+to ensure that we always have the smaller root.  We can also perform some
+basic manipulation to obtain:
+\begin{align*}
+\begin{split}
+  \cos(\phi) & \equiv \frac{1}{\sqrt{\cos^{-2}(\phi)}} \\
+             & = \frac{1}{\sqrt{\cos^{-2}(\phi)\left(\sin^2(\phi)
+                   +\cos^2(\phi)\right)}} \\
+             & = \frac{1}{\sqrt{t^2+1}}
+\end{split} \\
+\begin{split}
+  \sin(\phi) & \equiv t\cos(\phi) \\
+             & = \frac{t}{\sqrt{t^2+1}}
+\end{split}
+\end{align*}
 
-\begin{equation*}
-\begin{gathered}
-  \cos \left( \phi  \right) = \frac{1}
-{{\sqrt {\frac{1}
-{{\cos ^2 \left( \phi  \right)}}} }} \\ 
-   = \frac{1}
-{{\sqrt {\frac{1}
-{{\cos ^2 \left( \phi  \right)}}\left( {\sin ^2 \left( \phi  \right) + \cos ^2 \left( \phi  \right)} \right)} }} \\ 
-   = \frac{1}
-{{\sqrt {t^2  + 1} }} \\ 
-  \sin \left( \phi  \right) = t\cos \left( \phi  \right) \\ 
-   = \frac{t}
-{{\sqrt {t^2  + 1} }} \\ 
-\end{gathered} 
-\end{equation*}
+We can also simplify \eqref{XXX}, as:
+\begin{align*}
+\begin{split}
+  a'_{pq} & = 0 \\
+          & = \left(\cos^2(\phi)-\sin^2(\phi)\right)a_{pq}
+              + \cos(\phi)\sin(\phi)\left(a_{pp}-a_{qq}\right)
+\end{split} \\
+  a_{qq}  & = \frac{\cos^2(\phi)-\sin^2(\phi)}
+              {\cos(\phi)\sin(\phi)}a_{pq} + a_{pp} \\
+\begin{split}
+  a'_{pp} & = \cos^2(\phi)a_{pp} + \sin^2(\phi)a_{qq}
+              - 2\cos(\phi)\sin(\phi)a_{pq} \\
+          & = \cos^2(\phi)a_{pp} - 2\cos(\phi)\sin(\phi)a_{pq} \\
+            & \qquad + \sin^2(\phi)\left(\frac{\cos^2(\phi)-\sin^2(\phi)}
+              {\cos(\phi)\sin(\phi)}a_{pq} + a_{pp} \right) \\
+          & = \left(\sin^2(\phi)+\cos^2(\phi)\right)a_{pp} + \\
+            & \qquad \left(\frac{-\sin^3(\phi)-\cos^2(\phi)\sin(\phi)}
+              {\cos(\phi)}\right)a_{pq} \\
+   & = a_{pp} - \frac{\sin(\phi)}{\cos(\phi)}\left(\cos^2(\phi)
+                  +\sin^2(\phi)\right)a_{pq} \\
+   & = a_{pp} - ta_{pq}
+\end{split} \\
+  a'_{qq} & = a_{qq} + ta_{pq} \\
+\begin{split}
+  a'_{rp} & = \cos(\phi)a_{rp}  - \sin(\phi)a_{rq} \\
+   & = \frac{1}{\sqrt{t^2+1}}a_{rp}  - \frac{t}{\sqrt{t^2+1}}a_{rq} \\
+   & = {\left(a_{rp}-ta_{rq}\right)}\left/\sqrt{t^2+1}\right.
+\end{split} \\
+  a'_{rq} & = {\left(a_{rq}+ta_{rp}\right)}\left/\sqrt{t^2+1}\right.
+\end{align*}
 
-
-We can also simplify (12), as:
-
-\begin{equation*}
-\begin{gathered}
-  a'_{pq}  = 0 = \left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq}  + \cos \left( \phi  \right)\sin \left( \phi  \right)\left( {a_{pp}  - a_{qq} } \right) \\ 
-  a_{qq}  = \frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq} }}
-{{\cos \left( \phi  \right)\sin \left( \phi  \right)}} + a_{pp}  \\ 
-  a'_{pp}  = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)a_{qq}  - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \\ 
-   = \cos ^2 \left( \phi  \right)a_{pp}  + \sin ^2 \left( \phi  \right)\left( {\frac{{\left( {\cos ^2 \left( \phi  \right) - \sin ^2 \left( \phi  \right)} \right)a_{pq} }}
-{{\cos \left( \phi  \right)\sin \left( \phi  \right)}} + a_{pp} } \right) - 2\cos \left( \phi  \right)\sin \left( \phi  \right)a_{pq}  \\ 
-   = \left( {\sin ^2 \left( \phi  \right) + \cos ^2 \left( \phi  \right)} \right)a_{pp}  + \left( {\frac{{\cos ^2 \left( \phi  \right)\sin \left( \phi  \right) - \sin ^3 \left( \phi  \right) - 2\cos ^2 \left( \phi  \right)\sin \left( \phi  \right)}}
-{{\cos \left( \phi  \right)}}} \right)a_{pq}  \\ 
-   = a_{pp}  - \frac{{\sin \left( \phi  \right)}}
-{{\cos \left( \phi  \right)}}\left( {\cos ^2 \left( \phi  \right) + \sin ^2 \left( \phi  \right)} \right)a_{pq}  \\ 
-   = a_{pp}  - ta_{pq}  \\ 
-  a'_{qq}  = a_{qq}  + ta_{pq}  \\ 
-  a'_{rp}  = \cos \left( \phi  \right)a_{rp}  - \sin \left( \phi  \right)a_{rq}  \\ 
-   = \frac{1}
-{{\sqrt {t^2  + 1} }}a_{rp}  - \frac{t}
-{{\sqrt {t^2  + 1} }}a_{rq}  \\ 
-   = {{\left( {a_{rp}  - ta_{rq} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{rp}  - ta_{rq} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{rq}  = {{\left( {a_{rq}  + ta_{rp} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{rq}  + ta_{rp} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-\end{gathered} 
-\end{equation*}
-
-We also need to establish a stopping criteria for the iterative process. 
-The normal procedure is to stop when the sum of the squares of the off
-diagonal elements drops below some small threshold.  It is possible to show
-that:
-
-\begin{equation*}
-\begin{gathered}
-  S = \sum_{r \ne s} {a_{rs}^2 }  \hfill \\
-  S' = S - 2a_{pq}^2  \hfill \\ 
-\end{gathered} 
-\end{equation*}
+We also need to establish a stopping criteria for the iterative process. The
+normal procedure is to stop when the sum of the squares of the off diagonal
+elements drops below some small threshold.  It is possible to show that:
+\begin{align*}
+  S  & = \sum_{r \ne s}{a_{rs}^2 } \\
+  S' & = S - 2a_{pq}^2 \\
+\end{align*}
 
 However, this is not stable under numerical calculation.  If the matrix is
-small then \textit{S} can be recalculated after every iteration, otherwise,
+small then $S$ can be recalculated after every iteration, otherwise,
 this value needs to be completely recalculated if it falls outside the range
-0 $<$ \textit{S} $<$ ($n$2-$n$) $\times$ $a$2\textit{pq}.  Otherwise, a
-simpler stopping criteria is to use \textit{apq}.
+$0<S<(n^2-n)a^2_{pq}$.  Otherwise, a simpler stopping criteria is to use
+$a_{pq}$.
 
 
 \subsection{Specialized solution for principal stresses}
 
-Using a generalized eigenvalue solution for a three by three stress tensor
-is not the best possible solution, since we can make a number of
-simplifications by `unrolling' the equations.  The first change is to always
-process all three off diagonal elements, rather than just the maximum
-element before checking the stopping criteria.  If we process the elements
-in a fixed order, there are certain other simplifications which can be made. 
-The stress tensor consists of:
-
+Using a generalized eigenvalue solution for a three by three stress tensor is
+not the best possible solution, since we can make a number of simplifications
+by `unrolling' the equations.  The first change is to always process all
+three off diagonal elements, rather than just the maximum element before
+checking the stopping criteria.  If we process the elements in a fixed order,
+there are certain other simplifications which can be made. The stress tensor
+consists of:
 \begin{equation*}
-\left[ {\begin{array}{*{20}c}
-   {\sigma _x } & {\tau _{xy} } & {\tau _{xz} }  \\
-   {\tau _{xy} } & {\sigma _y } & {\tau _{yz} }  \\
-   {\tau _{xz} } & {\tau _{yz} } & {\sigma _z }  \\
-
- \end{array} } \right]
+\begin{bmatrix}
+ \sigma _x & \tau _{xy} & \tau _{xz} \\
+ \tau _{xy} & \sigma _y & \tau _{yz} \\
+ \tau _{xz} & \tau _{yz} & \sigma _z \\
+\end{bmatrix}
 \end{equation*}
-
 although for most of this discussion we will make use of the notation from
-the previous section.  We process the elements in the order \textit{txz},
-\textit{txy},\textit{tyz} for no particular reason.  Expanding (13) with
-\textit{p}=1,\textit{q}=3 we have:
-
-\begin{equation*}
-\begin{gathered}
-  a'_{11}  = a_{11}  - ta_{13}  \\ 
-  a'_{33}  = a_{33}  + ta_{13}  \\ 
-  a'_{12}  = {{\left( {a_{12}  - ta_{23} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{12}  - ta_{23} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{23}  = {{\left( {a_{23}  + ta_{12} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{23}  + ta_{12} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{13}  = 0 \\ 
-\end{gathered} 
-\end{equation*}
-
+the previous section.  We process the elements in the order $\tau_{xz}$,
+$\tau_{xy}$, $\tau_{yz}$ for no particular reason.  Expanding \eqref{XXX} with
+$p=1$, $q=3$ we have:
+\begin{align*}
+  a'_{11} & = a_{11} - ta_{13} \\
+  a'_{33} & = a_{33} + ta_{13} \\
+  a'_{12} & = {(a_{12}-ta_{23})}\left/\sqrt{t^2+1}\right. \\
+  a'_{23} & = {(a_{23}+ta_{12})}\left/\sqrt{t^2+1}\right. \\
+  a'_{13} & = 0
+\end{align*}
 
 Thus we modify five of the six elements of interest (leaving only one of the
-diagonal elements unchanged).  We then move to $a$12 and obtain:
-
-\begin{equation*}
-\begin{gathered}
-  a'_{11}  = a_{11}  - ta_{12}  \\ 
-  a'_{22}  = a_{22}  + ta_{12}  \\ 
-  a'_{13}  = {{\left( {a_{13}  - ta_{23} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{13}  - ta_{23} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{ - ta_{23} } \mathord{\left/
- {\vphantom {{ - ta_{23} } {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{23}  = {{\left( {a_{23}  + ta_{13} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{23}  + ta_{13} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{a_{23} } \mathord{\left/
- {\vphantom {{a_{23} } {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{12}  = 0 \\ 
-\end{gathered} 
-\end{equation*}
+diagonal elements unchanged).  We then move to $a_{12}$ and obtain:
+\begin{align*}
+  a'_{11} & = a_{11} - ta_{12} \\
+  a'_{22} & = a_{22} + ta_{12} \\
+  a'_{13} & = {(a_{13}-ta_{23})}\left/\sqrt{t^2+1}\right.
+     = {-ta_{23}}\left/\sqrt{t^2+1}\right. \\
+  a'_{23} & = {(a_{23}+ta_{13})}\left/\sqrt{t^2+1}\right.
+     = {  a_{23}}\left/\sqrt{t^2+1}\right. \\
+  a'_{12} & = 0
+\end{align*}
 
 Finally we process $a$23 and obtain:
+\begin{align*}
+  a'_{22} & = a_{22} - ta_{23} \\
+  a'_{33} & = a_{33} + ta_{23} \\
+  a'_{12} & = {(a_{12}-ta_{13})}\left/\sqrt{t^2+1}\right.
+     = {-ta_{13}}\left/\sqrt{t^2+1}\right. \\
+  a'_{13} & = {(a_{13}+ta_{12})}\left/\sqrt{t^2+1}\right.
+     = {  a_{13}}\left/\sqrt{t^2+1}\right. \\
+  a'_{23} & = 0
+\end{align*}
 
-\begin{equation*}
-\begin{gathered}
-  a'_{22}  = a_{22}  - ta_{23}  \\ 
-  a'_{33}  = a_{33}  + ta_{23}  \\ 
-  a'_{12}  = {{\left( {a_{12}  - ta_{13} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{12}  - ta_{13} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{ - ta_{13} } \mathord{\left/
- {\vphantom {{ - ta_{13} } {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{13}  = {{\left( {a_{13}  + ta_{12} } \right)} \mathord{\left/
- {\vphantom {{\left( {a_{13}  + ta_{12} } \right)} {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} = {{a_{13} } \mathord{\left/
- {\vphantom {{a_{13} } {\sqrt {t^2  + 1} }}} \right.
- \kern-\nulldelimiterspace} {\sqrt {t^2  + 1} }} \\ 
-  a'_{23}  = 0 \\ 
-\end{gathered} 
-\end{equation*}
+We need to recalculate $t$ between each stage.
 
-We need to recalculate \textit{t} between each stage.
 
 \chapter{Finite Elements}
 
-The \ac{FEM} is now the \textit{de facto} method of solving differential equations in engineering.  It is used because it allows the solution to be expressed over a complex domain, which is discretized into 'elements' (which are termed finite elements since they have some real size, unlike the differentially small elements used in calculus).  The history and fundamentals of \ac{FEM} are covered in a number of textbooks, and so are not covered here.  The details which are covered here are for the solution of 3D linear elastic problems, such as those covered in the previous chapter.  There are three reasons for preferring \ac{FEM} to the analytic solution in the previous section:
+The \ac{FEM} is now the \textit{de facto} method of solving differential
+equations in engineering.  It is used because it allows the solution to be
+expressed over a complex domain, which is discretized into `elements' (which
+are termed finite elements since they have some real size, unlike the
+differentially small elements used in calculus).  The history and
+fundamentals of \ac{FEM} are covered in a number of textbooks, and so are not
+covered here.  The details which are covered here are for the solution of 3D
+linear elastic problems, such as those covered in the previous chapter. 
+There are three reasons for preferring \ac{FEM} to the analytic solution in
+the previous section:
 \begin{enumerate}
   \tightlist
-	\item the solution can be extended to non-linear visco-elasto-plastic materials;
-	\item the thickness of the layers and other properties can be easily varied spatially, and
-	\item the solution is faster if you are trying to analyze a large number of points (for contour plotting).
+	\item the solution can be extended to non-linear visco-elasto-plastic
+	  materials;
+	\item the thickness of the layers and other properties can be easily
+	  varied spatially, and
+	\item the solution is faster if you are trying to analyze a large
+	  number of points (for contour plotting).
 \end{enumerate}
 
 \section{Preliminary concepts}
@@ -2433,11 +2447,19 @@ The \ac{FEM} is now the \textit{de facto} method of solving differential equatio
 
 \section{Element descriptions}
 
-The solution above does not detail the kind of elements used, because these can be varied.  In \OP\ implementation there are 3 types of elements available: an 8--node, a 16--node and a variable 16/34--node element.  The second two elements are not typical, and so are explained here.
+The solution above does not detail the kind of elements used, because these
+can be varied.  In \OP\ implementation there are 3 types of elements
+available: an 8--node, a 16--node and a variable 16/34--node element.  The
+second two elements are not typical, and so are explained here.
 
 \subsection{8--node brick element}
 
-The 8--node brick element is the standard building block for 3D finite elements.  The element has linear shape functions in all three dimensions, so that it is only capable of representing a constant strain in the element.  By convention the shape functions are defined one a cube extending over the domain $[-1,1]\times[-1,1]\times[-1,1]$.  The 8 nodes are at the corners of this domain, so they have the following definitions:
+The 8--node brick element is the standard building block for 3D finite
+elements.  The element has linear shape functions in all three dimensions, so
+that it is only capable of representing a constant strain in the element.  By
+convention the shape functions are defined one a cube extending over the
+domain $[-1,1]\times[-1,1]\times[-1,1]$.  The 8 nodes are at the corners of
+this domain, so they have the following definitions:
 \begin{align*}
 N_1: & (-1,-1,-1) \\
 N_2: & (-1,+1,-1) \\
@@ -2454,21 +2476,29 @@ input block8.mp;
 \end{empdef}
 \marginemp{block8}{Node numbering for 8--node block element}
 
-In \OP\ code the $y$-axis is handled first, only because this enables better node numbering across the transverse direction in pavements.  This convention differs from most other treatments of the topic.  The shape functions are then defined as:
+In \OP\ code the $y$-axis is handled first, only because this enables better
+node numbering across the transverse direction in pavements.  This convention
+differs from most other treatments of the topic.  The shape functions are
+then defined as:
 \begin{align*}
-H_1(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1-\zeta)}{8} \\
-H_2(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1-\zeta)}{8} \\
-H_3(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1-\zeta)}{8} \\
-H_4(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1-\zeta)}{8} \\
-H_5(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1+\zeta)}{8} \\
-H_6(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1+\zeta)}{8} \\
-H_7(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1+\zeta)}{8} \\
-H_8(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1+\zeta)}{8}
+N_1(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1-\zeta)}{8} \\
+N_2(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1-\zeta)}{8} \\
+N_3(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1-\zeta)}{8} \\
+N_4(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1-\zeta)}{8} \\
+N_5(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1+\zeta)}{8} \\
+N_6(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1+\zeta)}{8} \\
+N_7(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1+\zeta)}{8} \\
+N_8(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1+\zeta)}{8}
 \end{align*}
 
 \subsection{16--node brick element}
 
-The 16--node brick element is a special element used in the \OP\ \ac{FEM} code.  It has linear shape functions in the horizontal plane and cubic shape functions in the vertical direction.  This enables it to capture the rapid changes in response with depth which are common in pavements, at the expense of some additional computations.  The node locations in the element space are:
+The 16--node brick element is a special element used in the \OP\ \ac{FEM}
+code.  It has linear shape functions in the horizontal plane and cubic shape
+functions in the vertical direction.  This enables it to capture the rapid
+changes in response with depth which are common in pavements, at the expense
+of some additional computations.  The node locations in the element space
+are:
 \begin{align*}
    N_1: & (-1,-1,-1) \\
    N_2: & (-1,+1,-1) \\
@@ -2491,27 +2521,109 @@ N_{16}: & (+1,+1,+1) \\
 \begin{empdef}[block16](8cm,0)
 input block16.mp;
 \end{empdef}
-\marginemp{block16}{Node numbering for 16--node block element}
+\marginemp{block16}{Node numbering for 16 -- node block element}
 
 The shape functions are as follows:
 \begin{align*}
-   H_1 = & (1-\xi)(1-\eta)(1- \\
-   H_2 = & (-1,+1,-1) \\
-   H_3 = & (+1,-1,-1) \\
-   H_4 = & (+1,+1,-1) \\
-   H_5 = & (-1,-1,-\tfrac{1}{3}) \\
-   H_6 = & (-1,+1,-\tfrac{1}{3}) \\
-   H_7 = & (+1,-1,-\tfrac{1}{3}) \\
-   H_8 = & (+1,+1,-\tfrac{1}{3}) \\
-   H_9 = & (-1,-1,+\tfrac{1}{3}) \\
-H_{10} = & (-1,+1,+\tfrac{1}{3}) \\
-H_{11} = & (+1,-1,+\tfrac{1}{3}) \\
-H_{12} = & (+1,+1,+\tfrac{1}{3}) \\
-H_{13} = & (-1,-1,+1) \\
-H_{14} = & (-1,+1,+1) \\
-H_{15} = & (+1,-1,+1) \\
-H_{16} = & (+1,+1,+1) \\
+   N_1(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1-\zeta)}{64} \\
+   N_2(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1-\zeta)}{64} \\
+   N_3(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1-\zeta)}{64} \\
+   N_4(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1-\zeta)}{64} \\
+   N_5(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1+\zeta)}{64} \\
+   N_6(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1+\zeta)}{64} \\
+   N_7(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1+\zeta)}{64} \\
+   N_8(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1+\zeta)}{64} \\
+   N_9(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1-\zeta)}{64} \\
+N_{10}(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1-\zeta)}{64} \\
+N_{11}(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1-\zeta)}{64} \\
+N_{12}(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1-\zeta)}{64} \\
+N_{13}(\xi,\eta,\zeta) = & \frac{(1-\xi)(1-\eta)(1+\zeta)}{64} \\
+N_{14}(\xi,\eta,\zeta) = & \frac{(1-\xi)(1+\eta)(1+\zeta)}{64} \\
+N_{15}(\xi,\eta,\zeta) = & \frac{(1+\xi)(1-\eta)(1+\zeta)}{64} \\
+N_{16}(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1+\zeta)}{64}
 \end{align*}
+
+\chapter{Thermal Models}
+
+On of the major concerns in pavements is temperature, since it influences the materials and stresses and strains within a pavement.  One of the most popular models for temperature is the \ac{EICM}, which can model temperature and moisture content within various types of pavement, given historical climate data.  However, \ac{EICM} is to complex to be run within most design programs, so a simplified thermal model is presented here which uses the surface temperatures at a particular location to establish the in--depth temperatures.  It is solved using a 1-D Galerkin Finite Element formulation with a finite difference time step.  This document describes the mathematics behind the method.
+
+\section{Theory}
+
+Heat transfer problems are governed by the following partial differential equation (in 1-D), which is called Fourier's Law of conduction:
+\begin{equation*}
+\frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial z^2}
+                              = \frac{k}{\rho c_p}\frac{\partial^2 T}{\partial z^2}
+\end{equation*}
+where $\alpha$ is the thermal diffusivity (in $m^2s^{-1}$), $k$ is the thermal conductivity (in $Wm^{-1}K^{-1}$), $\rho$ is the density (in $kgm^{-3}$) and $c_p$ is the specific heat capacity (in $Jm^{-3}K^{-1}$).
+
+This is the strong form of the PDE, which first needs to be set as a finite difference solution for the time step.  For this we use Newmark's Beta Method, which uses the following approximations:
+\begin{align*}
+  \left. {\frac{{\partial T}}{{\partial t}}} \right|_{t + \Delta t}  \approx \left. {\frac{{\partial T}}{{\partial t}}} \right|_t  + \left( {\left( {1 - \gamma } \right)\left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_t  + \gamma \left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_{t + \Delta t} } \right)\Delta t \
+  T_{t + \Delta t}  \approx T_t  + \left. {\frac{{\partial T}}{{\partial t}}} \right|_t \Delta t + \left( {\left( {\frac{1}{2} - \beta } \right)\left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_t  + \beta \left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_{t + \Delta t} } \right)\left( {\Delta t} \right)^2
+\end{align*}
+where: $\gamma$ ,$\beta$ are constants
+
+For constant linear acceleration g=½ ,b=¼, so the equations simplify to:
+
+$\displaystyle \begin{array}{rcl} {} & {} & {\left. \frac{\partial T}{\partial t} \right|_{t+\Delta t} \approx \left. \frac{\partial T}{\partial t} \right|_{t} +\left(\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} +\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \right)\frac{\Delta t}{2} } \\ {} & {} & {T_{t+\Delta t} \approx T_{t} +\left. \frac{\partial T}{\partial t} \right|_{t} \Delta t+\left(\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} +\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \right)\left(\frac{\Delta t}{2} \right)^{2} } \end{array}$ 3) 
+However, one will notice that both equations contain the second order differential of temperature with respect to time at the new time step, which unknown.  However, we can combine the equations to eliminate this:
+
+\[\begin{array}{rcl} {} & {} & {\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \left(\frac{\Delta t}{2} \right)^{2} \approx T_{t+\Delta t} -T_{t} -\left. \frac{\partial T}{\partial t} \right|_{t} \Delta t-\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} \left(\frac{\Delta t}{2} \right)^{2} } \\ {} \end{array}\] 
+This gives us a formula which can then use to expand the strong form of the PDE:
+
+$\displaystyle \begin{array}{rcl} {\frac{\partial T}{\partial t} } & {=} & {\alpha ^{e} \frac{\partial ^{2} T}{\partial z^{2} } } \\ {} \end{array}$ 4) 
+This is now suitable for transformation into a 1-D Galerkin Finite Element formulation over a domain (0,D).  For simplicity we will assume that the temperature at both ends of the domain is known, since this is the type of solution we are seeking.  We will also break the domain into N nodes, with N-1 linear elements.  The basis functions for each node are given in an element relative coordinate system, for element e, with coordinate xe$\in$(-1,1).  These are given by:
+
+\[\begin{array}{ccc} {\phi _{1} \left(\xi _{e} \right)={\tfrac{1}{2}} \left(1-\xi _{e} \right)} & {\phi _{2} \left(\xi _{e} \right)={\tfrac{1}{2}} \left(1+\xi _{e} \right)} & {z\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)z_{i}  } \end{array}\] 
+where: zi = The nodal coordinate of the ith elemental node
+
+These basis functions can also be used to define an element local trail function and weighting function:
+
+\[\begin{array}{cc} {\hat{T}\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)T_{i}  } & {\hat{w}\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)w_{i}  } \end{array}\] 
+In addition we can define a nodal mapping function I(i,e) which take the local node number i and the global element number e and maps these to global node numbers:
+
+\[I(i,e)=e+i-1\] 
+This can be used to develop global trial and weighting functions:
+
+\[\begin{array}{cc} {\hat{T}\left(z\right)=\sum _{e=1}^{N-1}\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \left(z\right)\right)T_{I(i,e)}   } & {\hat{w}\left(z\right)=\sum _{e=1}^{N-1}\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \left(z\right)\right)w_{I(i,e)}   } \end{array}\] 
+where: xe(z) = A reverse coordinate mapping for element e.
+
+Returning to the PDE, we can convert the strong form to a weak form based on the weighting function (assuming some non-zero nodal weights):
+
+\[\begin{array}{rcl} {0} & {=} & {\alpha ^{e} \left. \frac{\partial ^{2} \hat{T}(z)}{\partial z^{2} } \right|_{t+\Delta t} +\frac{2\left(\hat{T}_{t} (z)-\hat{T}_{t+\Delta t} (z)\right)}{\Delta t} +\left. \frac{\partial \hat{T}(z)}{\partial t} \right|_{t} } \\ {} \end{array}\] 
+Notice that the thermal diffusivity is now per element.  Since the choice of weighting function is arbitrary, as long as it is non-zero within the domain we can choose w1=0 and wN=0.  In addition, by expanding the functions we obtain:
+
+\[\begin{array}{rcl} {0} & {=} & {-\int _{0}^{D}\sum _{e=1}^{N-1}\sum _{i=1}^{2}\alpha ^{e} \frac{\partial \phi _{i} \left(\xi _{e} \left(z\right)\right)}{\partial z} T_{I(i,e)}^{t+\Delta t}   \sum _{f=1}^{N-1}\sum _{j=1}^{2}\frac{\partial \phi _{j} \left(\xi _{f} \left(z\right)\right)}{\partial z} w_{I(j,f)}^{}   dz } \\ {} \end{array}\] 
+And finally by rearranging terms, and exploiting the fact that the integrals of the elemental basis functions are only non-zero within the element we can convert back to an element local formulation (the summation over the f falls away because the only non-zero terms are when f=e):
+
+\[\begin{array}{rcl} {0} & {=} & {-\sum _{e=1}^{N-1}\sum _{i=1}^{2}\sum _{j=1}^{2}\alpha ^{e} \int _{-1}^{1}\frac{\partial \phi _{i} \left(\xi _{e} \right)}{\partial \xi _{e} } \frac{\partial \xi _{e} }{\partial z} \frac{\partial \phi _{j} \left(\xi _{e} \right)}{\partial \xi _{e} } \frac{\partial \xi _{e} }{\partial z} \frac{\partial z}{\partial \xi _{e} } d\xi _{e} T_{I(i,e)}^{t+\Delta t}  w_{I(j,e)}^{}    } \\ {} \end{array}\] 
+Using this formulation, we can look back to the definitions of the basis functions to discover that we can perform this integration analytically.  The results for element local integrations are:
+
+\[\begin{array}{l} {z\left(\xi _{e} \right)={\tfrac{1}{2}} \left(1-\xi _{e} \right)z_{1} +{\tfrac{1}{2}} \left(1+\xi _{e} \right)z_{2} =\frac{z_{1} +z_{2} }{2} +\frac{z_{2} -z_{1} }{2} \xi _{e} } \\ {\frac{dz}{d\xi _{e} } =\frac{z_{2} -z_{1} }{2} } \\ {\begin{array}{ccccc} {i=1,j=1:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{11}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{11}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \\ {\begin{array}{ccccc} {i=1,j=2:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{12}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{12}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=1:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{21}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{21}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=2:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{22}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{22}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \end{array}\] 
+At this point we are ready to start solving the problem.  We have 2 known temperatures (and node 1 and node N), 2 known weights (zero at node 0 and node N), N-2 unknown temperatures for the next time step and N-2 arbitrary weights, assuming that we know the current temperature and temperature gradient.  We can use these weights to generate a set of N-2 equations, by setting each weight to one while the others are zero:
+
+\[\begin{array}{c} {\left(\alpha ^{I-1} k_{21}^{I-1} +\frac{2}{\Delta t} f_{21}^{I-1} \right)T_{I-1}^{t+\Delta t} +\left(\left(\alpha ^{I-1} k_{22}^{I-1} +\alpha ^{I} k_{11}^{I} \right)+\frac{2}{\Delta t} \left(f_{22}^{I-1} +f_{11}^{I} \right)\right)T_{I}^{t+\Delta t} } \\ {+\left(\alpha ^{I} k_{12}^{I} +\frac{2}{\Delta t} f_{12}^{I} \right)T_{I+1}^{t+\Delta t} =} \\ {f_{21}^{I-1} \left(\frac{2}{\Delta t} T_{I-1}^{t} +\frac{\partial T_{I-1}^{t} }{\partial t} \right)} \\ {+\left(f_{22}^{I-1} +f_{11}^{I} \right)\left(\frac{2}{\Delta t} T_{I}^{t} +\frac{\partial T_{I}^{t} }{\partial t} \right)+f_{12}^{I} \left(\frac{2}{\Delta t} T_{I+1}^{t} +\frac{\partial T_{I+1}^{t} }{\partial t} \right){ \; \; \; \; \; \; }I=2..N-1} \end{array}\] 
+This lends its self to a banded matrix representation.  Since we know the temperatures at the top and bottom nodes we move those to the left hand side, which also maintains the symmetry of the final matrix:
+
+\[\begin{array}{l} {\begin{array}{cc} {K=\left[\begin{array}{ccccc} {1} & {0} & {} & {} & {} \\ {0} & {\ddots } & {\ddots } & {} & {} \\ {} & {\alpha ^{I-1} k_{21}^{I-1} } & {\alpha ^{I-1} k_{22}^{I-1} +\alpha ^{I} k_{11}^{I} } & {\alpha ^{I} k_{12}^{I} } & {} \\ {} & {} & {\ddots } & {\ddots } & {0} \\ {} & {} & {} & {0} & {1} \end{array}\right]} & {T_{}^{t+\Delta t} =\left[\begin{array}{c} {T_{1}^{t+\Delta t} } \\ {\vdots } \\ {T_{I}^{t+\Delta t} } \\ {\vdots } \\ {T_{N}^{t+\Delta t} } \end{array}\right]} \\ {F=\left[\begin{array}{ccccc} {1} & {0} & {} & {} & {} \\ {0} & {\ddots } & {\ddots } & {} & {} \\ {} & {f_{21}^{I-1} } & {f_{22}^{I-1} +f_{11}^{I} } & {f_{12}^{I} } & {} \\ {} & {} & {\ddots } & {\ddots } & {0} \\ {} & {} & {} & {0} & {1} \end{array}\right]} & {D_{}^{t} =\frac{2}{\Delta t} \left[\begin{array}{c} {0} \\ {\vdots } \\ {T_{I}^{t} } \\ {\vdots } \\ {0} \end{array}\right]+\left[\begin{array}{c} {0} \\ {\vdots } \\ {\frac{\partial T_{I}^{t} }{\partial t} } \\ {\vdots } \\ {0} \end{array}\right]} \end{array}} \\ {\left(K+\frac{2}{\Delta t} F\right)T_{}^{t+\Delta t} =FD_{}^{t} -\left[\begin{array}{c} {-T_{1}^{t+\Delta t} } \\ {\left(\alpha ^{1} k_{21}^{1} +\frac{2}{\Delta t} f_{21}^{1} \right)T_{1}^{t} } \\ {0} \\ {\left(\alpha ^{N-1} k_{12}^{N-1} +\frac{2}{\Delta t} f_{12}^{N-1} \right)T_{N}^{t} } \\ {-T_{N}^{t++\Delta t} } \end{array}\right]} \end{array}\] 
+This system can be solved using a banded matrix Cholesky decomposition.  The matrix on the left hand side can be decomposed before beginning iterative calculations.  The only thing missing is the matrix of gradients D.  This can be updated as follows:
+
+\[\begin{array}{ccc} {D^{t+\Delta t} =\frac{4}{\Delta t} T^{t+\Delta t} -D^{t} } & {D_{1}^{t+\Delta t} =0} & {D_{N}^{t+\Delta t} =0} \end{array}\] 
+Notice that the first and last elements are defined to be zero.  We initialize T to whatever initial temperature profile is chosen, and then:
+
+\[\begin{array}{ccc} {D^{0} =\frac{2}{\Delta t} T^{0} } & {D_{1}^{0} =0} & {D_{N}^{0} =0} \end{array}\] 
+This provides all of the pieces needed for an incremental solution of the equation.  Since this is a 1-D finite element solution it is very easy to see how it can be expanded from 2-node linear elements to 3-node quadratic or even higher order elements, although the mathematics become a little more complex and we would need to resort to a slightly more complex and comprehensive explanation of Galerkin finite element method.
+
+\section{Testing}
+
+The only means available to test this method is using the solution for a homogeneous semi-infinite half space.  In this case the PDE can be solved exactly, provided the driving temperature at the surface is sinusoidal, and the temperature at infinite depth is constant (and equal to the mean surface temperature).  The solution, with two sine waves, one annual and one daily) is:
+
+$\displaystyle \begin{array}{c} {T\left(t,z\right)=T_{a} +T_{y} \exp \left(-z/D_{y} \right)\sin (\omega _{y} t-z/D_{y} +\phi _{y} )} \\ {+T_{d} \exp \left(-z/D_{d} \right)\sin (\omega _{d} t-z/D_{d} +\phi _{d} )} \\ {\begin{array}{cc} {D_{y} =\sqrt{\frac{2\alpha }{\omega _{y} } } } & {D_{d} =\sqrt{\frac{2\alpha }{\omega _{d} } } } \end{array}} \end{array}$ 5) 
+where: Ta = The average temperature (${}^\circ$C), Ty, Td = The yearly and daily temperature fluctuation (${}^\circ$C) wy, wd = The yearly and daily period (s-1) fy, fd = The yearly and daily phase lag
+
+The following plot shows the error between this equation and the finite element solution described above, with Ta=15${}^\circ$C, Ty=10${}^\circ$C, Td=5${}^\circ$C, and a=2000~mm2h-1.  However, since the scale difference between hours and years is large, this solution uses wy=1/365, wd=1/24. The solution has 800 elements each 25~mm deep, so with the temperature being fixed at 20~m.  It is initialized with the true values of temperature from the equation above, and as can be seen the maximum error is a little under 0.005${}^\circ$C.
+
+Obviously, with a normal solution we do not know the initial temperature profile so there is some lag time until the FEM solution matches the exact solution.
 
 \backmatter
 %\SingleSpacing
@@ -2521,26 +2633,27 @@ H_{16} = & (+1,+1,+1) \\
 \bibliography{openpave}
 
 \begin{acronym}
-	\acro{ADDL}{Academic Development and Distribution License}
-	\acro{FEM}{Finite Element Method}
-	\acro{AC}{Asphalt Concrete}
-	\acro{PCC}{Portland Cement Concrete}
-	\acro{ME}{Mechanistic-Empirical}
-	\acro{ESAL}{Equivalent Standard Axle Load}
 	\acro{AASHTO}{American Association of State Highway and Transportation Officials}
-	\acro{PMS}{Pavement Management System}
-	\acro{MEPDG}{Mechanistic-Empirical Pavement Design Guide}
-	\acro{LTPP}{Long-Term Pavement Performance}
-	\acro{HVS}{Heavy Vehicle Simulator}
+	\acro{AC}{Asphalt Concrete}
+	\acro{ADDL}{Academic Development and Distribution License}
 	\acro{APT}{Accelerated Pavement Testing}
-	\acro{TPMs}{Transition Probability Matrices}
-	\acro{FORM}{First-Order Reliability Method}
-	\acro{QC/QA}{Quality Control/Quality Assurance}
-	\acro{FWD}{Falling Weight Deflectometer}
-	\acro{PSI}{Present Serviceability Index}
-	\acro{PMF}{Probability Mass Function}
-	\acro{PDF}{Probability Density Function}
 	\acro{CDF}{Cumulative Distribution Function}
+	\acro{EICM}{Enhanced Integrated Climate Model}
+	\acro{ESAL}{Equivalent Standard Axle Load}
+	\acro{FEM}{Finite Element Method}
+	\acro{FORM}{First-Order Reliability Method}
+	\acro{FWD}{Falling Weight Deflectometer}
+	\acro{HVS}{Heavy Vehicle Simulator}
+	\acro{LTPP}{Long-Term Pavement Performance}
+	\acro{MEPDG}{Mechanistic-Empirical Pavement Design Guide}
+	\acro{ME}{Mechanistic-Empirical}
+	\acro{PCC}{Portland Cement Concrete}
+	\acro{PDF}{Probability Density Function}
+	\acro{PMF}{Probability Mass Function}
+	\acro{PMS}{Pavement Management System}
+	\acro{PSI}{Present Serviceability Index}
+	\acro{QC/QA}{Quality Control/Quality Assurance}
+	\acro{TPMs}{Transition Probability Matrices}
 \end{acronym}
 
 %\begin{appendix}

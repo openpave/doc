@@ -27,20 +27,54 @@
 \ProvidesClass{optech}
 \LoadClassWithOptions{memoir}
 
-\usepackage{latexsym}
-\usepackage{textcomp}
-
-\RequirePackage{fix-cm}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
-%\usepackage{lmodern} 
-\usepackage{amsfonts,amssymb}
+\RequirePackage{fixltx2e}
+\RequirePackage{fix-cm}
+\usepackage{latexsym,textcomp}
+
+\usepackage{ifpdf}
+\ifpdf
+  \usepackage{microtype}
+	\usepackage[pdftex]{graphics}
+	\usepackage[pdftex]{graphicx}
+	\DeclareGraphicsRule{*}{mps}{*}{}
+	\LoadMetaPostSpecialExtensions
+	\input glyphtounicode
+	\pdfgentounicode=1
+\else
+	\usepackage[xetex]{graphics}
+	\usepackage[xetex]{graphicx}
+	\DeclareGraphicsRule{*}{eps}{*}{}
+\fi
+
+\usepackage{lmodern}
+%\usepackage{amsfonts,amssymb}
+
 %\usepackage{pslatex}
 %\usepackage{fourier}
 %\usepackage{eulervm}
 %\usepackage[utopia]{mathdesign}
 
 \usepackage[fleqn,intlimits]{mathtools}
- 
+\mathtoolsset{showonlyrefs,showmanualtags}
+\allowdisplaybreaks[3]
+
+\usepackage{MnSymbol}
+\usepackage[fullfamily,textlf,mathlf,minionint,loosequotes]{MinionPro}
+\usepackage[toc,eqno,enum]{tabfigures}
+\renewcommand{\sfdefault}{Myriad-LF}
+\DeclareMathAlphabet\mathsf{T1}{Myriad-LF}{m}{n}
+\SetMathAlphabet\mathsf{bold}       {T1}{Myriad-LF} {b}{n}
+\SetMathAlphabet\mathsf{tabular}    {T1}{Myriad-TLF}{m}{n}
+\SetMathAlphabet\mathsf{boldtabular}{T1}{Myriad-TLF}{b}{n}
+
+\usepackage{color,calc}
+\usepackage[perpage,symbol*,bottom]{footmisc}
+\let\setspace@singlespace\m@m@singlespace
+\usepackage{multirow}
+
 \clubpenalty=10000
 \widowpenalty=10000 
 \displaywidowpenalty=10000
@@ -58,41 +92,20 @@
 \setcounter{totalnumber}{20}
 \setcounter{dbltopnumber}{9}
 
-%% this makes images possible both in latex and pdftex
-\usepackage{ifpdf}
-\ifpdf
-	\usepackage[pdftex]{graphics}
-	\usepackage[pdftex]{graphicx}
-	%\usepackage[bookmarks=false,%
-	%pdftoolbar=true,%
-	%pdfmenubar=true,%
-	%pdffitwindow=true,%
-	%colorlinks=true,pdftex]{hyperref}
-	\DeclareGraphicsRule{*}{mps}{*}{}
-\else
-	\usepackage{graphics}
-	\usepackage{graphicx}
-	%\usepackage{hyperref}
-\fi
-
-\usepackage{color,calc}
 \definecolor{opgreen}{rgb}{.262745,.352941,.262745}
 
 \makeatletter
 
 \newsavebox{\opchapbox}
 \newcommand\opchapbox@marker[1][40mm]{
-\sbox\opchapbox{
- \resizebox{!}{#1}{\fboxsep=0.2em
-  \colorbox{opgreen}{\color{white}\thechapter}
+ \sbox\opchapbox{
+  \resizebox{!}{#1}{\fboxsep=0.2em\colorbox{opgreen}{\color{white}\thechapter}}
  }
-}
-\rotatebox{90}{
- \resizebox{
-  \heightof{\usebox{\opchapbox}}+\depthof{\usebox{\opchapbox}}
- }{!}{\scshape\@chapapp}
-}\quad
-\raisebox{\depthof{\usebox{\opchapbox}}}{\usebox{\opchapbox}}
+ \rotatebox{90}{\resizebox{
+   \heightof{\usebox{\opchapbox}}+\depthof{\usebox{\opchapbox}}
+  }{!}{\scshape\@chapapp}
+ }\quad
+ \raisebox{\depthof{\usebox{\opchapbox}}}{\usebox{\opchapbox}}
 }
 \newcommand\opchapm{
  \sbox\opchapbox{\opchapbox@marker[6\baselineskip]}

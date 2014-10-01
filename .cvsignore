@@ -4,8 +4,13 @@
 *.dvi
 *.log
 *.mpx
+*.mpo
 *.pdf
 *.ps
 *.toc
 *.[0-9]
 theory.mp
+theory.tps
+theory.tcp
+ltx-*
+test*

@@ -1,5 +1,5 @@
 %
-% block8.mp - Eight node FEM element
+% block16.mp - Sixteen node FEM element
 %
 % $OpenPave$
 %
@@ -22,6 +22,17 @@
 %
 % Contributor(s): Jeremy Lea <reg@openpave.org>.
 %
+
+verbatimtex
+\documentclass[11pt]{optech}
+
+\begin{document}
+\fontfamily{\sfdefault}
+\fontsize{6}{10}
+\selectfont
+etex
+
+input optech.mp;
 
 pickup pencircle scaled 0.18mm;
 ahlength := 0.018*w;
@@ -61,23 +72,9 @@ drawarrow perspect(0,0,0)--perspect(axis*1.2,0,0) withcolor opgreen;
 drawarrow perspect(0,0,0)--perspect(0,axis*1.2,0) withcolor opgreen;
 drawarrow perspect(0,0,0)--perspect(0,0,-axis*1.2) withcolor opgreen;
 drawarrow perspect(0,0,0)--perspect(0,0,axis*1.2) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(-1,0,0) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(0,-1,0) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(0,1,0) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(1,0,0) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(0,0,-1) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(0,0,1) withcolor opgreen;
-fill fullcircle scaled 0.75mm shifted perspect(0,0,0) withcolor opgreen;
-label.lrt("$-1$", perspect(-1,0,0));
-label.llft("$-1$", perspect(0,-1,0));
-label.rt("$-1$", perspect(0,0,-1));
-label.lrt("$1$", perspect(1,0,0));
-label.llft("$1$", perspect(0,1,0));
-label.lft("$1$", perspect(0,0,1));
-label.lrt("$\xi$", perspect(1.2*axis,0,0));
-label.llft("$\eta$", perspect(0,1.2*axis,0));
-label.lft("$\zeta$", perspect(0,0,1.2*axis));
-label.llft("O", perspect(0,0,0));
+label.lrt(btex $\xi$ etex, perspect(1.2*axis,0,0));
+label.llft(btex $\eta$ etex, perspect(0,1.2*axis,0));
+label.lft(btex $\zeta$ etex, perspect(0,0,1.2*axis));
 
 pickup pencircle scaled 0.13mm;
 draw perspect(-1,-1,-1)--perspect(1,-1,-1)--
@@ -98,16 +95,71 @@ fill fullcircle scaled 1mm shifted perspect(-1,-1,-1);
 fill fullcircle scaled 1mm shifted perspect(-1, 1,-1);
 fill fullcircle scaled 1mm shifted perspect( 1,-1,-1);
 fill fullcircle scaled 1mm shifted perspect( 1, 1,-1);
+fill fullcircle scaled 1mm shifted perspect( 0,-1,-1);
+fill fullcircle scaled 1mm shifted perspect( 0, 1,-1);
+fill fullcircle scaled 1mm shifted perspect( 1, 0,-1);
+fill fullcircle scaled 1mm shifted perspect(-1, 0,-1);
+fill fullcircle scaled 1mm shifted perspect( 0, 0,-1);
+fill fullcircle scaled 1mm shifted perspect(-1,-1,-1/3);
+fill fullcircle scaled 1mm shifted perspect(-1, 1,-1/3);
+fill fullcircle scaled 1mm shifted perspect( 1,-1,-1/3);
+fill fullcircle scaled 1mm shifted perspect( 1, 1,-1/3);
+fill fullcircle scaled 1mm shifted perspect( 0,-1,-1/3);
+fill fullcircle scaled 1mm shifted perspect( 0, 1,-1/3);
+fill fullcircle scaled 1mm shifted perspect( 1, 0,-1/3);
+fill fullcircle scaled 1mm shifted perspect(-1, 0,-1/3);
+fill fullcircle scaled 1mm shifted perspect(-1,-1, 1/3);
+fill fullcircle scaled 1mm shifted perspect(-1, 1, 1/3);
+fill fullcircle scaled 1mm shifted perspect( 1,-1, 1/3);
+fill fullcircle scaled 1mm shifted perspect( 1, 1, 1/3);
+fill fullcircle scaled 1mm shifted perspect( 0,-1, 1/3);
+fill fullcircle scaled 1mm shifted perspect( 0, 1, 1/3);
+fill fullcircle scaled 1mm shifted perspect( 1, 0, 1/3);
+fill fullcircle scaled 1mm shifted perspect(-1, 0, 1/3);
 fill fullcircle scaled 1mm shifted perspect(-1,-1, 1);
 fill fullcircle scaled 1mm shifted perspect(-1, 1, 1);
 fill fullcircle scaled 1mm shifted perspect( 1,-1, 1);
 fill fullcircle scaled 1mm shifted perspect( 1, 1, 1);
-label.urt( "\textbf{1}", perspect(-1,-1,-1));
-label.rt(  "\textbf{2}", perspect(-1, 1,-1));
-label.lft( "\textbf{3}", perspect( 1,-1,-1));
-label.bot( "\textbf{4}", perspect( 1, 1,-1));
-label.top( "\textbf{5}", perspect(-1,-1, 1));
-label.rt(  "\textbf{6}", perspect(-1, 1, 1));
-label.lft( "\textbf{7}", perspect( 1,-1, 1));
-label.llft("\textbf{8}", perspect( 1, 1, 1));
+fill fullcircle scaled 1mm shifted perspect( 0,-1, 1);
+fill fullcircle scaled 1mm shifted perspect( 0, 1, 1);
+fill fullcircle scaled 1mm shifted perspect( 1, 0, 1);
+fill fullcircle scaled 1mm shifted perspect(-1, 0, 1);
+fill fullcircle scaled 1mm shifted perspect( 0, 0, 1);
+label.ulft(btex \textbf{ 1} etex, perspect(-1,-1,-1));
+label.rt(btex   \textbf{ 2} etex, perspect(-1, 1,-1));
+label.lft(btex  \textbf{ 3} etex, perspect( 1,-1,-1));
+label.bot(btex  \textbf{ 4} etex, perspect( 1, 1,-1));
+label.ulft(btex \textbf{17} etex, perspect( 0,-1,-1));
+label.rt(btex   \textbf{18} etex, perspect( 0, 1,-1));
+label.lft(btex  \textbf{19} etex, perspect( 1, 0,-1));
+label.lft(btex  \textbf{20} etex, perspect(-1, 0,-1));
+label.bot(btex  \textbf{33} etex, perspect( 0, 0,-1));
+label.rt(btex   \textbf{ 5} etex, perspect(-1,-1,-1/3));
+label.rt(btex   \textbf{ 6} etex, perspect(-1, 1,-1/3));
+label.lft(btex  \textbf{ 7} etex, perspect( 1,-1,-1/3));
+label.lft(btex  \textbf{ 8} etex, perspect( 1, 1,-1/3));
+label.rt(btex   \textbf{21} etex, perspect( 0,-1,-1/3));
+label.rt(btex   \textbf{22} etex, perspect( 0, 1,-1/3));
+label.lft(btex  \textbf{23} etex, perspect( 1, 0,-1/3));
+label.lft(btex  \textbf{24} etex, perspect(-1, 0,-1/3));
+label.rt(btex   \textbf{ 9} etex, perspect(-1,-1, 1/3));
+label.rt(btex   \textbf{10} etex, perspect(-1, 1, 1/3));
+label.lft(btex  \textbf{11} etex, perspect( 1,-1, 1/3));
+label.lft(btex  \textbf{12} etex, perspect( 1, 1, 1/3));
+label.rt(btex   \textbf{25} etex, perspect( 0,-1, 1/3));
+label.rt(btex   \textbf{26} etex, perspect( 0, 1, 1/3));
+label.lft(btex  \textbf{27} etex, perspect( 1, 0, 1/3));
+label.lft(btex  \textbf{28} etex, perspect(-1, 0, 1/3));
+label.top(btex  \textbf{13} etex, perspect(-1,-1, 1));
+label.rt(btex   \textbf{14} etex, perspect(-1, 1, 1));
+label.lft(btex  \textbf{15} etex, perspect( 1,-1, 1));
+label.llft(btex \textbf{16} etex, perspect( 1, 1, 1));
+label.top(btex  \textbf{29} etex, perspect( 0,-1, 1));
+label.rt(btex   \textbf{30} etex, perspect( 0, 1, 1));
+label.lft(btex  \textbf{31} etex, perspect( 1, 0, 1));
+label.llft(btex \textbf{32} etex, perspect(-1, 0, 1));
+label.llft(btex \textbf{34} etex, perspect( 0, 0, 1));
 
+verbatimtex
+\end{document}
+etex
