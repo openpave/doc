@@ -32,7 +32,8 @@
 \usepackage[T1]{fontenc}
 \RequirePackage{fixltx2e}
 \RequirePackage{fix-cm}
-\usepackage{latexsym,textcomp}
+\usepackage{latexsym}
+\usepackage[full]{textcomp}
 
 \usepackage{ifpdf}
 \ifpdf
@@ -49,6 +50,7 @@
 	\DeclareGraphicsRule{*}{eps}{*}{}
 \fi
 
+%\usepackage{stix}
 \usepackage{lmodern}
 %\usepackage{amsfonts,amssymb}
 

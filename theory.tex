@@ -142,17 +142,17 @@ input optech.mp;^^J
 pavement engineering.  To that end it is important that the theoretical and
 mathematical foundations underlying that software are well understood, and
 that the mathematics are accurately and faithfully translated into code.
-Thus, this document outlines the mathematics of the software, and how this is
+Thus, this document outlines the mathematics of the software and how this is
 carried down to level of source code.  The source code makes reference to
 this document rather than extensive comments, since it is hard to express
 complex mathematics in comments.  However, this document is not just for
-people looking at the source code --- it should also serve as an excellent
+people looking at the source code---it should also serve as an excellent
 reference for anyone looking to understand the more theoretical aspects of
 pavement engineering, and of some associated fields.
 
 This document is written in \AmS -\LaTeX, and is licensed under the same
 conditions as the source code, the \ac{ADDL}.  You are, therefore, free to
-make alterations to this document, and to use it as course notes or for other
+make alterations to this document and to use it as course notes or for other
 purposes, provided that you distribute any changes to you make.  Please
 review the conditions in the license for more information.
 
@@ -181,7 +181,7 @@ although they need to be broken once in a while.
 \tightlist
 \item[\normalfont$\mathrm{Roman}$] is used for functions and operators.
 \item[\normalfont$\mathit{Italics}$] are used for scalars.
-\item[\normalfont$\mathbf{Bold}$] is used for vectors and matrices.
+\item[\normalfont$\mathbf{Bold}$] is used for matrices.
 \item[\normalfont$\mathtt{Typewriter}$] is used for pseudo-mathematics in code.
 \item[\normalfont$\mathsf{Sans-serif}$] is used for tensors.
 \end{description}
@@ -236,11 +236,11 @@ items, the sets $\{H,$ $T,$ $T,$ $T,$ $H\}$ and $\{H,$ $T\}$ are equivalent.
 Similarly the sets $\{1,$ $2,$ $3,$ $3,$ $2,$ $1\}$ and $\{1,$ $2,$ $3\}$ are also
 equivalent.
 
-In mathematics, sets can be countably infinite --- meaning that the items in
+In mathematics, sets can be countably infinite (meaning that the items in
 the set can be differentiated from one an other and not split into smaller
-items, and thus can be counted, but that there are an infinite number of
-items in the set, or they can uncountable --- meaning that the items in the
-set can always be split into smaller items, or the set can be finite.  In
+items, and can thus be counted, but that there are an infinite number of
+items in the set), or they can uncountable (meaning that the items in the
+set can always be split into smaller items), or the set can be finite.  In
 computer science sets are always finite, since computers don't like dealing
 with infinite numbers.  No programming languages directly implement the
 mathematical concept of a set, since it is too general to be handled by
@@ -326,7 +326,7 @@ An ordered set or multiset has a natural index into the items --- first,
 second, etc.  It is conceptually simple to expand that concept to using more
 abstract indices (or keys).  These types of sets are referred to as maps
 (which must not be confused with a mapping, which will be addressed later) or
-some times as keyed sets.  However, this becomes quite difficult using
+sometimes as keyed sets.  However, this becomes quite difficult using
 standard mathematically notation, and maps are not often used in mathematics.
 Often in computer science the key and value pair from a map will be referred
 to as a tuple, since they are unlike objects with a particular order.  Within
@@ -365,7 +365,25 @@ research.
 
 \section{Numbers}
 
+As with sets, numbers are more complicated than they appear, especially in
+computers.  Most people are comfortable with integers and real numbers,
+because they have learned these in school.  Engineers typically have a better
+grasp of numbers, including rational/irrational numbers, complex numbers and
+others.  However, engineers, like most people, typically have a poor grasp of
+how computers do math.
+
+In math, numbers can be broken into four broad groups: integers, rational, real,
+and complex numbers.  Computers, on the other hand, only handle two kinds of
+numbers: constrained integers and constrained rational numbers, and it is thus
+up to software to handle the edge cases where there is a difference between the
+theory and the code.
+
 \section{Vectors and Tensors}
+
+The word `vector' is one of the most overused words in math and programming. 
+It might be used to describe an array, a tuple, a matrix or a first-order
+tensor, and as a result is not often informative.  Since we have other terms
+available, it is best to think of vectors as first-order tensors.    
 
 \section{Linear Algebra}
 
@@ -2545,61 +2563,116 @@ N_{16}(\xi,\eta,\zeta) = & \frac{(1+\xi)(1+\eta)(1+\zeta)}{64}
 
 \chapter{Thermal Models}
 
-On of the major concerns in pavements is temperature, since it influences the materials and stresses and strains within a pavement.  One of the most popular models for temperature is the \ac{EICM}, which can model temperature and moisture content within various types of pavement, given historical climate data.  However, \ac{EICM} is to complex to be run within most design programs, so a simplified thermal model is presented here which uses the surface temperatures at a particular location to establish the in--depth temperatures.  It is solved using a 1-D Galerkin Finite Element formulation with a finite difference time step.  This document describes the mathematics behind the method.
+One of the major concerns in pavements is temperature, since it influences 
+the materials, and thus the stresses and strains within a pavement.  One of 
+the most popular models for temperature is the \ac{EICM}, which can model 
+temperature and moisture content within various types of pavement, given 
+historical climate data.  However, \ac{EICM} is too complex to be run within 
+most design programs, so a simplified thermal model is presented here which 
+uses the surface temperatures at a particular location to establish the
+in---depth temperatures.  It is solved using a 1-D Galerkin Finite Element 
+formulation with a finite difference time step.  This document describes the 
+mathematics behind the method.
 
 \section{Theory}
 
-Heat transfer problems are governed by the following partial differential equation (in 1-D), which is called Fourier's Law of conduction:
+Heat transfer problems are governed by the following partial differential 
+equation (in 1-D), which is called Fourier's Law of conduction:
+
 \begin{equation*}
 \frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial z^2}
-                              = \frac{k}{\rho c_p}\frac{\partial^2 T}{\partial z^2}
+	= \frac{k}{\rho c_p}\frac{\partial^2 T}{\partial z^2}
 \end{equation*}
-where $\alpha$ is the thermal diffusivity (in $m^2s^{-1}$), $k$ is the thermal conductivity (in $Wm^{-1}K^{-1}$), $\rho$ is the density (in $kgm^{-3}$) and $c_p$ is the specific heat capacity (in $Jm^{-3}K^{-1}$).
 
-This is the strong form of the PDE, which first needs to be set as a finite difference solution for the time step.  For this we use Newmark's Beta Method, which uses the following approximations:
+where $\alpha$ is the thermal diffusivity (in $\mathrm{m^2s^{-1}}$), $k$ is 
+the thermal conductivity (in $\mathrm{Wm^{-1}K^{-1}}$), $\rho$ is the density 
+(in $\mathrm{kgm^{-3}}$) and $c_p$ is the specific heat capacity (in
+$\mathrm{Jm^{-3}K^{-1}}$).
+
+This is the strong form of the PDE, which first needs to be set as a finite 
+difference solution for the time step.  For this we use Newmark's Beta 
+Method, which uses the following approximations:
 \begin{align*}
-  \left. {\frac{{\partial T}}{{\partial t}}} \right|_{t + \Delta t}  \approx \left. {\frac{{\partial T}}{{\partial t}}} \right|_t  + \left( {\left( {1 - \gamma } \right)\left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_t  + \gamma \left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_{t + \Delta t} } \right)\Delta t \
-  T_{t + \Delta t}  \approx T_t  + \left. {\frac{{\partial T}}{{\partial t}}} \right|_t \Delta t + \left( {\left( {\frac{1}{2} - \beta } \right)\left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_t  + \beta \left. {\frac{{\partial ^2 T}}{{\partial t^2 }}} \right|_{t + \Delta t} } \right)\left( {\Delta t} \right)^2
+\left.\frac{\partial T}{\partial t}\right|_{t+\Delta t}\approx &
+	\left.\frac{\partial T}{\partial t}\right|_t
+		+ \left(\left(1-\gamma\right)\left.\frac{\partial^2 T}{\partial t^2}\right|_t
+			+ \gamma\left.\frac{\partial^2 T}{\partial t^2}\right|_{t+\Delta t}\right)\Delta t \\
+T_{t+\Delta t}\approx &
+	T_t+\left.\frac{\partial T}{\partial t}\right|_t\Delta t
+		+ \left(\left(\frac{1}{2}-\beta\right)\left.\frac{\partial ^2 T}{\partial t^2 }\right|_t
+			+ \beta\left.\frac{\partial^2 T}{\partial t^2}\right|_{t+\Delta t}\right)\left(\Delta t\right)^2
 \end{align*}
-where: $\gamma$ ,$\beta$ are constants
+where $\gamma$ and $\beta$ are constants.  For constant linear acceleration
+$\gamma=\tfrac{1}{2}$, $\beta=\tfrac{1}{4}$, so the equations simplify to:
+\begin{align*}
+\left.\frac{\partial T}{\partial t}\right|_{t+\Delta t}\approx &
+	\left.\frac{\partial T}{\partial t}\right|_t
+		+ \left(\left.\frac{\partial^2 T}{\partial t^2}\right|_t
+			+ \left.\frac{\partial^2 T}{\partial t^2}\right|_{t+\Delta t}\right)\frac{\Delta t}{2} \\
+T_{t+\Delta t}\approx &
+	T_t+\left.\frac{\partial T}{\partial t}\right|_t\Delta t
+		+ \left(\left.\frac{\partial ^2 T}{\partial t^2 }\right|_t
+			+ \left.\frac{\partial^2 T}{\partial t^2}\right|_{t+\Delta t}\right)\left(\frac{\Delta t}{2}\right)^2
+\end{align*}
+However, one will notice that both equations contain the second order 
+differential of temperature with respect to time at the new time step, which 
+unknown.  However, we can combine the equations to eliminate this:
+\begin{align*}
+\left.\frac{\partial^2 T}{\partial t^2}\right|_{t+\Delta t}\left(\frac{\Delta t}{2}\right)^2 \approx &
+	T_{t+\Delta t}-T_t-\left.\frac{\partial T}{\partial t}\right|_{t}\Delta t
+	-\left.\frac{\partial^2 T}{\partial t^2}\right|_t\left(\frac{\Delta t}{2}\right)^{2}
+\end{align*}
+which gives us a formula which can then use to expand the strong form of the PDE:
+\begin{align*}
+\frac{\partial T}{\partial t} = & \alpha^e\frac{\partial^2 T}{\partial z^2}
+\end{align*}
 
-For constant linear acceleration g=½ ,b=¼, so the equations simplify to:
-
-$\displaystyle \begin{array}{rcl} {} & {} & {\left. \frac{\partial T}{\partial t} \right|_{t+\Delta t} \approx \left. \frac{\partial T}{\partial t} \right|_{t} +\left(\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} +\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \right)\frac{\Delta t}{2} } \\ {} & {} & {T_{t+\Delta t} \approx T_{t} +\left. \frac{\partial T}{\partial t} \right|_{t} \Delta t+\left(\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} +\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \right)\left(\frac{\Delta t}{2} \right)^{2} } \end{array}$ 3) 
-However, one will notice that both equations contain the second order differential of temperature with respect to time at the new time step, which unknown.  However, we can combine the equations to eliminate this:
-
-\[\begin{array}{rcl} {} & {} & {\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t+\Delta t} \left(\frac{\Delta t}{2} \right)^{2} \approx T_{t+\Delta t} -T_{t} -\left. \frac{\partial T}{\partial t} \right|_{t} \Delta t-\left. \frac{\partial ^{2} T}{\partial t^{2} } \right|_{t} \left(\frac{\Delta t}{2} \right)^{2} } \\ {} \end{array}\] 
-This gives us a formula which can then use to expand the strong form of the PDE:
-
-$\displaystyle \begin{array}{rcl} {\frac{\partial T}{\partial t} } & {=} & {\alpha ^{e} \frac{\partial ^{2} T}{\partial z^{2} } } \\ {} \end{array}$ 4) 
-This is now suitable for transformation into a 1-D Galerkin Finite Element formulation over a domain (0,D).  For simplicity we will assume that the temperature at both ends of the domain is known, since this is the type of solution we are seeking.  We will also break the domain into N nodes, with N-1 linear elements.  The basis functions for each node are given in an element relative coordinate system, for element e, with coordinate xe$\in$(-1,1).  These are given by:
-
-\[\begin{array}{ccc} {\phi _{1} \left(\xi _{e} \right)={\tfrac{1}{2}} \left(1-\xi _{e} \right)} & {\phi _{2} \left(\xi _{e} \right)={\tfrac{1}{2}} \left(1+\xi _{e} \right)} & {z\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)z_{i}  } \end{array}\] 
-where: zi = The nodal coordinate of the ith elemental node
-
-These basis functions can also be used to define an element local trail function and weighting function:
-
-\[\begin{array}{cc} {\hat{T}\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)T_{i}  } & {\hat{w}\left(\xi _{e} \right)=\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \right)w_{i}  } \end{array}\] 
-In addition we can define a nodal mapping function I(i,e) which take the local node number i and the global element number e and maps these to global node numbers:
-
-\[I(i,e)=e+i-1\] 
+This is now suitable for transformation into a 1-D Galerkin Finite Element 
+formulation over a domain $(0,D)$.  For simplicity we will assume that the 
+temperature at both ends of the domain is known, since this is the type of 
+solution we are seeking.  We will also break the domain into $N$ nodes, with
+$N-1$ linear elements.  The basis functions for each node are given in an 
+element relative coordinate system, for element $e$, with coordinate
+$\xi_e\in(-1,1)$.  These are given by:
+\begin{align*}
+\phi_1\left(\xi_e\right)=\tfrac{1}{2}\left(1-\xi_e\right) \\
+\phi_2\left(\xi_e\right)=\tfrac{1}{2}\left(1+\xi_e\right) \\
+z\left(\xi_e\right)=\sum_{i=1}^2\phi_i\left(\xi_e\right)z^e_i
+\end{align*}
+where $z^e_i$ is the global nodal coordinate of the $i^\mathrm{th}$ elemental node of element $e$.  These basis functions can also be used to define an element local trial function and weighting function:
+\begin{align*}
+\hat{T}\left(\xi_e\right)=\sum_{i=1}^2\phi_i\left(\xi_e\right)T_i \\
+\hat{w}\left(\xi_e\right)=\sum_{i=1}^2\phi_i\left(\xi_e\right)w_i
+\end{align*}
+In addition we can define a nodal mapping function $I(i,e)$ which takes the local node number $i$ and the global element number $e$ and maps these to global node numbers:
+\begin{align*}
+I(i,e)=e+i-1 
+\end{align*}
 This can be used to develop global trial and weighting functions:
-
-\[\begin{array}{cc} {\hat{T}\left(z\right)=\sum _{e=1}^{N-1}\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \left(z\right)\right)T_{I(i,e)}   } & {\hat{w}\left(z\right)=\sum _{e=1}^{N-1}\sum _{i=1}^{2}\phi _{i} \left(\xi _{e} \left(z\right)\right)w_{I(i,e)}   } \end{array}\] 
-where: xe(z) = A reverse coordinate mapping for element e.
+\begin{align*}
+\hat{T}\left(z\right)=\sum_{e=1}^{N-1}\sum_{i=1}^{2}\phi_i\left(\xi_e\left(z\right)\right)T_{I(i,e)} \\
+\hat{w}\left(z\right)=\sum_{e=1}^{N-1}\sum_{i=1}^{2}\phi_i\left(\xi_e\left(z\right)\right)w_{I(i,e)}
+\end{align*}
+where $\xi_e(z)$ is the reverse coordinate mapping for element $e$.
 
 Returning to the PDE, we can convert the strong form to a weak form based on the weighting function (assuming some non-zero nodal weights):
-
-\[\begin{array}{rcl} {0} & {=} & {\alpha ^{e} \left. \frac{\partial ^{2} \hat{T}(z)}{\partial z^{2} } \right|_{t+\Delta t} +\frac{2\left(\hat{T}_{t} (z)-\hat{T}_{t+\Delta t} (z)\right)}{\Delta t} +\left. \frac{\partial \hat{T}(z)}{\partial t} \right|_{t} } \\ {} \end{array}\] 
-Notice that the thermal diffusivity is now per element.  Since the choice of weighting function is arbitrary, as long as it is non-zero within the domain we can choose w1=0 and wN=0.  In addition, by expanding the functions we obtain:
-
-\[\begin{array}{rcl} {0} & {=} & {-\int _{0}^{D}\sum _{e=1}^{N-1}\sum _{i=1}^{2}\alpha ^{e} \frac{\partial \phi _{i} \left(\xi _{e} \left(z\right)\right)}{\partial z} T_{I(i,e)}^{t+\Delta t}   \sum _{f=1}^{N-1}\sum _{j=1}^{2}\frac{\partial \phi _{j} \left(\xi _{f} \left(z\right)\right)}{\partial z} w_{I(j,f)}^{}   dz } \\ {} \end{array}\] 
+\begin{align*}
+0=\alpha^e\left.\frac{\partial^2\hat{T}(z)}{\partial z^2}\right|_{t+\Delta t}
+	+ \frac{2\left(\hat{T}_t(z)-\hat{T}_{t+\Delta t}(z)\right)}{\Delta t}
+	+ \left.\frac{\partial\hat{T}(z)}{\partial t}\right|_{t}
+\end{align*}
+Notice that the thermal diffusivity is now per element.  Since the choice of weighting function is arbitrary, as long as it is non-zero within the domain we can choose $w_1=0$ and $w_N=0$.  In addition, by expanding the functions we obtain:
+\begin{align*}
+0=-\int_0^D
+	\sum_{e=1}^{N-1}\sum_{i=1}^2\alpha^e\frac{\partial\phi_i\left(\xi_e\left(z\right)\right)}{\partial z}T_{I(i,e)}^{t+\Delta t}
+	\sum_{f=1}^{N-1}\sum_{j=1}^2\frac{\partial\phi_j\left(\xi_f\left(z\right)\right)}{\partial z}w_{I(j,f)}dz
+\end{align*}
 And finally by rearranging terms, and exploiting the fact that the integrals of the elemental basis functions are only non-zero within the element we can convert back to an element local formulation (the summation over the f falls away because the only non-zero terms are when f=e):
 
-\[\begin{array}{rcl} {0} & {=} & {-\sum _{e=1}^{N-1}\sum _{i=1}^{2}\sum _{j=1}^{2}\alpha ^{e} \int _{-1}^{1}\frac{\partial \phi _{i} \left(\xi _{e} \right)}{\partial \xi _{e} } \frac{\partial \xi _{e} }{\partial z} \frac{\partial \phi _{j} \left(\xi _{e} \right)}{\partial \xi _{e} } \frac{\partial \xi _{e} }{\partial z} \frac{\partial z}{\partial \xi _{e} } d\xi _{e} T_{I(i,e)}^{t+\Delta t}  w_{I(j,e)}^{}    } \\ {} \end{array}\] 
+\[\begin{array}{rcl} {0} & {=} & {-\sum _{e=1}^{N-1}\sum _{i=1}^{2}\sum _{j=1}^{2}\alpha ^{e} \int _{-1}^{1}\frac{\partial \phi_i \left(\xi_e \right)}{\partial \xi_e } \frac{\partial \xi_e }{\partial z} \frac{\partial \phi _{j} \left(\xi_e \right)}{\partial \xi_e } \frac{\partial \xi_e }{\partial z} \frac{\partial z}{\partial \xi_e } d\xi_e T_{I(i,e)}^{t+\Delta t}  w_{I(j,e)}^{}    } \\ {} \end{array}\] 
 Using this formulation, we can look back to the definitions of the basis functions to discover that we can perform this integration analytically.  The results for element local integrations are:
 
-\[\begin{array}{l} {z\left(\xi _{e} \right)={\tfrac{1}{2}} \left(1-\xi _{e} \right)z_{1} +{\tfrac{1}{2}} \left(1+\xi _{e} \right)z_{2} =\frac{z_{1} +z_{2} }{2} +\frac{z_{2} -z_{1} }{2} \xi _{e} } \\ {\frac{dz}{d\xi _{e} } =\frac{z_{2} -z_{1} }{2} } \\ {\begin{array}{ccccc} {i=1,j=1:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{11}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{11}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \\ {\begin{array}{ccccc} {i=1,j=2:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{12}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{12}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=1:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1-\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{21}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{21}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=2:} & {\phi _{i} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\phi _{j} \left(\xi _{e} \right)=\frac{1}{2} \left(1+\xi _{e} \right)} & {\frac{\partial \phi _{i} }{\partial \xi _{e} } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi _{e} } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{22}^{e} =\int _{-1}^{1}\frac{\partial \phi _{i} }{\partial \xi _{e} } \frac{\partial \phi _{j} }{\partial \xi _{e} } \frac{d\xi _{e} }{dz} d\xi _{e}  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{22}^{e} =\int _{-1}^{1}\phi _{i} \left(\xi _{e} \right)\phi _{j} \left(\xi _{e} \right)\frac{dz}{d\xi _{e} } d\xi _{e} = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \end{array}\] 
+\[\begin{array}{l} {z\left(\xi_e \right)={\tfrac{1}{2}} \left(1-\xi_e \right)z_{1} +{\tfrac{1}{2}} \left(1+\xi_e \right)z_{2} =\frac{z_{1} +z_{2} }{2} +\frac{z_{2} -z_{1} }{2} \xi_e } \\ {\frac{dz}{d\xi_e } =\frac{z_{2} -z_{1} }{2} } \\ {\begin{array}{ccccc} {i=1,j=1:} & {\phi_i \left(\xi_e \right)=\frac{1}{2} \left(1-\xi_e \right)} & {\phi _{j} \left(\xi_e \right)=\frac{1}{2} \left(1-\xi_e \right)} & {\frac{\partial \phi_i }{\partial \xi_e } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi_e } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{11}^{e} =\int _{-1}^{1}\frac{\partial \phi_i }{\partial \xi_e } \frac{\partial \phi _{j} }{\partial \xi_e } \frac{d\xi_e }{dz} d\xi_e  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{11}^{e} =\int _{-1}^{1}\phi_i \left(\xi_e \right)\phi _{j} \left(\xi_e \right)\frac{dz}{d\xi_e } d\xi_e = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \\ {\begin{array}{ccccc} {i=1,j=2:} & {\phi_i \left(\xi_e \right)=\frac{1}{2} \left(1-\xi_e \right)} & {\phi _{j} \left(\xi_e \right)=\frac{1}{2} \left(1+\xi_e \right)} & {\frac{\partial \phi_i }{\partial \xi_e } =-\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi_e } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{12}^{e} =\int _{-1}^{1}\frac{\partial \phi_i }{\partial \xi_e } \frac{\partial \phi _{j} }{\partial \xi_e } \frac{d\xi_e }{dz} d\xi_e  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{12}^{e} =\int _{-1}^{1}\phi_i \left(\xi_e \right)\phi _{j} \left(\xi_e \right)\frac{dz}{d\xi_e } d\xi_e = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=1:} & {\phi_i \left(\xi_e \right)=\frac{1}{2} \left(1+\xi_e \right)} & {\phi _{j} \left(\xi_e \right)=\frac{1}{2} \left(1-\xi_e \right)} & {\frac{\partial \phi_i }{\partial \xi_e } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi_e } =-\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{21}^{e} =\int _{-1}^{1}\frac{\partial \phi_i }{\partial \xi_e } \frac{\partial \phi _{j} }{\partial \xi_e } \frac{d\xi_e }{dz} d\xi_e  =-\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{21}^{e} =\int _{-1}^{1}\phi_i \left(\xi_e \right)\phi _{j} \left(\xi_e \right)\frac{dz}{d\xi_e } d\xi_e = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{1}{3} } \\ {\begin{array}{ccccc} {i=2,j=2:} & {\phi_i \left(\xi_e \right)=\frac{1}{2} \left(1+\xi_e \right)} & {\phi _{j} \left(\xi_e \right)=\frac{1}{2} \left(1+\xi_e \right)} & {\frac{\partial \phi_i }{\partial \xi_e } =\frac{1}{2} } & {\frac{\partial \phi _{j} }{\partial \xi_e } =\frac{1}{2} } \end{array}} \\ {\begin{array}{cc} {k_{22}^{e} =\int _{-1}^{1}\frac{\partial \phi_i }{\partial \xi_e } \frac{\partial \phi _{j} }{\partial \xi_e } \frac{d\xi_e }{dz} d\xi_e  =\frac{2}{z_{2} -z_{1} } \frac{1}{2} } & {f_{22}^{e} =\int _{-1}^{1}\phi_i \left(\xi_e \right)\phi _{j} \left(\xi_e \right)\frac{dz}{d\xi_e } d\xi_e = } \end{array}\frac{z_{2} -z_{1} }{2} \frac{2}{3} } \end{array}\] 
 At this point we are ready to start solving the problem.  We have 2 known temperatures (and node 1 and node N), 2 known weights (zero at node 0 and node N), N-2 unknown temperatures for the next time step and N-2 arbitrary weights, assuming that we know the current temperature and temperature gradient.  We can use these weights to generate a set of N-2 equations, by setting each weight to one while the others are zero:
 
 \[\begin{array}{c} {\left(\alpha ^{I-1} k_{21}^{I-1} +\frac{2}{\Delta t} f_{21}^{I-1} \right)T_{I-1}^{t+\Delta t} +\left(\left(\alpha ^{I-1} k_{22}^{I-1} +\alpha ^{I} k_{11}^{I} \right)+\frac{2}{\Delta t} \left(f_{22}^{I-1} +f_{11}^{I} \right)\right)T_{I}^{t+\Delta t} } \\ {+\left(\alpha ^{I} k_{12}^{I} +\frac{2}{\Delta t} f_{12}^{I} \right)T_{I+1}^{t+\Delta t} =} \\ {f_{21}^{I-1} \left(\frac{2}{\Delta t} T_{I-1}^{t} +\frac{\partial T_{I-1}^{t} }{\partial t} \right)} \\ {+\left(f_{22}^{I-1} +f_{11}^{I} \right)\left(\frac{2}{\Delta t} T_{I}^{t} +\frac{\partial T_{I}^{t} }{\partial t} \right)+f_{12}^{I} \left(\frac{2}{\Delta t} T_{I+1}^{t} +\frac{\partial T_{I+1}^{t} }{\partial t} \right){ \; \; \; \; \; \; }I=2..N-1} \end{array}\] 
