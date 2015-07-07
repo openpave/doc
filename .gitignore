@@ -14,3 +14,5 @@ theory.tps
 theory.tcp
 ltx-*
 test*
+CVS
+.hg
